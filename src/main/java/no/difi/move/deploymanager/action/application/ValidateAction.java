@@ -12,7 +12,6 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.security.DigestInputStream;
@@ -32,7 +31,7 @@ public class ValidateAction implements ApplicationAction {
     private final JarsSignerService jarsSignerService;
 
     @Override
-    public Application apply(@NotNull Application application) {
+    public Application apply(Application application) {
         log.debug("Running ValidateAction.");
         try {
             log.info("Validating jar.");
@@ -58,7 +57,7 @@ public class ValidateAction implements ApplicationAction {
         byte[] buffer = new byte[8192];
         MessageDigest instance = MessageDigest.getInstance(algorithm.getName());
         try (DigestInputStream digestInputStream = new DigestInputStream(new FileInputStream(file), instance)) {
-            while (digestInputStream.read(buffer) != -1);
+            while (digestInputStream.read(buffer) != -1) ;
             return instance.digest();
         }
     }

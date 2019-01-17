@@ -2,6 +2,7 @@ package no.difi.move.deploymanager.service.laucher;
 
 import lombok.SneakyThrows;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
+import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import no.difi.move.deploymanager.domain.HealthStatus;
 import no.difi.move.deploymanager.service.actuator.ActuatorService;
 import no.difi.move.deploymanager.service.laucher.dto.LaunchStatus;
@@ -55,7 +56,7 @@ public class LauncherServiceImplTest {
         given(properties.getRoot()).willReturn("/tmp/root");
         given(properties.isVerbose()).willReturn(false);
         given(properties.getIntegrasjonspunkt()).willReturn(
-                new DeployManagerProperties.IntegrasjonspunktProperties()
+                new IntegrasjonspunktProperties()
                         .setProfile("staging")
         );
         whenNew(StartupLog.class).withAnyArguments().thenReturn(startupLogMock);

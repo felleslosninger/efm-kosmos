@@ -3,6 +3,7 @@ package no.difi.move.deploymanager.service.mail;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
+import no.difi.move.deploymanager.config.MailProperties;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class MailServiceImpl implements MailService {
 
     @Override
     public void sendMail(String subject, String content) {
-        DeployManagerProperties.MailProperties mail = properties.getMail();
+        MailProperties mail = properties.getMail();
 
         if (mail == null) {
             return;

@@ -12,7 +12,6 @@ import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
@@ -28,7 +27,7 @@ public class LatestVersionAction implements ApplicationAction {
     private final DeployManagerProperties properties;
 
     @Override
-    public Application apply(@NotNull Application application) {
+    public Application apply(Application application) {
         log.debug("Running LatestVersionAction.");
 
         try {

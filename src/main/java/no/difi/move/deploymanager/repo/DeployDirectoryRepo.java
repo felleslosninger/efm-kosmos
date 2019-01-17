@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.Properties;
@@ -13,6 +14,7 @@ import java.util.Properties;
  * @author Nikolai Luthman <nikolai dot luthman at inmeta dot no>
  */
 @Slf4j
+@Component
 @RequiredArgsConstructor
 public class DeployDirectoryRepo {
 

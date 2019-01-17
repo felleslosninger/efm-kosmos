@@ -9,7 +9,6 @@ import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
 import no.difi.move.deploymanager.service.laucher.dto.LaunchStatus;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Properties;
@@ -22,7 +21,7 @@ public class UpdateMetadataAction implements ApplicationAction {
     private final DeployDirectoryRepo directoryRepo;
 
     @Override
-    public Application apply(@NotNull Application application) {
+    public Application apply(Application application) {
         log.debug("Running UpdateMetadataAction");
 
         if (application.getLaunchResult() == null || application.getLaunchResult().getStatus() != LaunchStatus.SUCCESS) {
