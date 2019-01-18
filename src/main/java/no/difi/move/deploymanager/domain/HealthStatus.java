@@ -3,16 +3,16 @@ package no.difi.move.deploymanager.domain;
 import java.util.Arrays;
 
 public enum HealthStatus {
-    UP, DOWN, UNKOWN;
+    UP, DOWN, UNKNOWN;
 
     public static HealthStatus fromString(String status) {
         if (status == null) {
-            return HealthStatus.UNKOWN;
+            return HealthStatus.UNKNOWN;
         }
 
         return Arrays.stream(HealthStatus.values())
                 .filter(p -> p.name().equalsIgnoreCase(status))
                 .findFirst()
-                .orElse(HealthStatus.UNKOWN);
+                .orElse(HealthStatus.UNKNOWN);
     }
 }

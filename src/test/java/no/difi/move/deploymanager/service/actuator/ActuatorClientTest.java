@@ -48,7 +48,7 @@ public class ActuatorClientTest {
         server.expect(requestTo(HEALTH_URI))
                 .andRespond(withBadRequest());
 
-        assertThat(client.getStatus()).isSameAs(HealthStatus.UNKOWN);
+        assertThat(client.getStatus()).isSameAs(HealthStatus.UNKNOWN);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class ActuatorClientTest {
         server.expect(requestTo(HEALTH_URI))
                 .andRespond(withServerError());
 
-        assertThat(client.getStatus()).isSameAs(HealthStatus.UNKOWN);
+        assertThat(client.getStatus()).isSameAs(HealthStatus.UNKNOWN);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class ActuatorClientTest {
                     throw new ResourceAccessException("Connection failed");
                 });
 
-        assertThat(client.getStatus()).isSameAs(HealthStatus.UNKOWN);
+        assertThat(client.getStatus()).isSameAs(HealthStatus.UNKNOWN);
     }
 
     @Test

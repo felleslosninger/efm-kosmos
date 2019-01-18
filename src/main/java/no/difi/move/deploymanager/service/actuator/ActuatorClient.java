@@ -38,14 +38,14 @@ public class ActuatorClient {
         try {
             URI url = deployManagerProperties.getHealthURL().toURI();
             HealthResource healthResource = restTemplate.getForObject(url, HealthResource.class);
-            return healthResource != null ? HealthStatus.fromString(healthResource.getStatus()) : HealthStatus.UNKOWN;
+            return healthResource != null ? HealthStatus.fromString(healthResource.getStatus()) : HealthStatus.UNKNOWN;
         } catch (HttpStatusCodeException e) {
             log.warn("Could not request health status: {} {}", e.getStatusCode(), e.getStatusText());
         } catch (ResourceAccessException e) {
             log.info("Could not request health status: {}", e.getLocalizedMessage());
         }
 
-        return HealthStatus.UNKOWN;
+        return HealthStatus.UNKNOWN;
     }
 
     @SneakyThrows(URISyntaxException.class)

@@ -99,7 +99,7 @@ public class LauncherServiceImplTest {
     @Test
     @SneakyThrows
     public void testLaunchIntegrasjonspunkt_whenActuatorReturnsFailure() {
-        given(actuatorService.getStatus()).willReturn(HealthStatus.UNKOWN);
+        given(actuatorService.getStatus()).willReturn(HealthStatus.UNKNOWN);
 
         assertThat(launcherService.launchIntegrasjonspunkt("test.jar"))
                 .hasFieldOrPropertyWithValue("jarPath", "test.jar")
