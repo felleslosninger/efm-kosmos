@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
 
 @Component
 @Slf4j
@@ -27,8 +28,8 @@ public class ActuatorClient {
     public ActuatorClient(DeployManagerProperties deployManagerProperties, RestTemplateBuilder restTemplateBuilder) {
         this.deployManagerProperties = deployManagerProperties;
         this.restTemplate = restTemplateBuilder
-                .setConnectTimeout(deployManagerProperties.getActuatorConnectTimeoutInMs())
-                .setReadTimeout(deployManagerProperties.getActuatorReadTimeoutInMs())
+                .setConnectTimeout(Duration.ofMillis(deployManagerProperties.getActuatorConnectTimeoutInMs()))
+                .setReadTimeout(Duration.ofMillis(deployManagerProperties.getActuatorReadTimeoutInMs()))
                 .build();
     }
 
@@ -37,14 +38,14 @@ public class ActuatorClient {
         try {
             URI url = deployManagerProperties.getHealthURL().toURI();
             HealthResource healthResource = restTemplate.getForObject(url, HealthResource.class);
-            return HealthStatus.fromString(healthResource.getStatus());
+            return healthResource != null ? HealthStatus.fromString(healthResource.getStatus()) : HealthStatus.UNKNOWN;
         } catch (HttpStatusCodeException e) {
             log.warn("Could not request health status: {} {}", e.getStatusCode(), e.getStatusText());
         } catch (ResourceAccessException e) {
             log.info("Could not request health status: {}", e.getLocalizedMessage());
         }
 
-        return HealthStatus.UNKOWN;
+        return HealthStatus.UNKNOWN;
     }
 
     @SneakyThrows(URISyntaxException.class)

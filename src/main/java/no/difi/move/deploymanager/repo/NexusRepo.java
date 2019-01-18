@@ -3,6 +3,7 @@ package no.difi.move.deploymanager.repo;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
+import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.constraints.NotNull;
@@ -14,6 +15,7 @@ import java.net.URL;
  * @author Nikolai Luthman <nikolai dot luthman at inmeta dot no>
  */
 @RequiredArgsConstructor
+@Component
 public class NexusRepo {
 
     private final DeployManagerProperties properties;

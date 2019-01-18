@@ -9,7 +9,6 @@ import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
@@ -26,7 +25,7 @@ public class GetCurrentVersionAction implements ApplicationAction {
     private final DeployDirectoryRepo directoryRepo;
 
     @Override
-    public Application apply(@NotNull Application application) {
+    public Application apply(Application application) {
         log.debug("Running GetCurrentVersionAction.");
         try {
             log.info("Getting current version");

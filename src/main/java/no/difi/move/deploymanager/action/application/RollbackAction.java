@@ -10,7 +10,6 @@ import no.difi.move.deploymanager.service.laucher.dto.LaunchResult;
 import no.difi.move.deploymanager.service.mail.MailService;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
 import java.io.File;
 
 /**
@@ -26,7 +25,7 @@ public class RollbackAction implements ApplicationAction {
     private final MailService mailService;
 
     @Override
-    public Application apply(@NotNull Application application) {
+    public Application apply(Application application) {
         log.debug("Running RollbackAction.");
         if (shouldRollback(application)) {
             log.info("Rolling back.");

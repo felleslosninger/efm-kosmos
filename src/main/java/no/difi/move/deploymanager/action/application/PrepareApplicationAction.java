@@ -10,7 +10,6 @@ import no.difi.move.deploymanager.repo.NexusRepo;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
 import java.io.*;
 
 /**
@@ -25,7 +24,7 @@ public class PrepareApplicationAction implements ApplicationAction {
     private final NexusRepo nexusRepo;
     private final DeployDirectoryRepo deployDirectoryRepo;
 
-    public Application apply(@NotNull Application application) {
+    public Application apply(Application application) {
         log.debug("Running PrepareApplicationAction.");
         log.info("Preparing application.");
         File downloadFile = getDownloadFile(application);

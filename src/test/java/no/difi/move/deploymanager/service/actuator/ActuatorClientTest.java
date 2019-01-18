@@ -3,7 +3,6 @@ package no.difi.move.deploymanager.service.actuator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import no.difi.move.deploymanager.command.Command;
 import no.difi.move.deploymanager.domain.HealthStatus;
 import no.difi.move.deploymanager.service.actuator.dto.HealthResource;
 import no.difi.move.deploymanager.service.actuator.dto.ShutdownResource;
@@ -11,9 +10,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.ResourceAccessException;
@@ -25,6 +24,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 @RunWith(SpringRunner.class)
 @RestClientTest(ActuatorClient.class)
+@ActiveProfiles("test")
 public class ActuatorClientTest {
 
     private static final String HEALTH_URI = "http://localhost:8080/manage/health";
@@ -33,7 +33,6 @@ public class ActuatorClientTest {
     @Autowired private ActuatorClient client;
     @Autowired private MockRestServiceServer server;
     @Autowired private ObjectMapper objectMapper;
-    @MockBean private Command command;
 
     @Test
     public void testGetStatus() {
@@ -51,7 +50,7 @@ public class ActuatorClientTest {
         server.expect(requestTo(HEALTH_URI))
                 .andRespond(withBadRequest());
 
-        assertThat(client.getStatus()).isSameAs(HealthStatus.UNKOWN);
+        assertThat(client.getStatus()).isSameAs(HealthStatus.UNKNOWN);
     }
 
     @Test
@@ -59,7 +58,7 @@ public class ActuatorClientTest {
         server.expect(requestTo(HEALTH_URI))
                 .andRespond(withServerError());
 
-        assertThat(client.getStatus()).isSameAs(HealthStatus.UNKOWN);
+        assertThat(client.getStatus()).isSameAs(HealthStatus.UNKNOWN);
     }
 
     @Test
@@ -69,7 +68,7 @@ public class ActuatorClientTest {
                     throw new ResourceAccessException("Connection failed");
                 });
 
-        assertThat(client.getStatus()).isSameAs(HealthStatus.UNKOWN);
+        assertThat(client.getStatus()).isSameAs(HealthStatus.UNKNOWN);
     }
 
     @Test

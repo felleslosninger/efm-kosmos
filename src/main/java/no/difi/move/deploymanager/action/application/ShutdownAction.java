@@ -7,8 +7,6 @@ import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.service.actuator.ActuatorService;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
-
 /**
  * @author Nikolai Luthman <nikolai dot luthman at inmeta dot no>
  */
@@ -20,7 +18,7 @@ public class ShutdownAction implements ApplicationAction {
     private final ActuatorService actuatorService;
 
     @Override
-    public Application apply(@NotNull Application application) {
+    public Application apply(Application application) {
         log.debug("Running ShutdownAction.");
         if (needToShutdown(application)) {
             doShutdown();
