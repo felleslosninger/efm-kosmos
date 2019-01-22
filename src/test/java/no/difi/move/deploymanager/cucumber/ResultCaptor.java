@@ -1,13 +1,17 @@
 package no.difi.move.deploymanager.cucumber;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ResultCaptor<T> implements Answer {
+@RequiredArgsConstructor
+public class ResultCaptor<T> implements Answer<T> {
+    private final Class<T> classType;
+
     @Getter
     private List<T> values = new ArrayList<>();
 
@@ -17,7 +21,7 @@ public class ResultCaptor<T> implements Answer {
 
     @Override
     public T answer(InvocationOnMock invocationOnMock) throws Throwable {
-        T result = (T) invocationOnMock.callRealMethod();
+        T result = classType.cast(invocationOnMock.callRealMethod());
         values.add(result);
         return result;
     }

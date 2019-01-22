@@ -84,11 +84,9 @@ public class CucumberStepsConfiguration {
     @Autowired private DeployManagerProperties propertiesSpy;
     @Autowired private LauncherServiceImpl launcherServicSpy;
 
-    private final ResultCaptor<LaunchResult> launchResultResultCaptor = new ResultCaptor<>();
-
     private ResponseActions responseActions;
-
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    private final ResultCaptor<LaunchResult> launchResultResultCaptor = new ResultCaptor<>(LaunchResult.class);
+    private final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     @SneakyThrows
