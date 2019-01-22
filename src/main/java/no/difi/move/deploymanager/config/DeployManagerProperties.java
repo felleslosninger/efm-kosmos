@@ -54,7 +54,7 @@ public class DeployManagerProperties {
 
     @NotNull
     @Positive
-    private Integer launchTimeountInMs;
+    private Integer launchTimeoutInMs;
 
     @NotNull
     @Positive
@@ -65,6 +65,14 @@ public class DeployManagerProperties {
 
     @NotNull
     private URL nexusProxyURL;
+
+    @NotNull
+    @Positive
+    private Integer nexusConnectTimeoutInMs;
+
+    @NotNull
+    @Positive
+    private Integer nexusReadTimeoutInMs;
 
     private String environment = "";
 

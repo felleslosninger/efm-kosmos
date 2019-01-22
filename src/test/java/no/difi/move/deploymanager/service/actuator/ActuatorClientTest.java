@@ -17,7 +17,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.ResourceAccessException;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
@@ -64,7 +64,7 @@ public class ActuatorClientTest {
     @Test
     public void testGetStatusWhenResourceAccessException() {
         server.expect(requestTo(HEALTH_URI))
-                .andRespond((response) -> {
+                .andRespond(response -> {
                     throw new ResourceAccessException("Connection failed");
                 });
 
@@ -105,7 +105,7 @@ public class ActuatorClientTest {
     public void testRequestShutdownWhenResourceAccessException() {
         server.expect(method(HttpMethod.POST))
                 .andExpect(requestTo(SHUTDOWN_URI))
-                .andRespond((response) -> {
+                .andRespond(response -> {
                     throw new ResourceAccessException("Connection failed");
                 });
 

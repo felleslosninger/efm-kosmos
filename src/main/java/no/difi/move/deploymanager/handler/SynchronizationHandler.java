@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class DefaultHandler implements AbstractHandler {
+public class SynchronizationHandler {
 
     private final GetCurrentVersionAction currentVersionAction;
     private final LatestVersionAction latestVersionAction;
@@ -24,7 +24,6 @@ public class DefaultHandler implements AbstractHandler {
     private final RollbackAction rollbackAction;
     private final UpdateMetadataAction updateMetadataAction;
 
-    @Override
     @Scheduled(fixedRateString = "${deploymanager.schedulerFixedRateInMs}")
     public void run() {
         log.debug("Starting synchronization.");

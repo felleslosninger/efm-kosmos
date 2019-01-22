@@ -8,12 +8,12 @@ import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.repo.NexusRepo;
 import no.difi.move.deploymanager.service.jarsigner.JarsSignerService;
-import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-import java.io.*;
-import java.nio.charset.Charset;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -48,6 +48,9 @@ public class ValidateAction implements ApplicationAction {
         byte[] hashFromRepo = getHashFromRepo(application.getLatest().getVersion(), algorithm);
         byte[] fileHash = getFileHash(application.getLatest().getFile(), algorithm);
         if (!MessageDigest.isEqual(fileHash, hashFromRepo)) {
+
+            log.error(ByteArrayUtil.toHexString(fileHash));
+
             throw new DeployActionException(String.format("%s verification failed", algorithm.getName()));
         }
     }
@@ -62,12 +65,8 @@ public class ValidateAction implements ApplicationAction {
         }
     }
 
-    private byte[] getHashFromRepo(String applicationVersion, ALGORITHM algorithm) throws IOException {
-        try (InputStream is = nexusRepo.getArtifact(applicationVersion, "jar." + algorithm.getFileNameSuffix()).openStream();
-             StringWriter os = new StringWriter()) {
-            IOUtils.copy(is, os, Charset.defaultCharset());
-            return ByteArrayUtil.hexStringToByteArray(os.toString());
-        }
+    private byte[] getHashFromRepo(String applicationVersion, ALGORITHM algorithm) {
+        return nexusRepo.getChecksum(applicationVersion, "jar." + algorithm.getFileNameSuffix());
     }
 
     @RequiredArgsConstructor

@@ -16,8 +16,7 @@ import java.io.File;
 import java.util.List;
 
 import static org.mockito.Answers.RETURNS_SELF;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.verifyNew;
@@ -55,7 +54,7 @@ public class JarsSignerServiceImplTest {
         whenNew(ProcessExecutor.class).withAnyArguments().thenReturn(processExecutorMock);
         given(processExecutorMock.directory(any())).willAnswer(RETURNS_SELF);
         given(processExecutorMock.redirectOutput(any())).willAnswer(RETURNS_SELF);
-        given(processExecutorMock.exitValueNormal()).willAnswer(RETURNS_SELF);
+        given(processExecutorMock.exitValues(anyInt(), anyInt())).willAnswer(RETURNS_SELF);
 
         whenNew(File.class).withAnyArguments().thenReturn(fileMock);
 
@@ -70,7 +69,7 @@ public class JarsSignerServiceImplTest {
         verifyNew(ProcessExecutor.class).withArguments(same(commandMock));
         verify(processExecutorMock).directory(same(fileMock));
         verify(processExecutorMock).redirectOutput(any());
-        verify(processExecutorMock).exitValueNormal();
+        verify(processExecutorMock).exitValues(0, 16);
         verify(processExecutorMock).execute();
     }
 }

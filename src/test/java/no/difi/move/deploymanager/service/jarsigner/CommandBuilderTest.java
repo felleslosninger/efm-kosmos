@@ -10,7 +10,7 @@ public class CommandBuilderTest {
     public void testSimpleBuild() {
         assertThat(new CommandBuilder("jarPath")
                 .build()
-        ).containsExactly("jarsigner", "-verify", "jarPath");
+        ).containsExactly("jarsigner", "-strict", "-verify", "jarPath");
     }
 
     @Test
@@ -18,7 +18,7 @@ public class CommandBuilderTest {
         assertThat(new CommandBuilder("jarPath")
                 .keystore("/tmp/keystore.jks")
                 .build()
-        ).containsExactly("jarsigner", "-verify", "-keystore", "/tmp/keystore.jks", "jarPath");
+        ).containsExactly("jarsigner", "-strict", "-keystore", "/tmp/keystore.jks", "-verify", "jarPath");
     }
 
     @Test
@@ -26,7 +26,7 @@ public class CommandBuilderTest {
         assertThat(new CommandBuilder("jarPath")
                 .password("xxx")
                 .build()
-        ).containsExactly("jarsigner", "-verify", "-storepass", "xxx", "jarPath");
+        ).containsExactly("jarsigner", "-strict", "-storepass", "xxx", "-verify", "jarPath");
     }
 
     @Test
@@ -34,6 +34,6 @@ public class CommandBuilderTest {
         assertThat(new CommandBuilder("jarPath")
                 .alias("stuntman")
                 .build()
-        ).containsExactly("jarsigner", "-verify", "jarPath", "stuntman");
+        ).containsExactly("jarsigner", "-strict", "-verify", "jarPath", "stuntman");
     }
 }

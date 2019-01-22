@@ -1,5 +1,6 @@
 package no.difi.move.deploymanager.service.actuator;
 
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
@@ -17,13 +18,14 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
+import java.util.Optional;
 
 @Component
 @Slf4j
 public class ActuatorClient {
 
     private final DeployManagerProperties deployManagerProperties;
-    private final RestTemplate restTemplate;
+    @Getter private final RestTemplate restTemplate;
 
     public ActuatorClient(DeployManagerProperties deployManagerProperties, RestTemplateBuilder restTemplateBuilder) {
         this.deployManagerProperties = deployManagerProperties;
@@ -37,8 +39,9 @@ public class ActuatorClient {
     HealthStatus getStatus() {
         try {
             URI url = deployManagerProperties.getHealthURL().toURI();
-            HealthResource healthResource = restTemplate.getForObject(url, HealthResource.class);
-            return healthResource != null ? HealthStatus.fromString(healthResource.getStatus()) : HealthStatus.UNKNOWN;
+            return Optional.ofNullable(restTemplate.getForObject(url, HealthResource.class))
+                    .map(p -> HealthStatus.fromString(p.getStatus()))
+                    .orElse(HealthStatus.UNKNOWN);
         } catch (HttpStatusCodeException e) {
             log.warn("Could not request health status: {} {}", e.getStatusCode(), e.getStatusText());
         } catch (ResourceAccessException e) {

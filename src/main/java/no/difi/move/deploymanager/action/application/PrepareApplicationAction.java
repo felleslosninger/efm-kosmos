@@ -7,10 +7,9 @@ import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
 import no.difi.move.deploymanager.repo.NexusRepo;
-import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.File;
 
 /**
  * @author Nikolai Luthman <nikolai dot luthman at inmeta dot no>
@@ -35,11 +34,11 @@ public class PrepareApplicationAction implements ApplicationAction {
                             deployDirectoryRepo.getBlackListedFile(downloadFile).getAbsolutePath()));
         }
 
-        if (shouldDownload(application, downloadFile)) {
+        if (!downloadFile.exists()) {
             log.info("Latest is different from current. Downloading newest version.");
             try {
                 doDownload(application, downloadFile);
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 throw new DeployActionException("Error getting latest version", ex);
             }
         }
@@ -48,15 +47,8 @@ public class PrepareApplicationAction implements ApplicationAction {
         return application;
     }
 
-    private void doDownload(Application application, File destination) throws IOException {
-        try (InputStream is = nexusRepo.getArtifact(application.getLatest().getVersion(), null).openStream();
-             OutputStream os = new FileOutputStream(destination)) {
-            IOUtils.copy(is, os);
-        }
-    }
-
-    private boolean shouldDownload(Application application, File fileToDownload) {
-        return !fileToDownload.exists() || !application.isSameVersion();
+    private void doDownload(Application application, File destination) {
+        nexusRepo.downloadJAR(application.getLatest().getVersion(), destination.toPath());
     }
 
     private File getDownloadFile(Application application) {

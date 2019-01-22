@@ -14,22 +14,21 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.powermock.api.mockito.PowerMockito.*;
+import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.doThrow;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({PrepareApplicationAction.class, IOUtils.class})
@@ -45,8 +44,7 @@ public class PrepareApplicationActionTest {
     @Mock private DeployDirectoryRepo deployDirectoryRepoMock;
     @Mock private File fileMock;
     @Mock private File blackListedFileMock;
-    @Mock private URL urlMock;
-    @Mock private InputStream streamMock;
+    @Mock private Path pathMock;
 
     private Application application;
 
@@ -57,11 +55,13 @@ public class PrepareApplicationActionTest {
                 .setCurrent(new ApplicationMetadata().setVersion(OLDER_APPLICATION_VERSION))
                 .setLatest(new ApplicationMetadata().setVersion(NEW_APPLICATION_VERSION));
 
-        when(propertiesMock.getRoot()).thenReturn("");
+        given(propertiesMock.getRoot()).willReturn("");
 
         whenNew(File.class).withParameterTypes(String.class, String.class)
                 .withArguments(Mockito.anyString(), Mockito.anyString())
                 .thenReturn(fileMock);
+
+        given(fileMock.toPath()).willReturn(pathMock);
     }
 
     @Test(expected = NullPointerException.class)
@@ -70,19 +70,13 @@ public class PrepareApplicationActionTest {
     }
 
     @Test
-    public void apply_newVersionFound_shouldDownload() throws Exception {
-        doSuccessfulDownload();
-
+    public void apply_newVersionFound_shouldDownload() {
         assertThat(target.apply(application)).isSameAs(application);
 
         File resultFile = application.getLatest().getFile();
         assertThat(resultFile).isSameAs(fileMock);
-    }
 
-    @Test(expected = DeployActionException.class)
-    public void apply_downloadThrows_shouldThrow() throws Exception {
-        getDownloadException();
-        target.apply(application);
+        verify(nexusRepoMock).downloadJAR(eq(NEW_APPLICATION_VERSION), same(pathMock));
     }
 
     @Test
@@ -97,19 +91,15 @@ public class PrepareApplicationActionTest {
                 .hasNoCause();
     }
 
-    private void doSuccessfulDownload() throws Exception {
-        when(urlMock.openStream()).thenReturn(streamMock);
-        when(nexusRepoMock.getArtifact(Mockito.anyString(), Mockito.any())).thenReturn(urlMock);
-        mockStatic(IOUtils.class);
-        whenNew(FileOutputStream.class).withParameterTypes(File.class)
-                .withArguments(null)
-                .thenReturn(PowerMockito.mock(FileOutputStream.class));
-        when(IOUtils.copy(Mockito.any(streamMock.getClass()), Mockito.any(OutputStream.class))).thenReturn(1);
-    }
+    @Test
+    public void apply_downLoadFails_shouldThrow() {
+        HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Download failed!");
+        doThrow(exception).when(nexusRepoMock).downloadJAR(any(), any());
+        assertThatThrownBy(() -> target.apply(application))
+                .isInstanceOf(DeployActionException.class)
+                .hasMessage("Error getting latest version")
+                .hasCause(exception);
 
-    private void getDownloadException() throws Exception {
-        when(urlMock.openStream()).thenReturn(streamMock);
-        when(nexusRepoMock.getArtifact(Mockito.anyString(), Mockito.any()))
-                .thenThrow(new MalformedURLException("test download exception"));
+        verify(nexusRepoMock).downloadJAR(eq(NEW_APPLICATION_VERSION), same(pathMock));
     }
 }

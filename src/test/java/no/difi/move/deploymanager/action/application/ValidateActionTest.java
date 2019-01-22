@@ -16,17 +16,22 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import org.zeroturnaround.exec.InvalidExitValueException;
 
-import java.io.*;
-import java.net.URL;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.*;
@@ -35,11 +40,12 @@ import static org.powermock.api.mockito.PowerMockito.*;
 @PrepareForTest({ValidateAction.class, IOUtils.class, MessageDigest.class, ByteArrayUtil.class})
 public class ValidateActionTest {
 
+    private static final byte[] CHECKSUM = "theChecksum".getBytes();
+
     @InjectMocks private ValidateAction target;
 
     @Mock private NexusRepo nexusRepoMock;
     @Mock private JarsSignerService jarsSignerService;
-    @Mock private URL urlMock;
     @Mock private InputStream inputStreamMock;
     @Mock private MessageDigest digestMock;
     @Mock private StringWriter stringWriterMock;
@@ -59,25 +65,14 @@ public class ValidateActionTest {
         );
 
         given(fileMock.getAbsolutePath()).willReturn("jarPath");
-
-        given(nexusRepoMock.getArtifact(anyString(), anyString())).willReturn(urlMock);
-        given(urlMock.openStream()).willReturn(inputStreamMock);
-
-        whenNew(StringWriter.class).withNoArguments().thenReturn(stringWriterMock);
+        given(nexusRepoMock.getChecksum(anyString(), anyString())).willReturn(CHECKSUM);
 
         whenNew(FileInputStream.class).withAnyArguments().thenReturn(fileInputStreamMock);
         whenNew(DigestInputStream.class).withAnyArguments().thenReturn(digestInputStreamMock);
         given(digestInputStreamMock.read(any())).willReturn(-1);
 
-        mockStatic(IOUtils.class);
-        given(IOUtils.copy(any(InputStream.class), any(OutputStream.class))).willReturn(1);
-
         mockStatic(MessageDigest.class);
         given(MessageDigest.getInstance(anyString())).willReturn(digestMock);
-
-        mockStatic(ByteArrayUtil.class);
-        given(ByteArrayUtil.hexStringToByteArray(anyString())).willReturn(null);
-
         given(MessageDigest.isEqual(any(), any())).willReturn(true);
     }
 
@@ -87,10 +82,14 @@ public class ValidateActionTest {
         target.apply(application);
     }
 
-    @Test(expected = DeployActionException.class)
-    public void apply_IOExceptionCaught_shouldThrow() throws Exception {
-        whenNew(StringWriter.class).withNoArguments().thenThrow(new IOException("test exception"));
-        target.apply(application);
+    @Test
+    public void apply_ExceptionCaught_shouldThrow() throws Exception {
+        HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.BAD_GATEWAY, "Bad gateway");
+        given(nexusRepoMock.getChecksum(anyString(), anyString())).willThrow(exception);
+        assertThatThrownBy(() -> target.apply(application))
+                .isInstanceOf(DeployActionException.class)
+                .hasMessage("Error validating jar")
+                .hasCause(exception);
     }
 
     @Test(expected = DeployActionException.class)
@@ -113,5 +112,6 @@ public class ValidateActionTest {
     public void apply_verificationSucceeds_shouldSucceed() {
         assertThat(target.apply(application)).isSameAs(application);
         verify(jarsSignerService).verify("jarPath");
+        verify(nexusRepoMock).getChecksum("version", "jar.sha1");
     }
 }

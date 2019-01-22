@@ -20,7 +20,7 @@ class CommandBuilder {
     List<String> build() {
         List<String> command = new ArrayList<>();
         command.add("jarsigner");
-        command.add("-verify");
+        command.add("-strict");
 
         if (keystore != null) {
             command.add("-keystore");
@@ -32,6 +32,7 @@ class CommandBuilder {
             command.add(password);
         }
 
+        command.add("-verify");
         command.add(jarPath);
 
         if (alias != null) {
