@@ -52,7 +52,7 @@ public class LauncherServiceImplTest {
     @SneakyThrows
     public void before() {
         given(properties.getLaunchPollIntervalInMs()).willReturn(100);
-        given(properties.getLaunchTimeountInMs()).willReturn(300);
+        given(properties.getLaunchTimeoutInMs()).willReturn(300);
         given(properties.getRoot()).willReturn("/tmp/root");
         given(properties.isVerbose()).willReturn(false);
         given(properties.getIntegrasjonspunkt()).willReturn(

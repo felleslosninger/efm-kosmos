@@ -54,7 +54,7 @@ public class DeployManagerProperties {
 
     @NotNull
     @Positive
-    private Integer launchTimeountInMs;
+    private Integer launchTimeoutInMs;
 
     @NotNull
     @Positive

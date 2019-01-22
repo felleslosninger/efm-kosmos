@@ -98,7 +98,7 @@ public class LauncherServiceImpl implements LauncherService {
         do {
             Thread.sleep(properties.getLaunchPollIntervalInMs());
         } while (startupLog.getStatus() == LaunchStatus.UNKNOWN
-                && System.currentTimeMillis() - start < properties.getLaunchTimeountInMs()
+                && System.currentTimeMillis() - start < properties.getLaunchTimeoutInMs()
         );
 
         startupLog.stopRecording();
