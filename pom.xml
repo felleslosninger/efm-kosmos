@@ -38,7 +38,6 @@
         <powermock.version>2.0.0</powermock.version>
         <mockito.version>2.23.4</mockito.version>
         <cucumber.version>2.3.1</cucumber.version>
-        <awaitility.version>3.1.5</awaitility.version>
         <zt-exec.version>1.10</zt-exec.version>
         <commons-io.version>2.6</commons-io.version>
     </properties>
@@ -180,12 +179,6 @@
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-spring</artifactId>
             <version>${cucumber.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <version>${awaitility.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
