@@ -49,3 +49,4 @@ Feature: Synchronization - No Change
     repositoryId=staging
     sha1=83e1532b48e95cdce524972d397e5460e9529c97
     """
+    And no emails are sent

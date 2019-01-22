@@ -1,5 +1,7 @@
 package no.difi.move.deploymanager.cucumber;
 
+import com.dumbster.smtp.SimpleSmtpServer;
+import com.dumbster.smtp.SmtpMessage;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -30,6 +32,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -48,6 +51,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -84,13 +88,21 @@ public class CucumberStepsConfiguration {
     @Autowired private DeployManagerProperties propertiesSpy;
     @Autowired private LauncherServiceImpl launcherServiceSpy;
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    @Autowired
+    private JavaMailSenderImpl javaMailSender;
+
     private ResponseActions responseActions;
     private final ResultCaptor<LaunchResult> launchResultResultCaptor = new ResultCaptor<>(LaunchResult.class);
     private final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    private SimpleSmtpServer simpleSmtpServer;
 
     @Before
     @SneakyThrows
     public void before() {
+        simpleSmtpServer = SimpleSmtpServer.start(SimpleSmtpServer.AUTO_SMTP_PORT);
+        javaMailSender.setPort(simpleSmtpServer.getPort());
+
         temporaryFolder.create();
         reset(launcherServiceSpy);
         launchResultResultCaptor.reset();
@@ -105,6 +117,7 @@ public class CucumberStepsConfiguration {
 
     @After
     public void after() {
+        simpleSmtpServer.stop();
         temporaryFolder.delete();
     }
 
@@ -201,5 +214,17 @@ public class CucumberStepsConfiguration {
                 .collect(Collectors.toList());
 
         assertThat(actualLines).containsExactly(expectedBody.split("\\r?\\n"));
+    }
+
+    @Then("^an email is sent with subject \"([^\"]*)\" and content:$")
+    public void anEmailIsSentWithSubjectAndContent(String subject, String content) {
+        assertThat(simpleSmtpServer.getReceivedEmails())
+                .extracting(p -> p.getHeaderValue("Subject"), SmtpMessage::getBody)
+                .contains(tuple(subject, content.trim()));
+    }
+
+    @Then("^no emails are sent$")
+    public void noEmailsAreSent() {
+        assertThat(simpleSmtpServer.getReceivedEmails()).isEmpty();
     }
 }

@@ -43,3 +43,7 @@ Feature: Synchronization - No metadata
     repositoryId=staging
     sha1=83e1532b48e95cdce524972d397e5460e9529c97
     """
+    And an email is sent with subject "Upgrade SUCCESS integrasjonspunkt-1.7.93-SNAPSHOT.jar" and content:
+    """
+    Started IntegrasjonspunktApplication
+    """

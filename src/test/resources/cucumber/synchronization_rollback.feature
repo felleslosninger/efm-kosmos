@@ -60,3 +60,11 @@ Feature: Synchronization - Rollback
     repositoryId=staging
     sha1=83e1532b48e95cdce524972d397e5460e9529c97
     """
+    And an email is sent with subject "Upgrade FAILED integrasjonspunkt-1.7.93-SNAPSHOT.jar" and content:
+    """
+    Application startup failed
+    """
+    And an email is sent with subject "Rollback SUCCESS integrasjonspunkt-1.7.92-SNAPSHOT.jar" and content:
+    """
+    Started IntegrasjonspunktApplication
+    """
