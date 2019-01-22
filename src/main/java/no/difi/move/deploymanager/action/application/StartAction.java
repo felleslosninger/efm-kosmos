@@ -41,6 +41,10 @@ public class StartAction implements ApplicationAction {
 
         if (launchResult.getStatus() != LaunchStatus.SUCCESS) {
             deployDirectoryRepo.blackList(jarFile);
+
+            if(actuatorService.getStatus() == HealthStatus.UP) {
+                actuatorService.shutdown();
+            }
         }
 
         mailService.sendMail(

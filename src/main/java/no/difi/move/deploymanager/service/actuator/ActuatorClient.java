@@ -1,5 +1,6 @@
 package no.difi.move.deploymanager.service.actuator;
 
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
@@ -23,7 +24,7 @@ import java.time.Duration;
 public class ActuatorClient {
 
     private final DeployManagerProperties deployManagerProperties;
-    private final RestTemplate restTemplate;
+    @Getter private final RestTemplate restTemplate;
 
     public ActuatorClient(DeployManagerProperties deployManagerProperties, RestTemplateBuilder restTemplateBuilder) {
         this.deployManagerProperties = deployManagerProperties;

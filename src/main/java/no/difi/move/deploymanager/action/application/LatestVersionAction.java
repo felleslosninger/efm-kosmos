@@ -1,20 +1,14 @@
 package no.difi.move.deploymanager.action.application;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
-import org.apache.commons.io.IOUtils;
+import no.difi.move.deploymanager.repo.dto.ApplicationMetadataResource;
+import no.difi.move.deploymanager.repo.NexusRepo;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLConnection;
 
 /**
  * @author Nikolai Luthman <nikolai dot luthman at inmeta dot no>
@@ -25,6 +19,7 @@ import java.net.URLConnection;
 public class LatestVersionAction implements ApplicationAction {
 
     private final DeployManagerProperties properties;
+    private final NexusRepo nexusRepo;
 
     @Override
     public Application apply(Application application) {
@@ -32,27 +27,16 @@ public class LatestVersionAction implements ApplicationAction {
 
         try {
             log.info("Getting latest version");
-            URLConnection connection = properties.getNexusProxyURL().openConnection();
-            InputStream inputStream = connection.getInputStream();
-            String result = IOUtils.toString(inputStream, connection.getContentEncoding());
-            ApplicationMetadataDto dto = new ObjectMapper().readValue(result, ApplicationMetadataDto.class);
+            ApplicationMetadataResource applicationMetadata = nexusRepo.getApplicationMetadata();
             application.setLatest(
                     new ApplicationMetadata()
-                            .setVersion(dto.getBaseVersion())
+                            .setVersion(applicationMetadata.getBaseVersion())
                             .setRepositoryId(properties.getRepository())
-                            .setSha1(dto.getSha1())
+                            .setSha1(applicationMetadata.getSha1())
             );
-            inputStream.close();
             return application;
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             throw new DeployActionException("Error downloading file", ex);
         }
-    }
-
-    @Data
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private static class ApplicationMetadataDto {
-        private String baseVersion;
-        private String sha1;
     }
 }

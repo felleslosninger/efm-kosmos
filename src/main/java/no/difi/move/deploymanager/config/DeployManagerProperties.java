@@ -66,6 +66,14 @@ public class DeployManagerProperties {
     @NotNull
     private URL nexusProxyURL;
 
+    @NotNull
+    @Positive
+    private Integer nexusConnectTimeoutInMs;
+
+    @NotNull
+    @Positive
+    private Integer nexusReadTimeoutInMs;
+
     private String environment = "";
 
     @NotNull

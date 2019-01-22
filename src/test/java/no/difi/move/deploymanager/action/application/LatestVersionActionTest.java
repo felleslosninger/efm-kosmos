@@ -4,56 +4,48 @@ import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
-import org.apache.commons.io.IOUtils;
+import no.difi.move.deploymanager.repo.dto.ApplicationMetadataResource;
+import no.difi.move.deploymanager.repo.NexusRepo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.*;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({LatestVersionAction.class, IOUtils.class})
+@RunWith(MockitoJUnitRunner.class)
 public class LatestVersionActionTest {
 
-    @Mock private URL urlMock;
-    @Mock private URLConnection connectionMock;
     @Mock private DeployManagerProperties propertiesMock;
+    @Mock private NexusRepo nexusRepoMock;
     @Mock private Application applicationMock;
-    @Mock private InputStream streamMock;
 
     @Captor private ArgumentCaptor<ApplicationMetadata> applicationMetadataArgumentCaptor;
 
     @InjectMocks private LatestVersionAction target;
 
     @Before
-    public void setUp() throws Exception {
-        when(urlMock.openConnection()).thenReturn(connectionMock);
-        whenNew(URL.class).withParameterTypes(String.class)
-                .withArguments(Mockito.anyString()).thenReturn(urlMock);
-        when(propertiesMock.getNexusProxyURL()).thenReturn(urlMock);
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void apply_toNull_shouldThrow() {
-        target.apply(null);
+    public void before() {
+        given(propertiesMock.getRepository()).willReturn("staging");
+        given(nexusRepoMock.getApplicationMetadata()).willReturn(new ApplicationMetadataResource()
+                .setBaseVersion("baseVersion")
+                .setSha1("sha1")
+        );
     }
 
     @Test
-    public void apply_openConnectionThrowsIOException_shouldThrow() throws IOException {
-        IOException exception = new IOException("test exception");
-        given(urlMock.openConnection()).willThrow(exception);
+    public void apply_getApplicationMetadataThrowsException_shouldThrow() {
+        HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.BAD_GATEWAY, "test exception");
+        given(nexusRepoMock.getApplicationMetadata()).willThrow(exception);
 
         assertThatThrownBy(() -> target.apply(applicationMock))
                 .isInstanceOf(DeployActionException.class)
@@ -62,16 +54,11 @@ public class LatestVersionActionTest {
     }
 
     @Test
-    public void apply_receivesValidNexusResponse_shouldSetLatestVersion() throws IOException {
-        final String nexusResponse = getNexusResponse();
-        when(connectionMock.getInputStream()).thenReturn(streamMock);
-        when(connectionMock.getContentEncoding()).thenReturn(null);
-        when(propertiesMock.getRepository()).thenReturn("staging");
-        mockStatic(IOUtils.class);
-        when(IOUtils.toString(streamMock, connectionMock.getContentEncoding())).thenReturn(nexusResponse);
+    public void apply_receivesValidNexusResponse_shouldSetLatestVersion() {
 
         assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
 
+        verify(nexusRepoMock).getApplicationMetadata();
         verify(applicationMock).setLatest(applicationMetadataArgumentCaptor.capture());
 
         ApplicationMetadata captorValue = applicationMetadataArgumentCaptor.getValue();
@@ -80,14 +67,5 @@ public class LatestVersionActionTest {
         assertThat(captorValue.getRepositoryId()).isEqualTo("staging");
         assertThat(captorValue.getSha1()).isEqualTo("sha1");
         assertThat(captorValue.getFile()).isNull();
-    }
-
-    private String getNexusResponse() {
-        return "{\n" +
-                "  \"baseVersion\": \"baseVersion\",\n" +
-                "  \"version\": \"version\",\n" +
-                "  \"sha1\": \"sha1\",\n" +
-                "  \"downloadUri\": \"https://downloadUri.here\"\n" +
-                "}";
     }
 }
