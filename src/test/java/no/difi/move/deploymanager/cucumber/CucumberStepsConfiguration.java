@@ -82,7 +82,7 @@ public class CucumberStepsConfiguration {
     @Autowired private DeployDirectoryRepo deployDirectoryRepo;
     @Autowired private NexusRepo nexusRepo;
     @Autowired private DeployManagerProperties propertiesSpy;
-    @Autowired private LauncherServiceImpl launcherServicSpy;
+    @Autowired private LauncherServiceImpl launcherServiceSpy;
 
     private ResponseActions responseActions;
     private final ResultCaptor<LaunchResult> launchResultResultCaptor = new ResultCaptor<>(LaunchResult.class);
@@ -92,7 +92,7 @@ public class CucumberStepsConfiguration {
     @SneakyThrows
     public void before() {
         temporaryFolder.create();
-        reset(launcherServicSpy);
+        reset(launcherServiceSpy);
         launchResultResultCaptor.reset();
 
         doReturn(temporaryFolder.getRoot().getAbsolutePath()).when(propertiesSpy).getRoot();
@@ -100,7 +100,7 @@ public class CucumberStepsConfiguration {
         mockServerRestTemplateCustomizer.getServers().values().forEach(MockRestServiceServer::reset);
         mockServerRestTemplateCustomizer.customize(actuatorClient.getRestTemplate());
 
-        doAnswer(launchResultResultCaptor).when(launcherServicSpy).launchIntegrasjonspunkt(any());
+        doAnswer(launchResultResultCaptor).when(launcherServiceSpy).launchIntegrasjonspunkt(any());
     }
 
     @After
@@ -129,7 +129,8 @@ public class CucumberStepsConfiguration {
     }
 
     @And("^the \"([^\"]*)\" exists$")
-    public void theExists(String jarName) throws Throwable {
+    @SneakyThrows
+    public void theExists(String jarName) {
         Files.copy(
                 getClass().getResourceAsStream("/cucumber/success.jar"),
                 new File(temporaryFolder.getRoot(), jarName).toPath()
@@ -180,12 +181,12 @@ public class CucumberStepsConfiguration {
 
     @Then("^no JAR is launched$")
     public void noJARIsLaunched() {
-        verify(launcherServicSpy, never()).launchIntegrasjonspunkt(any());
+        verify(launcherServiceSpy, never()).launchIntegrasjonspunkt(any());
     }
 
     @Then("^the \"([^\"]*)\" is successfully launched$")
     public void theJARIsSuccessfullyLaunched(String jarName) {
-        verify(launcherServicSpy).launchIntegrasjonspunkt(endsWith(jarName));
+        verify(launcherServiceSpy).launchIntegrasjonspunkt(endsWith(jarName));
 
         LaunchResult launchResult = launchResultResultCaptor.getLastValue();
         assertThat(launchResult.getStatus()).isSameAs(LaunchStatus.SUCCESS);
