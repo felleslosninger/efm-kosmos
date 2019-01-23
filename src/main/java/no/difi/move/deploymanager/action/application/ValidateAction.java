@@ -1,6 +1,5 @@
 package no.difi.move.deploymanager.action.application;
 
-import ch.qos.logback.core.encoder.ByteArrayUtil;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
