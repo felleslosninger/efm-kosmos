@@ -1,13 +1,14 @@
 package no.difi.move.deploymanager.cucumber;
 
 import com.dumbster.smtp.SimpleSmtpServer;
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.DeployManagerMain;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.service.laucher.LauncherServiceImpl;
-import org.junit.After;
+import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebClient;
@@ -46,7 +47,7 @@ public class CucumberStepsConfiguration {
         @SneakyThrows
         public SimpleSmtpServer simpleSmtpServer() {
             return SimpleSmtpServer.start(SimpleSmtpServer.AUTO_SMTP_PORT);
-        } 
+        }
 
         @Bean
         public MockServerRestTemplateCustomizer mockServerRestTemplateCustomizer() {
@@ -56,7 +57,9 @@ public class CucumberStepsConfiguration {
 
     @Autowired private DeployManagerProperties propertiesSpy;
 
+    @Rule
     private final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
 
     @Before
     @SneakyThrows
@@ -69,6 +72,4 @@ public class CucumberStepsConfiguration {
     public void after() {
         temporaryFolder.delete();
     }
-
-
 }
