@@ -48,9 +48,6 @@ public class ValidateAction implements ApplicationAction {
         byte[] hashFromRepo = getHashFromRepo(application.getLatest().getVersion(), algorithm);
         byte[] fileHash = getFileHash(application.getLatest().getFile(), algorithm);
         if (!MessageDigest.isEqual(fileHash, hashFromRepo)) {
-
-            log.error(ByteArrayUtil.toHexString(fileHash));
-
             throw new DeployActionException(String.format("%s verification failed", algorithm.getName()));
         }
     }
