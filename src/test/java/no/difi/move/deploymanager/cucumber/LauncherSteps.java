@@ -1,32 +1,35 @@
 package no.difi.move.deploymanager.cucumber;
 
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import no.difi.move.deploymanager.service.laucher.LauncherServiceImpl;
 import no.difi.move.deploymanager.service.laucher.dto.LaunchResult;
 import no.difi.move.deploymanager.service.laucher.dto.LaunchStatus;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.endsWith;
 import static org.mockito.Mockito.*;
 
-@SuppressWarnings("SpringJavaAutowiredMembersInspection")
+@RequiredArgsConstructor
 public class LauncherSteps {
 
-    @Autowired
-    private LauncherServiceImpl launcherServiceSpy;
-
+    private final LauncherServiceImpl launcherServiceSpy;
     private final ResultCaptor<LaunchResult> launchResultResultCaptor = new ResultCaptor<>(LaunchResult.class);
 
     @Before
     @SneakyThrows
     public void before() {
+        doAnswer(launchResultResultCaptor).when(launcherServiceSpy).launchIntegrasjonspunkt(any());
+    }
+
+    @After
+    public void after() {
         reset(launcherServiceSpy);
         launchResultResultCaptor.reset();
-        doAnswer(launchResultResultCaptor).when(launcherServiceSpy).launchIntegrasjonspunkt(any());
     }
 
     @Then("^no JAR is launched$")

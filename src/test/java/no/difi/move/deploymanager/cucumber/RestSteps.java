@@ -3,10 +3,10 @@ package no.difi.move.deploymanager.cucumber;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import no.difi.move.deploymanager.repo.NexusRepo;
 import no.difi.move.deploymanager.service.actuator.ActuatorClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.MockServerRestTemplateCustomizer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
@@ -22,12 +22,12 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
-@SuppressWarnings("SpringJavaAutowiredMembersInspection")
+@RequiredArgsConstructor
 public class RestSteps {
 
-    @Autowired private MockServerRestTemplateCustomizer mockServerRestTemplateCustomizer;
-    @Autowired private ActuatorClient actuatorClient;
-    @Autowired private NexusRepo nexusRepo;
+    private final MockServerRestTemplateCustomizer mockServerRestTemplateCustomizer;
+    private final ActuatorClient actuatorClient;
+    private final NexusRepo nexusRepo;
 
     private ResponseActions responseActions;
 

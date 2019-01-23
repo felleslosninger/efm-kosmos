@@ -2,9 +2,9 @@ package no.difi.move.deploymanager.cucumber;
 
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
+import lombok.RequiredArgsConstructor;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SuppressWarnings("SpringJavaAutowiredMembersInspection")
+@RequiredArgsConstructor
 public class MetadataSteps {
 
-    @Autowired private DeployManagerProperties deployManagerProperties;
-    @Autowired private DeployDirectoryRepo deployDirectoryRepo;
+    private final DeployManagerProperties deployManagerProperties;
+    private final DeployDirectoryRepo deployDirectoryRepo;
 
     @Given("the metadata.properties contains:")
     public void givenTheMetadataPropertiesContains(String content) throws IOException {

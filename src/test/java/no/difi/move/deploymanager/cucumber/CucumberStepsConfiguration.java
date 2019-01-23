@@ -1,13 +1,11 @@
 package no.difi.move.deploymanager.cucumber;
 
+import com.dumbster.smtp.SimpleSmtpServer;
 import cucumber.api.java.Before;
-import cucumber.api.java.en.And;
-import cucumber.api.java.en.Given;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.DeployManagerMain;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
-import no.difi.move.deploymanager.handler.SynchronizationHandler;
 import no.difi.move.deploymanager.service.laucher.LauncherServiceImpl;
 import org.junit.After;
 import org.junit.rules.TemporaryFolder;
@@ -23,9 +21,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.client.UnorderedRequestExpectationManager;
-
-import java.io.File;
-import java.nio.file.Files;
 
 import static org.mockito.Mockito.doReturn;
 
@@ -48,12 +43,17 @@ public class CucumberStepsConfiguration {
     public static class SpringConfiguration {
 
         @Bean
+        @SneakyThrows
+        public SimpleSmtpServer simpleSmtpServer() {
+            return SimpleSmtpServer.start(SimpleSmtpServer.AUTO_SMTP_PORT);
+        } 
+
+        @Bean
         public MockServerRestTemplateCustomizer mockServerRestTemplateCustomizer() {
             return new MockServerRestTemplateCustomizer(UnorderedRequestExpectationManager.class);
         }
     }
 
-    @Autowired private SynchronizationHandler synchronizationHandler;
     @Autowired private DeployManagerProperties propertiesSpy;
 
     private final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -71,17 +71,4 @@ public class CucumberStepsConfiguration {
     }
 
 
-    @And("^the \"([^\"]*)\" exists$")
-    @SneakyThrows
-    public void theExists(String jarName) {
-        Files.copy(
-                getClass().getResourceAsStream("/cucumber/success.jar"),
-                new File(temporaryFolder.getRoot(), jarName).toPath()
-        );
-    }
-
-    @Given("the synchronization handler is triggered")
-    public void theSynchronizationHandlerIsTriggered() {
-        synchronizationHandler.run();
-    }
 }

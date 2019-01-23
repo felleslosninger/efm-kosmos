@@ -4,31 +4,27 @@ import com.dumbster.smtp.SimpleSmtpServer;
 import com.dumbster.smtp.SmtpMessage;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
-import lombok.SneakyThrows;
+import lombok.RequiredArgsConstructor;
 import org.junit.After;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
-@SuppressWarnings("SpringJavaAutowiredMembersInspection")
+@RequiredArgsConstructor
 public class MailSteps {
 
-    @Autowired
-    private JavaMailSenderImpl javaMailSender;
-    private SimpleSmtpServer simpleSmtpServer;
+    private final SimpleSmtpServer simpleSmtpServer;
+    private final JavaMailSenderImpl javaMailSender;
 
     @Before
-    @SneakyThrows
     public void before() {
-        simpleSmtpServer = SimpleSmtpServer.start(SimpleSmtpServer.AUTO_SMTP_PORT);
         javaMailSender.setPort(simpleSmtpServer.getPort());
     }
 
     @After
     public void after() {
-        simpleSmtpServer.stop();
+        simpleSmtpServer.reset();
     }
 
     @Then("^an email is sent with subject \"([^\"]*)\" and content:$")
