@@ -8,7 +8,7 @@ Feature: Synchronization - Rollback
     repositoryId=staging
     sha1=83e1532b48e95cdce524972d397e5460e9529c97
     """
-    And the "integrasjonspunkt-1.7.92-SNAPSHOT.jar" exists
+    And the "integrasjonspunkt-1.7.92-SNAPSHOT.jar" exists as a copy of "/cucumber/success.jar"
     And a "GET" request to "http://staging-move-app02.dmz.local:8084/latest?env=staging" will respond with status "200" and the following "application/json; charset=utf-8"
     """
     {
