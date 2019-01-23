@@ -98,4 +98,23 @@ public class StartActionTest {
         verify(mailService).sendMail("Upgrade FAILED test.jar", "theStartupLog");
         verify(deployDirectoryRepoMock).blackList(fileMock);
     }
+
+    @Test
+    public void apply_whenStartFailsAndTheApplicationIsRunning_theJarFileShouldBeBlacklistedAndAShutdownTriggered() {
+        given(launcherServiceMock.launchIntegrasjonspunkt(any())).willReturn(
+                new LaunchResult()
+                        .setStatus(LaunchStatus.FAILED)
+                        .setStartupLog("theStartupLog")
+        );
+
+        given(applicationMock.isSameVersion()).willReturn(true);
+        given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.DOWN, HealthStatus.UP);
+        given(fileMock.getAbsolutePath()).willReturn("the path");
+        assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
+        verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
+        verify(mailService).sendMail("Upgrade FAILED test.jar", "theStartupLog");
+        verify(deployDirectoryRepoMock).blackList(fileMock);
+        verify(actuatorServiceMock).shutdown();
+    }
+
 }

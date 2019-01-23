@@ -38,6 +38,7 @@
         <powermock.version>2.0.0</powermock.version>
         <mockito.version>2.23.4</mockito.version>
         <cucumber.version>2.3.1</cucumber.version>
+        <dumbster.version>1.7.1</dumbster.version>
         <zt-exec.version>1.10</zt-exec.version>
         <commons-io.version>2.6</commons-io.version>
         <docker.skip>true</docker.skip>
@@ -239,6 +240,12 @@
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-spring</artifactId>
             <version>${cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.kirviq</groupId>
+            <artifactId>dumbster</artifactId>
+            <version>${dumbster.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

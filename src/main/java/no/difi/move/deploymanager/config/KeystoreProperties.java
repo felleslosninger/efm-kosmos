@@ -9,6 +9,8 @@ public class KeystoreProperties {
 
     @NotNull
     private String path;
+    @NotNull
     private String password;
+    @NotNull
     private String alias;
 }
