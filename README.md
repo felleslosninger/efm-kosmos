@@ -11,12 +11,12 @@ Obtain the JAR signer public key certificate from Direktoratet for forvaltning o
 Suppose that you have received from DIFI
 
 * The latest deploymanager JAR file.
-* The file dif_certsign_2019_withchain.crt containing the public key certificate for code signing 
+* The file dif_certsign_2019_public.cer containing the public key certificate for code signing 
 
 First you need to create a keystore named deploymananger.jks and import the certificate into an entry with an alias of difi.
 
 ```bash
-keytool -import -alias difi -file dif_certsign_2019_withchain.crt -keystore deploymanager.jks
+keytool -import -alias difi -file dif_certsign_2019_public.cer -keystore deploymanager.jks
 ```
 The keytool prints the certificate information and asks you to verify it; For example, by comparing the displayed certificate fingerprints with those obtained from another (trusted) source of information. (Each fingerprint is a relatively short number that uniquely and reliably identifies the certificate.) For example, in the real world you can phone Stan and ask him what the fingerprints should be. He can get the fingerprints of the StanSmith.cer file he created by executing the command
 
