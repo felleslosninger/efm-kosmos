@@ -9,12 +9,16 @@
     <springProperty name="password" source="app.logger.password"/>
     <springProperty name="profiles" source="spring.profiles.active"/>
     <springProperty name="orgnr" source="deploymanager.orgnumber"/>
+    <springProperty name="artifactId" source="project.artifactId"/>
+    <springProperty name="version" source="project.version"/>
+    <springProperty name="buildNumber" source="project.buildNumber"/>
+
     <appender name="stash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
         <droppedWarnFrequency>5</droppedWarnFrequency>
         <destination>${destination}</destination>
         <!-- encoder is required -->
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <customFields>{"appname":"${project.artifactId}","buildinfo.version":"${project.version}","buildinfo.lastcommit":"${buildNumber}","orgnr":"${orgnr}"}</customFields>
+            <customFields>{"appname":"${artifactId}","buildinfo.version":"${version}","buildinfo.lastcommit":"${buildNumber}","orgnr":"${orgnr}"}</customFields>
             <fieldNames>
                 <!-- Ignore message and stackTrace field here due to possible sensitive data (personal identity number), replaced in pattern below. -->
                 <message>[ignore]</message>
