@@ -1,21 +1,29 @@
 package no.difi.move.deploymanager.config;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Mod11Check;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Positive;
+import javax.validation.constraints.*;
 import java.net.URL;
 
 @Data
 @Validated
 @ConfigurationProperties(prefix = "deploymanager")
 public class DeployManagerProperties {
+
+    /**
+     * Organization number to run as.
+     */
+    @NotNull(message = "deploymanager.orgnumber is not set. This property is required.")
+    @Digits(integer = 9, fraction = 0, message = "deploymanager.orgnumber must be exactly 9 digits")
+    @Length(min = 9, max = 9, message = "deploymanager.orgnumber must be exactly 9 digits")
+    @Mod11Check(threshold = 7, message = "deploymanager.orgnumber has wrong control character")
+    private String orgnumber;
 
     @NotNull
     private String root;
