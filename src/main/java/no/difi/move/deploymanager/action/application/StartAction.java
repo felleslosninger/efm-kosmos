@@ -42,13 +42,17 @@ public class StartAction implements ApplicationAction {
         if (launchResult.getStatus() != LaunchStatus.SUCCESS) {
             deployDirectoryRepo.blackList(jarFile);
 
-            if(actuatorService.getStatus() == HealthStatus.UP) {
+            if (actuatorService.getStatus() == HealthStatus.UP) {
                 actuatorService.shutdown();
             }
         }
 
+        String subject = String.format("Upgrade %s %s", launchResult.getStatus().name(), jarFile.getName());
+
+        log.info(subject);
+
         mailService.sendMail(
-                String.format("Upgrade %s %s", launchResult.getStatus().name(), jarFile.getName()),
+                subject,
                 launchResult.getStartupLog()
         );
 

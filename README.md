@@ -43,30 +43,10 @@ We are using [https://github.com/kohsuke/winsw] as a Windows service wrapper. Pl
   <!-- Path to the executable, which should be started -->
   <executable>javaw</executable>
   <startargument>-jar</startargument>
-  
-  <!-- Start profile -->    
-  <startargument>-Dspring.profiles.active=production</startargument>
-  
-  <startargument>-Ddeploymanager.shutdownURL=http://localhost:9092/manage/shutdown</startargument>  
-  <startargument>-Ddeploymanager.healthURL=http://localhost:9092/manage/health</startargument>
-  <startargument>-Ddeploymanager.verbose=false</startargument>
-
-  <!-- The directory that will be used as the root-directory for the integrasjonspunkt application. -->  
-  <startargument>-Ddeploymanager.root=C:\\temp\root</startargument>
-
-  <!-- Keystore information. Please replace with correct path and password --> 
-  <startargument>-Ddeploymanager.keystore.path=C:\\jks\deploymanager.jks</startargument>
-  <startargument>-Ddeploymanager.keystore.password=xxxxxx</startargument>
-  <startargument>-Ddeploymanager.keystore.alias=difi</startargument>
-  
-  <!-- Optional notification by email --> 
-  <startargument>-Dspring.mail.host=mail.yourdomain.no</startargument>
-  <startargument>-Ddeploymanager.mail.recipient=someone@yourdomain.no</startargument>
-  <startargument>-Ddeploymanager.mail.from=noreply@yourdomain.no</startargument>
 
   <!-- Path to the Move-Deploy-Manager JAR file -->
   <startargument>%BASE%\deploymanager-X.X.X.jar</startargument>   
-             
+            
   <logpath>%BASE%\deploymanager-logs</logpath>
   
   <log mode="roll-by-size">
@@ -77,6 +57,36 @@ We are using [https://github.com/kohsuke/winsw] as a Windows service wrapper. Pl
 ```
 
 Please note that you need to use a local administration user when installing the service.
+
+#### Local property file for Move-Deploy-Manager
+
+You will need a file named deploymanager-local.properties in the same folder as winsw.
+Here is an example - Please replace the properties with your information:
+
+```properties
+spring.profiles.active=production
+
+app.logger.enableSSL=true
+app.logger.jks=file:c:/jks/logstash.jks
+app.logger.password=logstash
+
+# Replace with your organization
+deploymanager.orgnumber=900000000
+
+deploymanager.root=c:/apps/integrasjonspunkt
+
+deploymanager.keystore.path=file:c:/jks/deploymanager.jks
+deploymanager.keystore.password=xxx
+deploymanager.keystore.alias=difi
+
+# E-mail is optional. Please specify these properties 
+# to receive e-mails when the deploy-manager updates the integrasjonspunkt-application.
+deploymanager.mail.recipient=someone@yourdomain.no
+deploymanager.mail.from=noreply@yourdomain.no
+
+spring.mail.host=smtp.yourdomain.no
+```  
+
 
 
 
