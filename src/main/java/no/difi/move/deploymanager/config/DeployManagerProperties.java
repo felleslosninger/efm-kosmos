@@ -32,7 +32,7 @@ public class DeployManagerProperties {
     private URL nexus;
 
     @NotNull
-    @Pattern(regexp = "staging|releases")
+    @Pattern(regexp = "itest|staging|releases")
     private String repository;
 
     @NotNull
