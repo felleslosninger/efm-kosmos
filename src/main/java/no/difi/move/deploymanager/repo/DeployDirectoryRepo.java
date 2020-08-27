@@ -71,8 +71,12 @@ public class DeployDirectoryRepo {
 
     @SneakyThrows
     public void blackList(File file) {
-        if (getBlackListedFile(file).createNewFile()) {
-            log.info("Blacklisted {}", file.getAbsolutePath());
+        try {
+            if (getBlackListedFile(file).createNewFile()) {
+                log.info("Blacklisted {}", file.getAbsolutePath());
+            }
+        } catch (IOException e) {
+            log.debug("Could not blacklist {}", file.getAbsolutePath(), e);
         }
     }
 
