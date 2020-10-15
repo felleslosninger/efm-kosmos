@@ -8,8 +8,7 @@ import no.difi.move.deploymanager.domain.HealthStatus;
 import no.difi.move.deploymanager.service.actuator.dto.HealthResource;
 import no.difi.move.deploymanager.service.actuator.dto.ShutdownResource;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.ResourceAccessException;
@@ -25,7 +24,8 @@ import java.util.Optional;
 public class ActuatorClient {
 
     private final DeployManagerProperties deployManagerProperties;
-    @Getter private final RestTemplate restTemplate;
+    @Getter
+    private final RestTemplate restTemplate;
 
     public ActuatorClient(DeployManagerProperties deployManagerProperties, RestTemplateBuilder restTemplateBuilder) {
         this.deployManagerProperties = deployManagerProperties;
@@ -55,7 +55,10 @@ public class ActuatorClient {
     boolean requestShutdown() {
         try {
             URI url = deployManagerProperties.getShutdownURL().toURI();
-            ResponseEntity<ShutdownResource> response = restTemplate.postForEntity(url, null, ShutdownResource.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+            HttpEntity<?> httpEntity = new HttpEntity<>(headers);
+            ResponseEntity<ShutdownResource> response = restTemplate.exchange(url, HttpMethod.POST, httpEntity, ShutdownResource.class);
             return response.getStatusCode() == HttpStatus.OK;
         } catch (HttpStatusCodeException e) {
             log.warn("Could not request shutdown: {} {}", e.getStatusCode(), e.getStatusText());
