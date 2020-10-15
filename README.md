@@ -1,5 +1,7 @@
 #Move-Deploy-Manager
 
+**this information is currently outdated (15.10.20) and needs a review**
+
 ## Installation
 
 ### Obtain the DIFI JAR signer public key certificate
