@@ -52,10 +52,7 @@ public class LauncherServiceImpl implements LauncherService {
 
             Future<ProcessResult> future = new ProcessExecutor(Arrays.asList(
                     "java", "-jar", jarPath,
-                    "--endpoints.shutdown.enabled=true",
-                    "--endpoints.shutdown.sensitive=false",
-                    "--endpoints.health.enabled=true",
-                    "--endpoints.health.sensitive=false",
+                    "--management.endpoint.shutdown.enabled=true",
                     "--app.logger.enableSSL=false",
                     "--spring.profiles.active=" + properties.getIntegrasjonspunkt().getProfile()))
                     .directory(new File(properties.getRoot()))
