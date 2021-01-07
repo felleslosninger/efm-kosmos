@@ -1,11 +1,11 @@
-package no.difi.move.deploymanager.service.laucher;
+package no.difi.move.deploymanager.service.launcher;
 
 import lombok.SneakyThrows;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import no.difi.move.deploymanager.domain.HealthStatus;
 import no.difi.move.deploymanager.service.actuator.ActuatorService;
-import no.difi.move.deploymanager.service.laucher.dto.LaunchStatus;
+import no.difi.move.deploymanager.service.launcher.dto.LaunchStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,8 +1,8 @@
-package no.difi.move.deploymanager.service.laucher;
+package no.difi.move.deploymanager.service.launcher;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import no.difi.move.deploymanager.service.laucher.dto.LaunchStatus;
+import no.difi.move.deploymanager.service.launcher.dto.LaunchStatus;
 import org.zeroturnaround.exec.stream.LogOutputStream;
 
 @Slf4j

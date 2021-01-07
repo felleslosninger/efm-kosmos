@@ -1,7 +1,7 @@
 package no.difi.move.deploymanager.domain.application;
 
 import lombok.Data;
-import no.difi.move.deploymanager.service.laucher.dto.LaunchResult;
+import no.difi.move.deploymanager.service.launcher.dto.LaunchResult;
 
 /**
  * @author Nikolai Luthman <nikolai dot luthman at inmeta dot no>

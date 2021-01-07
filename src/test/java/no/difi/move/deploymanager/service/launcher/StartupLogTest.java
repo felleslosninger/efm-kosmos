@@ -1,6 +1,6 @@
-package no.difi.move.deploymanager.service.laucher;
+package no.difi.move.deploymanager.service.launcher;
 
-import no.difi.move.deploymanager.service.laucher.dto.LaunchStatus;
+import no.difi.move.deploymanager.service.launcher.dto.LaunchStatus;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

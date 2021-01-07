@@ -6,7 +6,7 @@ import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
-import no.difi.move.deploymanager.service.laucher.dto.LaunchStatus;
+import no.difi.move.deploymanager.service.launcher.dto.LaunchStatus;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;

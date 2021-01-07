@@ -1,12 +1,12 @@
-package no.difi.move.deploymanager.service.laucher;
+package no.difi.move.deploymanager.service.launcher;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.HealthStatus;
 import no.difi.move.deploymanager.service.actuator.ActuatorService;
-import no.difi.move.deploymanager.service.laucher.dto.LaunchResult;
-import no.difi.move.deploymanager.service.laucher.dto.LaunchStatus;
+import no.difi.move.deploymanager.service.launcher.dto.LaunchResult;
+import no.difi.move.deploymanager.service.launcher.dto.LaunchStatus;
 import org.springframework.stereotype.Service;
 import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.ProcessResult;

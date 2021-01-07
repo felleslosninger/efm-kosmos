@@ -5,9 +5,9 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import no.difi.move.deploymanager.service.laucher.LauncherServiceImpl;
-import no.difi.move.deploymanager.service.laucher.dto.LaunchResult;
-import no.difi.move.deploymanager.service.laucher.dto.LaunchStatus;
+import no.difi.move.deploymanager.service.launcher.LauncherServiceImpl;
+import no.difi.move.deploymanager.service.launcher.dto.LaunchResult;
+import no.difi.move.deploymanager.service.launcher.dto.LaunchStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
