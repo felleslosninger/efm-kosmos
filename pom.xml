@@ -45,6 +45,7 @@
         <docker.skip>true</docker.skip>
         <docker.image.prefix>difimove2</docker.image.prefix>
         <dockerfile.maven.plugin.version>1.4.3</dockerfile.maven.plugin.version>
+        <janino.version>3.1.2</janino.version>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -220,9 +221,11 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
         </dependency>
-        <!-- spring-boot-starter-aop gives transitive dependency to logback-classic which includes SLF4J bindings.
-        If it weren't we would need to import logback-classic here. -->
-
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+            <version>${janino.version}</version>
+        </dependency>
         <!-- end logging/monitoring -->
 
         <dependency>
