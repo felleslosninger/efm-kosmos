@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.domain.HealthStatus;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.service.actuator.ActuatorService;
-import no.difi.move.deploymanager.service.laucher.LauncherService;
-import no.difi.move.deploymanager.service.laucher.dto.LaunchResult;
+import no.difi.move.deploymanager.service.launcher.LauncherService;
+import no.difi.move.deploymanager.service.launcher.dto.LaunchResult;
 import no.difi.move.deploymanager.service.mail.MailService;
 import org.springframework.stereotype.Component;
 

@@ -1,4 +1,4 @@
-package no.difi.move.deploymanager.service.laucher.dto;
+package no.difi.move.deploymanager.service.launcher.dto;
 
 public enum LaunchStatus {
 

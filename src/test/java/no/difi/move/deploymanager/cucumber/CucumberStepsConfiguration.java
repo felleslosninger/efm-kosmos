@@ -7,7 +7,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.DeployManagerMain;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
-import no.difi.move.deploymanager.service.laucher.LauncherServiceImpl;
+import no.difi.move.deploymanager.service.launcher.LauncherServiceImpl;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.springframework.beans.factory.annotation.Autowired;

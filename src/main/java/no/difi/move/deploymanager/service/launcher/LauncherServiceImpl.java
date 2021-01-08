@@ -1,12 +1,12 @@
-package no.difi.move.deploymanager.service.laucher;
+package no.difi.move.deploymanager.service.launcher;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.HealthStatus;
 import no.difi.move.deploymanager.service.actuator.ActuatorService;
-import no.difi.move.deploymanager.service.laucher.dto.LaunchResult;
-import no.difi.move.deploymanager.service.laucher.dto.LaunchStatus;
+import no.difi.move.deploymanager.service.launcher.dto.LaunchResult;
+import no.difi.move.deploymanager.service.launcher.dto.LaunchStatus;
 import org.springframework.stereotype.Service;
 import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.ProcessResult;
@@ -52,10 +52,7 @@ public class LauncherServiceImpl implements LauncherService {
 
             Future<ProcessResult> future = new ProcessExecutor(Arrays.asList(
                     "java", "-jar", jarPath,
-                    "--endpoints.shutdown.enabled=true",
-                    "--endpoints.shutdown.sensitive=false",
-                    "--endpoints.health.enabled=true",
-                    "--endpoints.health.sensitive=false",
+                    "--management.endpoint.shutdown.enabled=true",
                     "--app.logger.enableSSL=false",
                     "--spring.profiles.active=" + properties.getIntegrasjonspunkt().getProfile()))
                     .directory(new File(properties.getRoot()))
