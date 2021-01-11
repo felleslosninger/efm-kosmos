@@ -13,4 +13,4 @@ RUN chmod +x ${APP_DIR}/*
 
 USER java
 
-ENTRYPOINT [ "sh", "-c", "exec java $JAVA_OPTS -jar ${APP_DIR}/app.jar", "$@" ]
+ENTRYPOINT [ "sh", "-c", "exec java $JAVA_OPTS -jar app.jar", "$@" ]
