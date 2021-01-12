@@ -1,10 +1,18 @@
-FROM openjdk:8-jdk-alpine
+FROM openjdk:8-jre-slim
 
-MAINTAINER Johannes Molland <johannes.molland@difi.no>
+RUN groupadd -o -g 1000 java \
+    && useradd -o -r -m -u 1000 -g 1000 java
 
-ARG jarPath
-ADD ${jarPath} app.jar
+ENV APP_DIR=/opt/deploymanager \
+    JAVA_OPTS=""
 
-ENV JAVA_OPTS=""
+ADD /target/*.jar ${APP_DIR}/app.jar
 
-ENTRYPOINT [ "sh", "-c", "exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar" ]
+RUN chown -R java:java ${APP_DIR}
+RUN chmod +x ${APP_DIR}/*
+
+WORKDIR ${APP_DIR}
+
+USER java
+
+ENTRYPOINT [ "sh", "-c", "exec java $JAVA_OPTS -jar app.jar ${0} ${@}" ]
