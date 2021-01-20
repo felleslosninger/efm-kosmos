@@ -29,6 +29,16 @@
             <id>Jsch</id>
             <url>https://jsch.sf.net/maven2/</url>
         </repository>
+        <repository>
+            <id>MavenArtifactFeed</id>
+            <url>https://pkgs.dev.azure.com/dificloud/_packaging/MavenArtifactFeed/maven/v1</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <properties>
@@ -42,9 +52,6 @@
         <dumbster.version>1.7.1</dumbster.version>
         <zt-exec.version>1.10</zt-exec.version>
         <commons-io.version>2.6</commons-io.version>
-        <docker.skip>true</docker.skip>
-        <docker.image.prefix>difimove2</docker.image.prefix>
-        <dockerfile.maven.plugin.version>1.4.3</dockerfile.maven.plugin.version>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -80,70 +87,8 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>dockerfile-maven-plugin</artifactId>
-                <version>${dockerfile.maven.plugin.version}</version>
-                <configuration>
-                    <repository>${docker.image.prefix}/${project.artifactId}</repository>
-                    <buildArgs>
-                        <jarPath>target/${project.build.finalName}.jar</jarPath>
-                    </buildArgs>
-                    <skip>${docker.skip}</skip>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>build</id>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                        <configuration>
-                            <tag>latest</tag>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>tag-latest</id>
-                        <goals>
-                            <goal>tag</goal>
-                            <goal>push</goal>
-                        </goals>
-                        <configuration>
-                            <tag>latest</tag>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>tag-version</id>
-                        <goals>
-                            <goal>tag</goal>
-                            <goal>push</goal>
-                        </goals>
-                        <configuration>
-                            <tag>${project.version}</tag>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>push-latest</id>
-                        <phase>none</phase>
-                        <goals>
-                            <goal>push</goal>
-                        </goals>
-                        <configuration>
-                            <tag>latest</tag>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>push-version</id>
-                        <phase>none</phase>
-                        <goals>
-                            <goal>push</goal>
-                        </goals>
-                        <configuration>
-                            <tag>${project.version}</tag>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <includes>
@@ -151,7 +96,6 @@
                         <include>**/*IT.java</include>
                     </includes>
                 </configuration>
-
             </plugin>
         </plugins>
     </build>
@@ -279,4 +223,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
 </project>
