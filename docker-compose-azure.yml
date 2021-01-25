@@ -1,0 +1,9 @@
+version: '3.3'
+
+
+services:
+  deploymanager:
+    build: deploymanager
+    image: eformidling/deploy-manager
+    labels:
+      kubernetesMaifestFile: deploymanager/deploymanager.yml
