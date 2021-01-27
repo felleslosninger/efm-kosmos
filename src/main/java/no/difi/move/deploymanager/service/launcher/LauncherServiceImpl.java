@@ -1,5 +1,6 @@
 package no.difi.move.deploymanager.service.launcher;
 
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
@@ -13,20 +14,18 @@ import org.zeroturnaround.exec.ProcessResult;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.*;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class LauncherServiceImpl implements LauncherService {
 
     private final DeployManagerProperties properties;
     private final ActuatorService actuatorService;
-
-    public LauncherServiceImpl(DeployManagerProperties properties, ActuatorService actuatorService) {
-        this.properties = properties;
-        this.actuatorService = actuatorService;
-    }
+    private final EnvironmentService environmentService;
 
     @Override
     public LaunchResult launchIntegrasjonspunkt(String jarPath) {
@@ -56,6 +55,7 @@ public class LauncherServiceImpl implements LauncherService {
                     "--app.logger.enableSSL=false",
                     "--spring.profiles.active=" + properties.getIntegrasjonspunkt().getProfile()))
                     .directory(new File(properties.getRoot()))
+                    .environment(environmentService.getChildProcessEnvironment())
                     .redirectOutput(startupLog)
                     .start()
                     .getFuture();
@@ -103,3 +103,4 @@ public class LauncherServiceImpl implements LauncherService {
         return startupLog.getStatus();
     }
 }
+
