@@ -5,5 +5,3 @@ services:
   deploymanager:
     build: .
     image: eformidling/deploy-manager
-    labels:
-      kubernetesMaifestFile: deploymanager/deploymanager.yaml
