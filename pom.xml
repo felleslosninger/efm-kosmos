@@ -223,4 +223,11 @@
         </dependency>
     </dependencies>
 
+    <distributionManagement>
+        <repository>
+            <id>MavenArtifactFeed</id>
+            <url>https://pkgs.dev.azure.com/dificloud/_packaging/MavenArtifactFeed/maven/v1</url>
+        </repository>
+    </distributionManagement>
+
 </project>
