@@ -2,24 +2,16 @@
 <configuration scan="true">
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
     <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
-    <!-- Logstash destination -->
-    <springProperty name="destination" source="app.logger.destination"/>
     <springProperty name="stdoutAppender" source="app.logger.stdoutAppender"/>
-    <springProperty name="ssl" source="app.logger.enableSSL"/>
-    <springProperty name="jks" source="app.logger.jks"/>
-    <springProperty name="password" source="app.logger.password"/>
+    <springProperty name="destination" source="app.logger.destination"/>
     <springProperty name="profiles" source="spring.profiles.active"/>
-    <springProperty name="orgnr" source="deploymanager.orgnumber"/>
-    <springProperty name="artifactId" source="project.artifactId"/>
-    <springProperty name="version" source="project.version"/>
-    <springProperty name="buildNumber" source="project.buildNumber"/>
+    <springProperty name="enableLogstash" source="app.logger.enableLogstash"/>
 
     <if condition='property("enableLogstash").contains("true")'>
         <then>
             <appender name="stash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
                 <droppedWarnFrequency>5</droppedWarnFrequency>
                 <destination>${destination}</destination>
-                <!-- encoder is required -->
                 <encoder class="net.logstash.logback.encoder.LogstashEncoder">
                     <customFields>
                         {"appname":"${artifactId}","buildinfo.version":"${version}","buildinfo.lastcommit":"${buildNumber}","orgnr":"${orgnr}"}
@@ -38,24 +30,14 @@
                         </pattern>
                     </provider>
                 </encoder>
-                <if condition='property("ssl").contains("true")'>
-                    <then>
-                        <ssl>
-                            <trustStore>
-                                <location>${jks}</location>
-                                <password>${password}</password>
-                            </trustStore>
-                        </ssl>
-                    </then>
-                </if>
             </appender>
 
-            <logger name="STATUS" level="INFO" additivity="false">
+            <root level="INFO">
                 <appender-ref ref="stash"/>
-            </logger>
-
+            </root>
         </then>
     </if>
+
 
     <root level="INFO">
         <appender-ref ref="${stdoutAppender:-CONSOLE}"/>
