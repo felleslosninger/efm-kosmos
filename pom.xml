@@ -39,7 +39,7 @@
         <mockito.version>2.23.4</mockito.version>
         <cucumber.version>2.3.1</cucumber.version>
         <dumbster.version>1.7.1</dumbster.version>
-        <zt-exec.version>1.10</zt-exec.version>
+        <zt-exec.version>1.12</zt-exec.version>
         <commons-io.version>2.6</commons-io.version>
         <docker.skip>true</docker.skip>
         <docker.image.prefix>difimove2</docker.image.prefix>
@@ -49,7 +49,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.4.1</version>
+        <version>2.3.8.RELEASE</version>
         <relativePath/>
     </parent>
 
@@ -219,6 +219,11 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>commons-compiler</artifactId>
+            <version>${org.codehaus.janino.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.janino</groupId>
