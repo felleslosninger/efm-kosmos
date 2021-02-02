@@ -1,3 +1,5 @@
+[![Build Status](https://dev.azure.com/dificloud/eformidling/_apis/build/status/felleslosninger.efm-deploy-manager?repoName=felleslosninger%2Fefm-deploy-manager&branchName=feature-MOVE-2110-pipeline)](https://dev.azure.com/dificloud/eformidling/_build/latest?definitionId=27&repoName=felleslosninger%2Fefm-deploy-manager&branchName=feature-MOVE-2110-pipeline)
+
 #Move-Deploy-Manager
 
 **this information is currently outdated (15.10.20) and needs a review**

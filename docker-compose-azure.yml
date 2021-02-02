@@ -1,0 +1,7 @@
+version: '3.3'
+
+
+services:
+  deploymanager:
+    build: .
+    image: eformidling/deploy-manager
