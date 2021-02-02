@@ -82,8 +82,6 @@ public class DeployManagerProperties {
     @Positive
     private Integer nexusReadTimeoutInMs;
 
-    private String environment = "";
-
     @NotNull
     private boolean verbose;
 
@@ -104,4 +102,8 @@ public class DeployManagerProperties {
     @Valid
     @NestedConfigurationProperty
     private KeystoreProperties keystore;
+
+    @NestedConfigurationProperty
+    private EnvironmentProperties environment;
+
 }
