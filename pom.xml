@@ -44,7 +44,6 @@
         <docker.skip>true</docker.skip>
         <docker.image.prefix>difimove2</docker.image.prefix>
         <dockerfile.maven.plugin.version>1.4.3</dockerfile.maven.plugin.version>
-        <org.codehaus.janino.version>3.1.0</org.codehaus.janino.version>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -223,12 +222,10 @@
         <dependency>
             <groupId>org.codehaus.janino</groupId>
             <artifactId>commons-compiler</artifactId>
-            <version>${org.codehaus.janino.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.janino</groupId>
             <artifactId>janino</artifactId>
-            <version>${org.codehaus.janino.version}</version>
         </dependency>
         <!-- end logging/monitoring -->
 
