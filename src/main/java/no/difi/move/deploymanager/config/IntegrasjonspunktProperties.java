@@ -11,4 +11,6 @@ public class IntegrasjonspunktProperties {
     @NotNull
     @Pattern(regexp = "dev|itest|staging|production")
     private String profile;
+
+    private String currentVersion;
 }
