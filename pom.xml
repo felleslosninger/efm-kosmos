@@ -45,7 +45,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <logstash.version>4.11</logstash.version>
         <powermock.version>2.0.0</powermock.version>
         <mockito.version>2.23.4</mockito.version>
         <cucumber.version>2.3.1</cucumber.version>
@@ -153,16 +152,7 @@
             <groupId>net.logstash.logback</groupId>
             <!-- needed for ELK stack -->
             <artifactId>logstash-logback-encoder</artifactId>
-            <version>${logstash.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.janino</groupId>
-            <artifactId>janino</artifactId>
-            <version>3.0.6</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-access</artifactId>
+            <version>4.9</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -172,7 +162,12 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
         </dependency>
-        <!--end logging/monitoring -->
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+            <version>${org.codehaus.janino.version}</version>
+        </dependency>
+        <!-- end logging/monitoring -->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
