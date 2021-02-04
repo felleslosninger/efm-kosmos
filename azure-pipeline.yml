@@ -17,10 +17,7 @@ trigger:
   batch: true
   branches:
     include:
-      - development
-      - release-*
-      - hotfix-*
-      - master
+      - '*'
 
 pr: none
 
