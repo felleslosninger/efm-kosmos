@@ -34,25 +34,6 @@ public class NexusRepoTest {
     @Autowired private MockRestServiceServer server;
     @Autowired private ObjectMapper objectMapper;
 
-    @Before
-    public void before() {
-    }
-
-
-    @Test
-    public void testGetStatus() {
-        server.expect(requestTo("http://staging-move-app02.dmz.local:8084/latest?env=staging"))
-                .andRespond(withSuccess(json(
-                        new ApplicationMetadataResource()
-                                .setBaseVersion("1.0")
-                                .setSha1("sha1")
-                ), MediaType.APPLICATION_JSON));
-
-        assertThat(nexusRepo.getApplicationMetadata())
-                .hasFieldOrPropertyWithValue("baseVersion", "1.0")
-                .hasFieldOrPropertyWithValue("sha1", "sha1");
-    }
-
     @Test
     public void testDownloadJAR() {
         server.expect(requestTo("https://beta-meldingsutveksling.difi.no/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT"))

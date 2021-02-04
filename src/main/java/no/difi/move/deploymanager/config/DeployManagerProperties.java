@@ -72,9 +72,6 @@ public class DeployManagerProperties {
     private URL healthURL;
 
     @NotNull
-    private URL nexusProxyURL;
-
-    @NotNull
     @Positive
     private Integer nexusConnectTimeoutInMs;
 
@@ -91,7 +88,6 @@ public class DeployManagerProperties {
     private Integer schedulerFixedRateInMs;
 
     @Valid
-    @NotNull
     @NestedConfigurationProperty
     private IntegrasjonspunktProperties integrasjonspunkt;
 

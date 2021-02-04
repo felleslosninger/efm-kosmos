@@ -4,8 +4,8 @@ import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
-import no.difi.move.deploymanager.repo.dto.ApplicationMetadataResource;
 import no.difi.move.deploymanager.repo.NexusRepo;
+import no.difi.move.deploymanager.repo.dto.ApplicationMetadataResource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,21 +25,28 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class LatestVersionActionTest {
 
-    @Mock private DeployManagerProperties propertiesMock;
-    @Mock private NexusRepo nexusRepoMock;
-    @Mock private Application applicationMock;
+    @Mock
+    private DeployManagerProperties propertiesMock;
+    @Mock
+    private NexusRepo nexusRepoMock;
+    @Mock
+    private Application applicationMock;
 
-    @Captor private ArgumentCaptor<ApplicationMetadata> applicationMetadataArgumentCaptor;
+    @Captor
+    private ArgumentCaptor<ApplicationMetadata> applicationMetadataArgumentCaptor;
 
-    @InjectMocks private LatestVersionAction target;
+    @InjectMocks
+    private LatestVersionAction target;
 
     @Before
     public void before() {
         given(propertiesMock.getRepository()).willReturn("staging");
-        given(nexusRepoMock.getApplicationMetadata()).willReturn(new ApplicationMetadataResource()
-                .setBaseVersion("baseVersion")
-                .setSha1("sha1")
-        );
+        given(nexusRepoMock.getApplicationMetadata())
+                .willReturn(ApplicationMetadataResource.builder()
+                        .baseVersion("baseVersion")
+                        .sha1("sha1")
+                        .build()
+                );
     }
 
     @Test
