@@ -165,7 +165,6 @@
         <dependency>
             <groupId>org.codehaus.janino</groupId>
             <artifactId>janino</artifactId>
-            <version>${org.codehaus.janino.version}</version>
         </dependency>
         <!-- end logging/monitoring -->
 
