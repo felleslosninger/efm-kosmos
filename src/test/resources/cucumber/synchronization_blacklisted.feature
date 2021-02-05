@@ -6,12 +6,12 @@ Feature: Synchronization - Blacklisted
     version=1.7.92-SNAPSHOT
     filename=integrasjonspunkt-1.7.92-SNAPSHOT.jar
     repositoryId=staging
-    sha1=83e1532b48e95cdce524972d397e5460e9529c97
+    sha1=39ba01879f7ededa62f7e5129f140089795e05bc
     """
     And the "integrasjonspunkt-1.7.92-SNAPSHOT.jar" exists as a copy of "/cucumber/success.jar"
     And the "integrasjonspunkt-1.7.93-SNAPSHOT.jar" exists as a copy of "/cucumber/success.jar"
     And the "integrasjonspunkt-1.7.93-SNAPSHOT.blacklisted" exists
-    And the latest integrasjonspunkt version is "1.7.93-SNAPSHOT" with SHA-1 "83e1532b48e95cdce524972d397e5460e9529c97"
+    And the latest integrasjonspunkt version is "1.7.93-SNAPSHOT" with SHA-1 "06d4cfb40c1bfeb3ef8d4ccfd222defe7225d425"
 
   Scenario: Blacklisted
     Given the synchronization handler is triggered
@@ -21,6 +21,6 @@ Feature: Synchronization - Blacklisted
     version=1.7.92-SNAPSHOT
     filename=integrasjonspunkt-1.7.92-SNAPSHOT.jar
     repositoryId=staging
-    sha1=83e1532b48e95cdce524972d397e5460e9529c97
+    sha1=39ba01879f7ededa62f7e5129f140089795e05bc
     """
     And no emails are sent
