@@ -3,8 +3,6 @@ package no.difi.move.deploymanager.repo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import no.difi.move.deploymanager.repo.dto.ApplicationMetadataResource;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -30,9 +28,12 @@ public class NexusRepoTest {
     @ClassRule
     public static final TemporaryFolder TEMP_FOLDER = new TemporaryFolder();
 
-    @Autowired private NexusRepo nexusRepo;
-    @Autowired private MockRestServiceServer server;
-    @Autowired private ObjectMapper objectMapper;
+    @Autowired
+    private NexusRepo nexusRepo;
+    @Autowired
+    private MockRestServiceServer server;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     public void testDownloadJAR() {
