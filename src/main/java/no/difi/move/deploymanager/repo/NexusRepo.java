@@ -28,7 +28,8 @@ import java.util.Optional;
 public class NexusRepo {
 
     private final DeployManagerProperties properties;
-    @Getter private final RestTemplate restTemplate;
+    @Getter
+    private final RestTemplate restTemplate;
 
     public NexusRepo(DeployManagerProperties properties, RestTemplateBuilder restTemplateBuilder) {
         this.properties = properties;
@@ -38,9 +39,11 @@ public class NexusRepo {
                 .build();
     }
 
-    @SneakyThrows(URISyntaxException.class)
     public ApplicationMetadataResource getApplicationMetadata() {
-        return restTemplate.getForObject(properties.getNexusProxyURL().toURI(), ApplicationMetadataResource.class);
+        return ApplicationMetadataResource.builder()
+                .baseVersion(properties.getIntegrasjonspunkt().getLatestVersion())
+                .sha1(properties.getIntegrasjonspunkt().getLatestChecksum())
+                .build();
     }
 
     public void downloadJAR(@NotNull String version, @NotNull Path destination) {

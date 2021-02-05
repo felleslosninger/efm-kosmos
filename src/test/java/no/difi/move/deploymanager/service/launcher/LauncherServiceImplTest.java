@@ -21,6 +21,7 @@ import org.zeroturnaround.exec.StartedProcess;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -38,6 +39,7 @@ import static org.powermock.api.mockito.PowerMockito.whenNew;
 public class LauncherServiceImplTest {
     @Mock private DeployManagerProperties properties;
     @Mock private ActuatorService actuatorService;
+    @Mock private EnvironmentService environmentService;
     @Mock private ProcessExecutor processExecutorMock;
     @Mock private StartedProcess startedProcessMock;
     @Mock private Future<ProcessResult> futureMock;
@@ -65,6 +67,7 @@ public class LauncherServiceImplTest {
         whenNew(ProcessExecutor.class).withAnyArguments().thenReturn(processExecutorMock);
         whenNew(File.class).withAnyArguments().thenReturn(fileMock);
         given(processExecutorMock.directory(any())).willReturn(processExecutorMock);
+        given(processExecutorMock.environment(any())).willReturn(processExecutorMock);
         given(processExecutorMock.redirectOutput(any())).willReturn(processExecutorMock);
         given(processExecutorMock.start()).willReturn(startedProcessMock);
         given(startedProcessMock.getFuture()).willReturn(futureMock);
@@ -74,6 +77,7 @@ public class LauncherServiceImplTest {
     @SneakyThrows
     public void testLaunchIntegrasjonspunkt_whenSuccess() {
         given(actuatorService.getStatus()).willReturn(HealthStatus.UP);
+        given(environmentService.getChildProcessEnvironment()).willReturn(new HashMap<>());
 
         assertThat(launcherService.launchIntegrasjonspunkt("test.jar"))
                 .hasFieldOrPropertyWithValue("jarPath", "test.jar")

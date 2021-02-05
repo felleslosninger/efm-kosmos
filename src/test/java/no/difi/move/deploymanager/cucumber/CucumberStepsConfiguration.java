@@ -7,6 +7,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.DeployManagerMain;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
+import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import no.difi.move.deploymanager.service.launcher.LauncherServiceImpl;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -23,7 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.client.UnorderedRequestExpectationManager;
 
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.*;
 
 @ContextConfiguration(classes = {
         DeployManagerMain.class,
@@ -53,19 +54,29 @@ public class CucumberStepsConfiguration {
         public MockServerRestTemplateCustomizer mockServerRestTemplateCustomizer() {
             return new MockServerRestTemplateCustomizer(UnorderedRequestExpectationManager.class);
         }
+
+        @Bean
+        public IntegrasjonspunktProperties mockIntegrasjonspunktProperties() {
+            return mock(IntegrasjonspunktProperties.class);
+        }
+
     }
 
-    @Autowired private DeployManagerProperties propertiesSpy;
+    @Autowired
+    private DeployManagerProperties propertiesSpy;
+
+    @Autowired
+    private IntegrasjonspunktProperties integrasjonspunktPropertiesMock;
 
     @Rule
     private final TemporaryFolder temporaryFolder = new TemporaryFolder();
-
 
     @Before
     @SneakyThrows
     public void before() {
         temporaryFolder.create();
         doReturn(temporaryFolder.getRoot().getAbsolutePath()).when(propertiesSpy).getRoot();
+        when(propertiesSpy.getIntegrasjonspunkt()).thenReturn(integrasjonspunktPropertiesMock);
     }
 
     @After
