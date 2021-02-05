@@ -42,7 +42,6 @@ public class NexusRepo {
     public ApplicationMetadataResource getApplicationMetadata() {
         return ApplicationMetadataResource.builder()
                 .baseVersion(properties.getIntegrasjonspunkt().getLatestVersion())
-                .sha1(properties.getIntegrasjonspunkt().getLatestChecksum())
                 .build();
     }
 

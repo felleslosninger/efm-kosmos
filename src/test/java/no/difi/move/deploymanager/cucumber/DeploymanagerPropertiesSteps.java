@@ -21,9 +21,8 @@ public class DeploymanagerPropertiesSteps {
         properties.setIntegrasjonspunkt(integrasjonspunktProperties);
     }
 
-    @Given("the latest integrasjonspunkt version is \"([^\"]*)\" with SHA-1 \"([^\"]*)\"$")
-    public void theLatestIntegrasjonspunktVersionIs(String version, String checksum) {
+    @Given("the latest integrasjonspunkt version is \"([^\"]*)\"$")
+    public void theLatestIntegrasjonspunktVersionIs(String version) {
         given(integrasjonspunktProperties.getLatestVersion()).willReturn(version);
-        given(integrasjonspunktProperties.getLatestChecksum()).willReturn(checksum);
     }
 }

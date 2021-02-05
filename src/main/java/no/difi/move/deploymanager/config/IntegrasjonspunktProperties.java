@@ -14,6 +14,5 @@ public class IntegrasjonspunktProperties {
 
     @NotNull
     private String latestVersion;
-    @NotNull
-    private String latestChecksum;
+
 }

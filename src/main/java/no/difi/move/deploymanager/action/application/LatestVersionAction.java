@@ -32,7 +32,6 @@ public class LatestVersionAction implements ApplicationAction {
                     new ApplicationMetadata()
                             .setVersion(applicationMetadata.getBaseVersion())
                             .setRepositoryId(properties.getRepository())
-                            .setSha1(applicationMetadata.getSha1())
             );
             return application;
         } catch (Exception ex) {

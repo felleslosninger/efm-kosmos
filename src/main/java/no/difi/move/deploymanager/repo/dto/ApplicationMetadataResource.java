@@ -11,5 +11,5 @@ import lombok.Value;
 public class ApplicationMetadataResource {
 
     private String baseVersion;
-    private String sha1;
+
 }
