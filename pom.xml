@@ -26,10 +26,6 @@
             <url>https://beta-meldingsutveksling.difi.no/content/repositories/releases/</url>
         </repository>
         <repository>
-            <id>Jsch</id>
-            <url>https://jsch.sf.net/maven2/</url>
-        </repository>
-        <repository>
             <id>MavenArtifactFeed</id>
             <url>https://pkgs.dev.azure.com/dificloud/_packaging/MavenArtifactFeed/maven/v1</url>
             <releases>
