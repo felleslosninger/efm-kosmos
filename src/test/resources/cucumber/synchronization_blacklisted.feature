@@ -11,7 +11,7 @@ Feature: Synchronization - Blacklisted
     And the "integrasjonspunkt-1.7.92-SNAPSHOT.jar" exists as a copy of "/cucumber/success.jar"
     And the "integrasjonspunkt-1.7.93-SNAPSHOT.jar" exists as a copy of "/cucumber/success.jar"
     And the "integrasjonspunkt-1.7.93-SNAPSHOT.blacklisted" exists
-    And the latest integrasjonspunkt version is "1.7.93-SNAPSHOT" with SHA-1 "06d4cfb40c1bfeb3ef8d4ccfd222defe7225d425"
+    And the latest integrasjonspunkt version is "1.7.93-SNAPSHOT"
 
   Scenario: Blacklisted
     Given the synchronization handler is triggered

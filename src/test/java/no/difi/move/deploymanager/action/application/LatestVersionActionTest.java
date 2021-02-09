@@ -44,7 +44,6 @@ public class LatestVersionActionTest {
         given(nexusRepoMock.getApplicationMetadata())
                 .willReturn(ApplicationMetadataResource.builder()
                         .baseVersion("baseVersion")
-                        .sha1("sha1")
                         .build()
                 );
     }
@@ -72,7 +71,6 @@ public class LatestVersionActionTest {
 
         assertThat(captorValue.getVersion()).isEqualTo("baseVersion");
         assertThat(captorValue.getRepositoryId()).isEqualTo("staging");
-        assertThat(captorValue.getSha1()).isEqualTo("sha1");
         assertThat(captorValue.getFile()).isNull();
     }
 }
