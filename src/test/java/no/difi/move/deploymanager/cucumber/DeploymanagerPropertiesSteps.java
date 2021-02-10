@@ -7,13 +7,11 @@ import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import org.junit.Before;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 @RequiredArgsConstructor
 public class DeploymanagerPropertiesSteps {
 
     private final DeployManagerProperties properties;
-
     private final IntegrasjonspunktProperties integrasjonspunktProperties;
 
     @Before
@@ -24,5 +22,15 @@ public class DeploymanagerPropertiesSteps {
     @Given("the latest integrasjonspunkt version is \"([^\"]*)\"$")
     public void theLatestIntegrasjonspunktVersionIs(String version) {
         given(integrasjonspunktProperties.getLatestVersion()).willReturn(version);
+    }
+
+    @Given("the supported major version is unset")
+    public void theCurrentSupportedMajorVersionIsNull(){
+        given(integrasjonspunktProperties.getSupportedMajorVersion()).willReturn(null);
+    }
+
+    @Given("the supported major version is \"([^\"]*)\"$")
+    public void theCurrentSupportedMajorVersionIs(String majorVersion) {
+        given(integrasjonspunktProperties.getSupportedMajorVersion()).willReturn(majorVersion);
     }
 }

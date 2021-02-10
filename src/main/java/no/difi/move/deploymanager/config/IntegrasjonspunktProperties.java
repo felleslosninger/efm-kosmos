@@ -15,4 +15,5 @@ public class IntegrasjonspunktProperties {
     @NotNull
     private String latestVersion;
 
+    private String supportedMajorVersion;
 }

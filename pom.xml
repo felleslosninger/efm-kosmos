@@ -51,6 +51,8 @@
         <docker.image.prefix>difimove2</docker.image.prefix>
         <dockerfile.maven.plugin.version>1.4.3</dockerfile.maven.plugin.version>
         <spring-cloud.version>Hoxton.SR9</spring-cloud.version>
+        <semver4j.version>3.1.0</semver4j.version>
+        <guava.version>30.1-jre</guava.version>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -162,6 +164,17 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vdurmont</groupId>
+            <artifactId>semver4j</artifactId>
+            <version>${semver4j.version}</version>
+        </dependency>
+
 
         <!-- start of logging/monitoring dependencies -->
         <dependency>
