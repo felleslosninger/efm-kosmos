@@ -17,6 +17,7 @@ public class SynchronizationHandler {
 
     private final GetCurrentVersionAction currentVersionAction;
     private final LatestVersionAction latestVersionAction;
+    private final VerifyVersionComplianceAction verifyVersionComplianceAction;
     private final PrepareApplicationAction prepareApplicationAction;
     private final ValidateAction validateAction;
     private final ShutdownAction shutdownAction;
@@ -29,6 +30,7 @@ public class SynchronizationHandler {
         log.debug("Starting synchronization.");
         currentVersionAction
                 .andThen(latestVersionAction)
+                .andThen(verifyVersionComplianceAction)
                 .andThen(prepareApplicationAction)
                 .andThen(validateAction)
                 .andThen(shutdownAction)

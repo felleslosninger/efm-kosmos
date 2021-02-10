@@ -2,10 +2,10 @@ package no.difi.move.deploymanager.cucumber;
 
 import com.dumbster.smtp.SimpleSmtpServer;
 import com.dumbster.smtp.SmtpMessage;
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
 import lombok.RequiredArgsConstructor;
-import org.junit.After;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
