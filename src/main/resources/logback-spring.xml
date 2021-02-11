@@ -6,6 +6,7 @@
     <springProperty name="destination" source="app.logger.destination"/>
     <springProperty name="profiles" source="spring.profiles.active"/>
     <springProperty name="enableLogstash" source="app.logger.enableLogstash"/>
+    <springProperty scope="context" name="serverName" source="HOSTNAME" />
 
     <if condition='property("enableLogstash").contains("true")'>
         <then>
@@ -14,7 +15,7 @@
                 <destination>${destination}</destination>
                 <encoder class="net.logstash.logback.encoder.LogstashEncoder">
                     <customFields>
-                        {"appname":"${artifactId}","buildinfo.version":"${version}","buildinfo.lastcommit":"${buildNumber}","orgnr":"${orgnr}"}
+                        {"appname":"${artifactId}","buildinfo.version":"${version}","buildinfo.lastcommit":"${buildNumber}","orgnr":"${orgnr}","server":"${serverName}"}
                     </customFields>
                     <fieldNames>
                         <!-- Ignore message and stackTrace field here due to possible sensitive data (personal identity number), replaced in pattern below. -->
