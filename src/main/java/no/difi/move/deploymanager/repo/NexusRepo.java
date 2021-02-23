@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
-import no.difi.move.deploymanager.repo.dto.ApplicationMetadataResource;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -36,12 +35,6 @@ public class NexusRepo {
         this.restTemplate = restTemplateBuilder
                 .setConnectTimeout(Duration.ofMillis(properties.getNexusConnectTimeoutInMs()))
                 .setReadTimeout(Duration.ofMillis(properties.getNexusReadTimeoutInMs()))
-                .build();
-    }
-
-    public ApplicationMetadataResource getApplicationMetadata() {
-        return ApplicationMetadataResource.builder()
-                .baseVersion(properties.getIntegrasjonspunkt().getLatestVersion())
                 .build();
     }
 
