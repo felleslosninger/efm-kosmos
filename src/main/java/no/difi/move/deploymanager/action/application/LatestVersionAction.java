@@ -6,7 +6,7 @@ import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
-import no.difi.move.deploymanager.repo.NexusRepo;
+import no.difi.move.deploymanager.service.config.RefreshService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,12 +18,13 @@ import org.springframework.stereotype.Component;
 public class LatestVersionAction implements ApplicationAction {
 
     private final DeployManagerProperties properties;
+    private final RefreshService refreshService;
 
     @Override
     public Application apply(Application application) {
         log.debug("Running LatestVersionAction.");
-
         try {
+            refreshService.refreshConfig();
             log.info("Getting latest version");
             application.setLatest(
                     new ApplicationMetadata()

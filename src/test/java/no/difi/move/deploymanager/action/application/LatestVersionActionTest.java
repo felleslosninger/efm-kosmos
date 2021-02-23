@@ -1,8 +1,10 @@
 package no.difi.move.deploymanager.action.application;
 
+import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import no.difi.move.deploymanager.domain.application.Application;
+import no.difi.move.deploymanager.service.config.RefreshService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,13 +21,19 @@ public class LatestVersionActionTest {
 
     @Mock
     private DeployManagerProperties propertiesMock;
+    @Mock
+    private RefreshService refreshServiceMock;
 
     @InjectMocks
     private LatestVersionAction target;
 
-    @Test
-    public void apply_receivesValidNexusResponse_shouldSetLatestVersion() {
+    @Before
+    public void setUp() throws Exception {
         given(propertiesMock.getRepository()).willReturn("staging");
+    }
+
+    @Test
+    public void apply_ReceivesValidNexusResponse_ShouldSetLatestVersion() {
         IntegrasjonspunktProperties integrasjonspunktProperties = mock(IntegrasjonspunktProperties.class);
         given(integrasjonspunktProperties.getLatestVersion()).willReturn("latest");
         given(propertiesMock.getIntegrasjonspunkt()).willReturn(integrasjonspunktProperties);
@@ -34,5 +42,11 @@ public class LatestVersionActionTest {
 
         assertThat(result.getLatest().getRepositoryId()).isEqualTo("staging");
         assertThat(result.getLatest().getVersion()).isEqualTo("latest");
+    }
+
+    @Test(expected = DeployActionException.class)
+    public void apply_NullPointerExceptionOccurs_ShouldThrowDeployActionException() {
+        given(propertiesMock.getIntegrasjonspunkt()).willThrow(NullPointerException.class);
+        target.apply(new Application());
     }
 }
