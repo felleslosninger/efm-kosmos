@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.DeployManagerMain;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
+import no.difi.move.deploymanager.service.config.RefreshService;
 import no.difi.move.deploymanager.service.launcher.LauncherServiceImpl;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootContextLoader;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.client.MockServerRestTemplateCustomizer;
+import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -58,6 +60,11 @@ public class CucumberStepsConfiguration {
         @Bean
         public IntegrasjonspunktProperties mockIntegrasjonspunktProperties() {
             return mock(IntegrasjonspunktProperties.class);
+        }
+
+        @Bean
+        public ContextRefresher contextRefresher(){
+            return mock(ContextRefresher.class);
         }
 
     }
