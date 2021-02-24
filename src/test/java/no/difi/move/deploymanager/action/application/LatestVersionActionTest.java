@@ -2,25 +2,19 @@ package no.difi.move.deploymanager.action.application;
 
 import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
+import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import no.difi.move.deploymanager.domain.application.Application;
-import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
-import no.difi.move.deploymanager.repo.NexusRepo;
-import no.difi.move.deploymanager.repo.dto.ApplicationMetadataResource;
+import no.difi.move.deploymanager.service.config.RefreshService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LatestVersionActionTest {
@@ -28,49 +22,31 @@ public class LatestVersionActionTest {
     @Mock
     private DeployManagerProperties propertiesMock;
     @Mock
-    private NexusRepo nexusRepoMock;
-    @Mock
-    private Application applicationMock;
-
-    @Captor
-    private ArgumentCaptor<ApplicationMetadata> applicationMetadataArgumentCaptor;
+    private RefreshService refreshServiceMock;
 
     @InjectMocks
     private LatestVersionAction target;
 
     @Before
-    public void before() {
+    public void setUp() throws Exception {
         given(propertiesMock.getRepository()).willReturn("staging");
-        given(nexusRepoMock.getApplicationMetadata())
-                .willReturn(ApplicationMetadataResource.builder()
-                        .baseVersion("baseVersion")
-                        .build()
-                );
     }
 
     @Test
-    public void apply_getApplicationMetadataThrowsException_shouldThrow() {
-        HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.BAD_GATEWAY, "test exception");
-        given(nexusRepoMock.getApplicationMetadata()).willThrow(exception);
+    public void apply_ReceivesValidNexusResponse_ShouldSetLatestVersion() {
+        IntegrasjonspunktProperties integrasjonspunktProperties = mock(IntegrasjonspunktProperties.class);
+        given(integrasjonspunktProperties.getLatestVersion()).willReturn("latest");
+        given(propertiesMock.getIntegrasjonspunkt()).willReturn(integrasjonspunktProperties);
 
-        assertThatThrownBy(() -> target.apply(applicationMock))
-                .isInstanceOf(DeployActionException.class)
-                .hasMessage("Error downloading file")
-                .hasCause(exception);
+        Application result = target.apply(new Application());
+
+        assertThat(result.getLatest().getRepositoryId()).isEqualTo("staging");
+        assertThat(result.getLatest().getVersion()).isEqualTo("latest");
     }
 
-    @Test
-    public void apply_receivesValidNexusResponse_shouldSetLatestVersion() {
-
-        assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
-
-        verify(nexusRepoMock).getApplicationMetadata();
-        verify(applicationMock).setLatest(applicationMetadataArgumentCaptor.capture());
-
-        ApplicationMetadata captorValue = applicationMetadataArgumentCaptor.getValue();
-
-        assertThat(captorValue.getVersion()).isEqualTo("baseVersion");
-        assertThat(captorValue.getRepositoryId()).isEqualTo("staging");
-        assertThat(captorValue.getFile()).isNull();
+    @Test(expected = DeployActionException.class)
+    public void apply_NullPointerExceptionOccurs_ShouldThrowDeployActionException() {
+        given(propertiesMock.getIntegrasjonspunkt()).willThrow(NullPointerException.class);
+        target.apply(new Application());
     }
 }

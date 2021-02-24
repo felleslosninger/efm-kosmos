@@ -6,8 +6,7 @@ import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
-import no.difi.move.deploymanager.repo.dto.ApplicationMetadataResource;
-import no.difi.move.deploymanager.repo.NexusRepo;
+import no.difi.move.deploymanager.service.config.RefreshService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,23 +18,24 @@ import org.springframework.stereotype.Component;
 public class LatestVersionAction implements ApplicationAction {
 
     private final DeployManagerProperties properties;
-    private final NexusRepo nexusRepo;
+    private final RefreshService refreshService;
 
     @Override
     public Application apply(Application application) {
         log.debug("Running LatestVersionAction.");
-
         try {
             log.info("Getting latest version");
-            ApplicationMetadataResource applicationMetadata = nexusRepo.getApplicationMetadata();
+            refreshService.refreshConfig();
+            String latestVersion = properties.getIntegrasjonspunkt().getLatestVersion();
+            log.info("Latest version is set to {}", latestVersion);
             application.setLatest(
                     new ApplicationMetadata()
-                            .setVersion(applicationMetadata.getBaseVersion())
+                            .setVersion(latestVersion)
                             .setRepositoryId(properties.getRepository())
             );
             return application;
         } catch (Exception ex) {
-            throw new DeployActionException("Error downloading file", ex);
+            throw new DeployActionException("Error getting latest version", ex);
         }
     }
 }
