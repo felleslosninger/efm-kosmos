@@ -24,11 +24,13 @@ public class LatestVersionAction implements ApplicationAction {
     public Application apply(Application application) {
         log.debug("Running LatestVersionAction.");
         try {
-            refreshService.refreshConfig();
             log.info("Getting latest version");
+            refreshService.refreshConfig();
+            String latestVersion = properties.getIntegrasjonspunkt().getLatestVersion();
+            log.info("Latest version is set to {}", latestVersion);
             application.setLatest(
                     new ApplicationMetadata()
-                            .setVersion(properties.getIntegrasjonspunkt().getLatestVersion())
+                            .setVersion(latestVersion)
                             .setRepositoryId(properties.getRepository())
             );
             return application;
