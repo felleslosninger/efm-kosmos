@@ -37,29 +37,39 @@ import static org.powermock.api.mockito.PowerMockito.whenNew;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({LauncherServiceImpl.class, File.class})
 public class LauncherServiceImplTest {
-    @Mock private DeployManagerProperties properties;
-    @Mock private ActuatorService actuatorService;
-    @Mock private EnvironmentService environmentService;
-    @Mock private ProcessExecutor processExecutorMock;
-    @Mock private StartedProcess startedProcessMock;
-    @Mock private Future<ProcessResult> futureMock;
-    @Mock private File fileMock;
-    @Mock private StartupLog startupLogMock;
+    @Mock
+    private DeployManagerProperties properties;
+    @Mock
+    private ActuatorService actuatorService;
+    @Mock
+    private EnvironmentService environmentService;
+    @Mock
+    private ProcessExecutor processExecutorMock;
+    @Mock
+    private StartedProcess startedProcessMock;
+    @Mock
+    private Future<ProcessResult> futureMock;
+    @Mock
+    private File fileMock;
+    @Mock
+    private StartupLog startupLogMock;
 
-    @InjectMocks private LauncherServiceImpl launcherService;
+    @InjectMocks
+    private LauncherServiceImpl launcherService;
 
-    @Captor private ArgumentCaptor<List<String>> listArgumentCaptor;
+    @Captor
+    private ArgumentCaptor<List<String>> listArgumentCaptor;
 
     @Before
     @SneakyThrows
     public void before() {
         given(properties.getLaunchPollIntervalInMs()).willReturn(100);
         given(properties.getLaunchTimeoutInMs()).willReturn(300);
-        given(properties.getHome()).willReturn("/tmp/root");
         given(properties.isVerbose()).willReturn(false);
         given(properties.getIntegrasjonspunkt()).willReturn(
                 new IntegrasjonspunktProperties()
                         .setProfile("staging")
+                        .setHome("/tmp/root")
         );
         whenNew(StartupLog.class).withAnyArguments().thenReturn(startupLogMock);
         given(startupLogMock.getStatus()).willReturn(LaunchStatus.UNKNOWN, LaunchStatus.SUCCESS);

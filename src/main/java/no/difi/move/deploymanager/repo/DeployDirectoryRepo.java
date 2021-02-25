@@ -63,7 +63,7 @@ public class DeployDirectoryRepo {
     }
 
     private File getOrCreateHomeFolder() {
-        File home = new File(properties.getHome());
+        File home = new File(properties.getIntegrasjonspunkt().getHome());
 
         if (home.mkdir()) {
             log.info("Created home folder: {}", home.getAbsolutePath());

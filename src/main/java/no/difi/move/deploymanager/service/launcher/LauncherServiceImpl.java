@@ -53,7 +53,7 @@ public class LauncherServiceImpl implements LauncherService {
                     "--management.endpoint.shutdown.enabled=true",
                     "--app.logger.enableSSL=false",
                     "--spring.profiles.active=" + properties.getIntegrasjonspunkt().getProfile()))
-                    .directory(new File(properties.getHome()))
+                    .directory(new File(properties.getIntegrasjonspunkt().getHome()))
                     .environment(environmentService.getChildProcessEnvironment())
                     .redirectOutput(startupLog)
                     .start()

@@ -52,7 +52,7 @@ public class PrepareApplicationAction implements ApplicationAction {
     }
 
     private File getDownloadFile(Application application) {
-        String home = properties.getHome();
+        String home = properties.getIntegrasjonspunkt().getHome();
         String latestVersion = application.getLatest().getVersion();
         return new File(home, String.format("integrasjonspunkt-%s.jar", latestVersion));
     }

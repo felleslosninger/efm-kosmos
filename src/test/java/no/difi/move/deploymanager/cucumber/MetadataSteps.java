@@ -32,7 +32,7 @@ public class MetadataSteps {
 
     @Then("the metadata.properties is updated with:")
     public void thenTheMetadataPropertiesContains(String expectedBody) throws IOException {
-        File metaPropertiesFile = new File(deployManagerProperties.getHome(), "meta.properties");
+        File metaPropertiesFile = new File(deployManagerProperties.getIntegrasjonspunkt().getHome(), "meta.properties");
         List<String> actualLines = Files.readAllLines(metaPropertiesFile.toPath(), StandardCharsets.UTF_8)
                 .stream()
                 .filter(p -> !p.startsWith("#"))

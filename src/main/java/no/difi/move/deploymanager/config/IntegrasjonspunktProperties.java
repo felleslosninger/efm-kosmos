@@ -10,6 +10,9 @@ import java.net.URL;
 public class IntegrasjonspunktProperties {
 
     @NotNull
+    private String home;
+
+    @NotNull
     @Pattern(regexp = "dev|itest|staging|production")
     private String profile;
 

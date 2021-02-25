@@ -81,7 +81,7 @@ public class CucumberStepsConfiguration {
     @SneakyThrows
     public void before() {
         temporaryFolder.create();
-        doReturn(temporaryFolder.getRoot().getAbsolutePath()).when(propertiesSpy).getHome();
+        doReturn(temporaryFolder.getRoot().getAbsolutePath()).when(integrasjonspunktPropertiesMock).getHome();
         when(propertiesSpy.getIntegrasjonspunkt()).thenReturn(integrasjonspunktPropertiesMock);
     }
 

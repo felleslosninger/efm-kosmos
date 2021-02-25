@@ -26,9 +26,6 @@ public class DeployManagerProperties {
     private String orgnumber;
 
     @NotNull
-    private String home;
-
-    @NotNull
     private URL nexus;
 
     @NotNull
