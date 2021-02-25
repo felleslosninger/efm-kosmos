@@ -42,9 +42,6 @@ public class DeployManagerProperties {
     private String artifactId;
 
     @NotNull
-    private URL shutdownURL;
-
-    @NotNull
     @Positive
     private Integer actuatorConnectTimeoutInMs;
 
@@ -67,9 +64,6 @@ public class DeployManagerProperties {
     @NotNull
     @Positive
     private Integer launchPollIntervalInMs;
-
-    @NotNull
-    private URL healthURL;
 
     @NotNull
     @Positive

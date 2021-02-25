@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
+import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import no.difi.move.deploymanager.domain.HealthStatus;
 import no.difi.move.deploymanager.service.actuator.dto.HealthResource;
 import no.difi.move.deploymanager.service.actuator.dto.ShutdownResource;
@@ -38,7 +39,7 @@ public class ActuatorClient {
     @SneakyThrows(URISyntaxException.class)
     HealthStatus getStatus() {
         try {
-            URI url = deployManagerProperties.getHealthURL().toURI();
+            URI url = deployManagerProperties.getIntegrasjonspunkt().getHealthURL().toURI();
             return Optional.ofNullable(restTemplate.getForObject(url, HealthResource.class))
                     .map(p -> HealthStatus.fromString(p.getStatus()))
                     .orElse(HealthStatus.UNKNOWN);
@@ -54,7 +55,7 @@ public class ActuatorClient {
     @SneakyThrows(URISyntaxException.class)
     boolean requestShutdown() {
         try {
-            URI url = deployManagerProperties.getShutdownURL().toURI();
+            URI url = deployManagerProperties.getIntegrasjonspunkt().getShutdownURL().toURI();
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
             HttpEntity<?> httpEntity = new HttpEntity<>(headers);

@@ -1,11 +1,9 @@
 [![Build Status](https://dev.azure.com/dificloud/eformidling/_apis/build/status/felleslosninger.efm-deploy-manager?repoName=felleslosninger%2Fefm-deploy-manager&branchName=feature-MOVE-2110-pipeline)](https://dev.azure.com/dificloud/eformidling/_build/latest?definitionId=27&repoName=felleslosninger%2Fefm-deploy-manager&branchName=feature-MOVE-2110-pipeline)
 
-#Move-Deploy-Manager
-
-**this information is currently outdated (15.10.20) and needs a review**
+#Efm-Deploy-Manager
 
 ## Installation
-
+<del>
 ### Obtain the DIFI JAR signer public key certificate
 
 Obtain the JAR signer public key certificate from Direktoratet for forvaltning og IKT (DIFI). 
@@ -30,6 +28,7 @@ keytool -printcert -file dif_certsign_2019_withchain.crt
 
 If the fingerprints he sees are the same as the ones reported to you by keytool, then you both can assume that the certificate has not been modified in transit. You can safely let keytool procede to place a "trusted certificate" entry into your keystore. This entry contains the public key certificate data from the file dif_certsign_2019_withchain.crt. keytool assigns the alias stan to this new entry.
 
+</del>
 ### Running Move-Deploy-Manager as a Windows service
 
 We are using [https://github.com/kohsuke/winsw] as a Windows service wrapper. Please follow the installation instructions using the following configuration:
@@ -45,12 +44,8 @@ We are using [https://github.com/kohsuke/winsw] as a Windows service wrapper. Pl
   <description>Keeps the integrasjonspunkt application up-to-date.</description>
   
   <!-- Path to the executable, which should be started -->
-  <executable>javaw</executable>
-  <startargument>-jar</startargument>
-
-  <!-- Path to the Move-Deploy-Manager JAR file -->
-  <startargument>%BASE%\deploymanager-X.X.X.jar</startargument>   
-            
+  <executable>java</executable>
+  <arguments>-jar %BASE%\deploymanager-x.y.z.jar --spring.profiles.active=production</arguments>          
   <logpath>%BASE%\deploymanager-logs</logpath>
   
   <log mode="roll-by-size">
@@ -68,16 +63,14 @@ You will need a file named deploymanager-local.properties in the same folder as 
 Here is an example - Please replace the properties with your information:
 
 ```properties
-spring.profiles.active=production
-
-app.logger.enableSSL=true
-app.logger.jks=file:c:/jks/logstash.jks
-app.logger.password=logstash
-
 # Replace with your organization
 deploymanager.orgnumber=900000000
 
 deploymanager.root=c:/apps/integrasjonspunkt
+
+# Replace hosts and ports of URL with the location
+# of your integrasjonspunkt.
+deploymanager.integrasjonspunkt.URL=http://localhost:9093
 
 deploymanager.keystore.path=file:c:/jks/deploymanager.jks
 deploymanager.keystore.password=xxx
@@ -89,6 +82,7 @@ deploymanager.mail.recipient=someone@yourdomain.no
 deploymanager.mail.from=noreply@yourdomain.no
 
 spring.mail.host=smtp.yourdomain.no
+spring.mail.port=<set-your-port-here>
 ```  
 
 

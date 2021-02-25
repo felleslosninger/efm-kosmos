@@ -25,12 +25,14 @@ Feature: Synchronization - Upgrade
         "status": "UP"
     }
     """
+    And the shutdown URL is "http://localhost:9092/manage/shutdown"
     And a "POST" request to "http://localhost:9092/manage/shutdown" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
     """
     {
         "message": "Shutting down, bye..."
     }
     """
+    And the health URL is "http://localhost:9092/manage/health"
     And a "GET" request to "http://localhost:9092/manage/health" will respond with connection refused
     And a "GET" request to "http://localhost:9092/manage/health" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
     """
