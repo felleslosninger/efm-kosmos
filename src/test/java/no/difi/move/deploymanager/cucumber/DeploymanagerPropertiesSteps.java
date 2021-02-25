@@ -6,6 +6,8 @@ import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import org.junit.Before;
 
+import java.net.URL;
+
 import static org.mockito.BDDMockito.given;
 
 @RequiredArgsConstructor
@@ -32,5 +34,10 @@ public class DeploymanagerPropertiesSteps {
     @Given("the supported major version is \"([^\"]*)\"$")
     public void theCurrentSupportedMajorVersionIs(String majorVersion) {
         given(integrasjonspunktProperties.getSupportedMajorVersion()).willReturn(majorVersion);
+    }
+
+    @Given("the shutdown URL is \"([^\"]*)\"$")
+    public void theShutdownUrlIs(URL url){
+        given(integrasjonspunktProperties.getShutdownURL()).willReturn(url);
     }
 }

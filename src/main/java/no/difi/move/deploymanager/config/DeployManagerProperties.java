@@ -42,9 +42,6 @@ public class DeployManagerProperties {
     private String artifactId;
 
     @NotNull
-    private URL shutdownURL;
-
-    @NotNull
     @Positive
     private Integer actuatorConnectTimeoutInMs;
 
