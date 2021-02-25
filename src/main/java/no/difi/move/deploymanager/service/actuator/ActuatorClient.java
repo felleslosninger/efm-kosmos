@@ -39,7 +39,7 @@ public class ActuatorClient {
     @SneakyThrows(URISyntaxException.class)
     HealthStatus getStatus() {
         try {
-            URI url = deployManagerProperties.getHealthURL().toURI();
+            URI url = deployManagerProperties.getIntegrasjonspunkt().getHealthURL().toURI();
             return Optional.ofNullable(restTemplate.getForObject(url, HealthResource.class))
                     .map(p -> HealthStatus.fromString(p.getStatus()))
                     .orElse(HealthStatus.UNKNOWN);

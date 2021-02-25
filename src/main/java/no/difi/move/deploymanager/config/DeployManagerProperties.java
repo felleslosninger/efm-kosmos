@@ -66,9 +66,6 @@ public class DeployManagerProperties {
     private Integer launchPollIntervalInMs;
 
     @NotNull
-    private URL healthURL;
-
-    @NotNull
     @Positive
     private Integer nexusConnectTimeoutInMs;
 

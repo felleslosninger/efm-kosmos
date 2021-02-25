@@ -40,4 +40,9 @@ public class DeploymanagerPropertiesSteps {
     public void theShutdownUrlIs(URL url){
         given(integrasjonspunktProperties.getShutdownURL()).willReturn(url);
     }
+
+    @Given("the health URL is \"([^\"]*)\"$")
+    public void theHealthUrlIs(URL url){
+        given(integrasjonspunktProperties.getHealthURL()).willReturn(url);
+    }
 }

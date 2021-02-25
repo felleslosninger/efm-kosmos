@@ -20,6 +20,7 @@ Feature: Synchronization - Rollback
     """
     d45f066d54edf0c99ead70d3305865a5
     """
+    And the health URL is "http://localhost:9092/manage/health"
     And a "GET" request to "http://localhost:9092/manage/health" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
     """
     {
