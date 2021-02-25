@@ -68,10 +68,9 @@ deploymanager.orgnumber=900000000
 
 deploymanager.root=c:/apps/integrasjonspunkt
 
-# Replace hosts and ports health and shutdown URL with the location
+# Replace hosts and ports of URL with the location
 # of your integrasjonspunkt.
-deploymanager.integrasjonspunkt.healthURL=http://localhost:9093/manage/health
-deploymanager.integrasjonspunkt.shutdownURL=http://localhost:9093/manage/shutdown
+deploymanager.integrasjonspunkt.URL=http://localhost:9093
 
 deploymanager.keystore.path=file:c:/jks/deploymanager.jks
 deploymanager.keystore.password=xxx
