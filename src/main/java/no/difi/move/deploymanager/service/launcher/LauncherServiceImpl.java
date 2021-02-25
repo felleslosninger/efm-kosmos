@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -54,7 +53,7 @@ public class LauncherServiceImpl implements LauncherService {
                     "--management.endpoint.shutdown.enabled=true",
                     "--app.logger.enableSSL=false",
                     "--spring.profiles.active=" + properties.getIntegrasjonspunkt().getProfile()))
-                    .directory(new File(properties.getRoot()))
+                    .directory(new File(properties.getHome()))
                     .environment(environmentService.getChildProcessEnvironment())
                     .redirectOutput(startupLog)
                     .start()

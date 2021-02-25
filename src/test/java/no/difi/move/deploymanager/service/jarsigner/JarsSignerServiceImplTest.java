@@ -28,7 +28,7 @@ public class JarsSignerServiceImplTest {
     @SuppressWarnings("unused")
     @Spy
     private DeployManagerProperties properties = new DeployManagerProperties()
-            .setRoot("/tmp/root")
+            .setHome("/tmp/root")
             .setKeystore(new KeystoreProperties()
                     .setPath("/keystore/keystore.jks")
                     .setPassword("xxx")

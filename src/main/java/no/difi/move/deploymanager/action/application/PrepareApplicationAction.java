@@ -52,8 +52,8 @@ public class PrepareApplicationAction implements ApplicationAction {
     }
 
     private File getDownloadFile(Application application) {
-        String root = properties.getRoot();
+        String home = properties.getHome();
         String latestVersion = application.getLatest().getVersion();
-        return new File(root, String.format("integrasjonspunkt-%s.jar", latestVersion));
+        return new File(home, String.format("integrasjonspunkt-%s.jar", latestVersion));
     }
 }

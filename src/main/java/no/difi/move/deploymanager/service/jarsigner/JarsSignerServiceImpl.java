@@ -24,7 +24,7 @@ public class JarsSignerServiceImpl implements JarsSignerService {
     @SneakyThrows({IOException.class, InterruptedException.class, TimeoutException.class, InvalidExitValueException.class})
     public void verify(String path) {
         new ProcessExecutor(getCommand(path))
-                .directory(new File(properties.getRoot()))
+                .directory(new File(properties.getHome()))
                 .redirectOutput(Slf4jStream.ofCaller().asInfo())
                 .exitValues(0, 16) /* Exit value 16 accepts unsigned JARs */
                 .execute();

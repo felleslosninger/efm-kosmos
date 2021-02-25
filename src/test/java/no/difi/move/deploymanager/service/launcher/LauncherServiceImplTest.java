@@ -55,7 +55,7 @@ public class LauncherServiceImplTest {
     public void before() {
         given(properties.getLaunchPollIntervalInMs()).willReturn(100);
         given(properties.getLaunchTimeoutInMs()).willReturn(300);
-        given(properties.getRoot()).willReturn("/tmp/root");
+        given(properties.getHome()).willReturn("/tmp/root");
         given(properties.isVerbose()).willReturn(false);
         given(properties.getIntegrasjonspunkt()).willReturn(
                 new IntegrasjonspunktProperties()

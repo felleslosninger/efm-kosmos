@@ -43,7 +43,7 @@ public class DeployDirectoryRepo {
     }
 
     public File getFile(String filename) {
-        File file = new File(getOrCreateRoot(), filename);
+        File file = new File(getOrCreateHomeFolder(), filename);
 
         if (file.exists()) {
             return file;
@@ -53,20 +53,20 @@ public class DeployDirectoryRepo {
     }
 
     private File getOrCreateFile(String file) throws IOException {
-        File root = getOrCreateRoot();
-        File propertiesFile = new File(root, file);
+        File homeFolder = getOrCreateHomeFolder();
+        File propertiesFile = new File(homeFolder, file);
         if (propertiesFile.createNewFile()) {
             log.info("Created file: {}", propertiesFile.getAbsolutePath());
         }
         return propertiesFile;
     }
 
-    private File getOrCreateRoot() {
-        File root = new File(properties.getRoot());
-        if (root.mkdir()) {
-            log.info("Created root folder: {}", root.getAbsolutePath());
+    private File getOrCreateHomeFolder() {
+        File home = new File(properties.getHome());
+        if (home.mkdir()) {
+            log.info("Created home folder: {}", home.getAbsolutePath());
         }
-        return root;
+        return home;
     }
 
     @SneakyThrows

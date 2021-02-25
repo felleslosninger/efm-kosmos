@@ -55,7 +55,7 @@ public class PrepareApplicationActionTest {
                 .setCurrent(new ApplicationMetadata().setVersion(OLDER_APPLICATION_VERSION))
                 .setLatest(new ApplicationMetadata().setVersion(NEW_APPLICATION_VERSION));
 
-        given(propertiesMock.getRoot()).willReturn("");
+        given(propertiesMock.getHome()).willReturn("");
 
         whenNew(File.class).withParameterTypes(String.class, String.class)
                 .withArguments(Mockito.anyString(), Mockito.anyString())
