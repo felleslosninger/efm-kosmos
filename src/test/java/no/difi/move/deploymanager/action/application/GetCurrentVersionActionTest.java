@@ -3,9 +3,11 @@ package no.difi.move.deploymanager.action.application;
 import lombok.SneakyThrows;
 import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
+import no.difi.move.deploymanager.domain.VersionInfo;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
+import no.difi.move.deploymanager.service.actuator.ActuatorService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +38,7 @@ public class GetCurrentVersionActionTest {
     @Mock private DeployDirectoryRepo repoMock;
     @Mock private Application applicationMock;
     @Mock private File fileMock;
+    @Mock private ActuatorService actuatorService;
 
     @Captor private ArgumentCaptor<ApplicationMetadata> applicationMetadataArgumentCaptor;
 
@@ -45,9 +48,14 @@ public class GetCurrentVersionActionTest {
     @SneakyThrows(IOException.class)
     public void before() {
         given(propertiesMock.getRepository()).willReturn("staging");
+        given(actuatorService.getVersionInfo()).willReturn(
+                VersionInfo.builder()
+                        .resolved(true)
+                        .version("1.0")
+                        .build()
+        );
 
         metadata = new Properties();
-        metadata.setProperty("version", "1.0");
         metadata.setProperty("sha1", "sha1value");
         metadata.setProperty("filename", "file.jar");
 
@@ -101,13 +109,15 @@ public class GetCurrentVersionActionTest {
 
     @Test
     public void apply_whenNoVersion() {
-        metadata.remove("version");
+        given(actuatorService.getVersionInfo())
+                .willReturn(VersionInfo.builder()
+                        .resolved(false).build());
 
         assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
 
         verify(applicationMock).setCurrent(applicationMetadataArgumentCaptor.capture());
 
         ApplicationMetadata captorValue = applicationMetadataArgumentCaptor.getValue();
-        assertThat(captorValue.getVersion()).isEqualTo("none");
+        assertThat(captorValue.getVersion()).isNull();
     }
 }

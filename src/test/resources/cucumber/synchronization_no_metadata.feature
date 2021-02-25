@@ -2,6 +2,8 @@ Feature: Synchronization - No metadata
 
   Background:
     Given the latest integrasjonspunkt version is "1.7.93-SNAPSHOT"
+    And the info URL is "http://localhost:9092/manage/info"
+    And a "GET" request to "http://localhost:9092/manage/info" will respond with connection refused
     And the supported major version is unset
     And a "GET" request to "https://beta-meldingsutveksling.difi.no/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT" will respond with status "200" and the following "application/java-archive" in "/cucumber/success.jar"
     And a "GET" request to "https://beta-meldingsutveksling.difi.no/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT&e=jar.sha1" will respond with status "200" and the following "application/octet-stream"

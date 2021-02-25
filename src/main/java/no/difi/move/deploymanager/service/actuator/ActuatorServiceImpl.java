@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.HealthStatus;
+import no.difi.move.deploymanager.domain.VersionInfo;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -45,5 +46,11 @@ public class ActuatorServiceImpl implements ActuatorService {
         log.warn("Could not shutdown application");
 
         return false;
+    }
+
+    @Override
+    public VersionInfo getVersionInfo() {
+        log.info("Getting version info");
+        return actuatorClient.getVersionInfo();
     }
 }
