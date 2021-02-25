@@ -43,8 +43,9 @@ public class DeployDirectoryRepo {
     }
 
     public File getFile(String filename) {
-        File file = new File(getOrCreateHomeFolder(), filename);
-
+        File homeFolder = getOrCreateHomeFolder();
+        log.info("Home folder is set to: {}", homeFolder.getAbsolutePath());
+        File file = new File(homeFolder, filename);
         if (file.exists()) {
             return file;
         }
@@ -63,6 +64,7 @@ public class DeployDirectoryRepo {
 
     private File getOrCreateHomeFolder() {
         File home = new File(properties.getHome());
+
         if (home.mkdir()) {
             log.info("Created home folder: {}", home.getAbsolutePath());
         }
