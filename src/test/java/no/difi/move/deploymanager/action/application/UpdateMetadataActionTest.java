@@ -27,11 +27,15 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class UpdateMetadataActionTest {
 
-    @InjectMocks private UpdateMetadataAction target;
+    @InjectMocks
+    private UpdateMetadataAction target;
 
-    @Mock private DeployDirectoryRepo repoMock;
-    @Mock private Properties metaDataMock;
-    @Mock private File fileMock;
+    @Mock
+    private DeployDirectoryRepo repoMock;
+    @Mock
+    private Properties metaDataMock;
+    @Mock
+    private File fileMock;
 
     private Application application;
 
@@ -40,7 +44,6 @@ public class UpdateMetadataActionTest {
         application = new Application()
                 .setLatest(new ApplicationMetadata()
                         .setVersion("1.0")
-                        .setRepositoryId("staging")
                         .setFile(fileMock)
                 ).setLaunchResult(new LaunchResult()
                         .setStatus(LaunchStatus.SUCCESS)
@@ -94,7 +97,6 @@ public class UpdateMetadataActionTest {
         assertThat(target.apply(application)).isSameAs(application);
 
         verify(metaDataMock).setProperty("version", "1.0");
-        verify(metaDataMock).setProperty("repositoryId", "staging");
         verify(metaDataMock).setProperty("filename", "filename.jar");
         verify(repoMock).setMetadata(metaDataMock);
     }

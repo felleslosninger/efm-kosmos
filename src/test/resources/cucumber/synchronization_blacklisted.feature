@@ -5,7 +5,6 @@ Feature: Synchronization - Blacklisted
     """
     version=1.7.92-SNAPSHOT
     filename=integrasjonspunkt-1.7.92-SNAPSHOT.jar
-    repositoryId=staging
     """
     And the info URL is "http://localhost:9092/manage/info"
     And a "GET" request to "http://localhost:9092/manage/info" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
@@ -33,6 +32,5 @@ Feature: Synchronization - Blacklisted
     """
     version=1.7.92-SNAPSHOT
     filename=integrasjonspunkt-1.7.92-SNAPSHOT.jar
-    repositoryId=staging
     """
     And no emails are sent

@@ -5,7 +5,6 @@ Feature: Synchronization - Major version not supported
     """
     version=1.9.0
     filename=integrasjonspunkt-1.9.0.jar
-    repositoryId=staging
     """
     And the info URL is "http://localhost:9092/manage/info"
     And a "GET" request to "http://localhost:9092/manage/info" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
@@ -32,6 +31,5 @@ Feature: Synchronization - Major version not supported
     """
     version=1.9.0
     filename=integrasjonspunkt-1.9.0.jar
-    repositoryId=staging
     """
     And no emails are sent

@@ -36,7 +36,6 @@ Feature: Synchronization - No metadata
     """
     version=1.7.93-SNAPSHOT
     filename=integrasjonspunkt-1.7.93-SNAPSHOT.jar
-    repositoryId=staging
     """
     And an email is sent with subject "Upgrade SUCCESS integrasjonspunkt-1.7.93-SNAPSHOT.jar" and content:
     """

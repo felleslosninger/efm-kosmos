@@ -10,7 +10,6 @@ import java.io.File;
 @Data
 public class ApplicationMetadata {
 
-    private String repositoryId;
     private String version;
     private File file;
 }

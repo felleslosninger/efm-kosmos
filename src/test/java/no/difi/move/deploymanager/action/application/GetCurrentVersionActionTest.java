@@ -28,26 +28,31 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-
 @RunWith(MockitoJUnitRunner.class)
 public class GetCurrentVersionActionTest {
 
-    @InjectMocks private GetCurrentVersionAction target;
+    @InjectMocks
+    private GetCurrentVersionAction target;
 
-    @Mock private DeployManagerProperties propertiesMock;
-    @Mock private DeployDirectoryRepo repoMock;
-    @Mock private Application applicationMock;
-    @Mock private File fileMock;
-    @Mock private ActuatorService actuatorService;
+    @Mock
+    private DeployManagerProperties propertiesMock;
+    @Mock
+    private DeployDirectoryRepo repoMock;
+    @Mock
+    private Application applicationMock;
+    @Mock
+    private File fileMock;
+    @Mock
+    private ActuatorService actuatorService;
 
-    @Captor private ArgumentCaptor<ApplicationMetadata> applicationMetadataArgumentCaptor;
+    @Captor
+    private ArgumentCaptor<ApplicationMetadata> applicationMetadataArgumentCaptor;
 
     private Properties metadata;
 
     @Before
     @SneakyThrows(IOException.class)
     public void before() {
-        given(propertiesMock.getRepository()).willReturn("staging");
         given(actuatorService.getVersionInfo()).willReturn(
                 VersionInfo.builder()
                         .resolved(true)
@@ -88,7 +93,6 @@ public class GetCurrentVersionActionTest {
         ApplicationMetadata captorValue = applicationMetadataArgumentCaptor.getValue();
 
         assertThat(captorValue.getVersion()).isEqualTo("1.0");
-        assertThat(captorValue.getRepositoryId()).isEqualTo("staging");
         assertThat(captorValue.getFile()).isSameAs(fileMock);
     }
 
