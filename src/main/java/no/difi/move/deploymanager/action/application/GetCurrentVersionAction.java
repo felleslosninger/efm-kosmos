@@ -37,7 +37,6 @@ public class GetCurrentVersionAction implements ApplicationAction {
             Properties metadata = directoryRepo.getMetadata();
             application.setCurrent(
                     new ApplicationMetadata()
-                            .setVersion(metadata.getProperty("version", "none"))
                             .setVersion(versionInfo.getVersion())
                             .setRepositoryId(properties.getRepository())
                             .setSha1(metadata.getProperty("sha1"))
