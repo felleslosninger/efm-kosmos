@@ -56,7 +56,6 @@ public class GetCurrentVersionActionTest {
         );
 
         metadata = new Properties();
-        metadata.setProperty("sha1", "sha1value");
         metadata.setProperty("filename", "file.jar");
 
         given(repoMock.getFile(any())).willReturn(fileMock);
@@ -90,7 +89,6 @@ public class GetCurrentVersionActionTest {
 
         assertThat(captorValue.getVersion()).isEqualTo("1.0");
         assertThat(captorValue.getRepositoryId()).isEqualTo("staging");
-        assertThat(captorValue.getSha1()).isEqualTo("sha1value");
         assertThat(captorValue.getFile()).isSameAs(fileMock);
     }
 

@@ -39,7 +39,6 @@ public class GetCurrentVersionAction implements ApplicationAction {
                     new ApplicationMetadata()
                             .setVersion(versionInfo.getVersion())
                             .setRepositoryId(properties.getRepository())
-                            .setSha1(metadata.getProperty("sha1"))
                             .setFile(getFile(metadata.getProperty("filename")))
             );
         } catch (IOException ex) {

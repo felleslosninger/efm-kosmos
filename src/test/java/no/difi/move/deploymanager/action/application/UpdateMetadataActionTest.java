@@ -40,7 +40,6 @@ public class UpdateMetadataActionTest {
         application = new Application()
                 .setLatest(new ApplicationMetadata()
                         .setVersion("1.0")
-                        .setSha1("sha1")
                         .setRepositoryId("staging")
                         .setFile(fileMock)
                 ).setLaunchResult(new LaunchResult()
@@ -95,7 +94,6 @@ public class UpdateMetadataActionTest {
         assertThat(target.apply(application)).isSameAs(application);
 
         verify(metaDataMock).setProperty("version", "1.0");
-        verify(metaDataMock).setProperty("sha1", "sha1");
         verify(metaDataMock).setProperty("repositoryId", "staging");
         verify(metaDataMock).setProperty("filename", "filename.jar");
         verify(repoMock).setMetadata(metaDataMock);

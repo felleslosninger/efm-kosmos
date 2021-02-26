@@ -12,6 +12,5 @@ public class ApplicationMetadata {
 
     private String repositoryId;
     private String version;
-    private String sha1;
     private File file;
 }

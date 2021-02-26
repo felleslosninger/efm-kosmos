@@ -33,9 +33,6 @@ public class UpdateMetadataAction implements ApplicationAction {
             ApplicationMetadata applicationMetadata = getApplicationMetadata(application);
             Properties directoryProperties = directoryRepo.getMetadata();
             directoryProperties.setProperty("version", applicationMetadata.getVersion());
-            if (application.getLatest().getSha1() != null) {
-                directoryProperties.setProperty("sha1", applicationMetadata.getSha1());
-            }
             directoryProperties.setProperty("repositoryId", applicationMetadata.getRepositoryId());
             directoryProperties.setProperty("filename", applicationMetadata.getFile().getName());
             directoryRepo.setMetadata(directoryProperties);

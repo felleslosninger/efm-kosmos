@@ -6,7 +6,6 @@ Feature: Synchronization - No Change
     version=1.7.93-SNAPSHOT
     filename=integrasjonspunkt-1.7.93-SNAPSHOT.jar
     repositoryId=staging
-    sha1=39ba01879f7ededa62f7e5129f140089795e05bc
     """
     And the info URL is "http://localhost:9092/manage/info"
     And a "GET" request to "http://localhost:9092/manage/info" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
@@ -54,6 +53,5 @@ Feature: Synchronization - No Change
     version=1.7.93-SNAPSHOT
     filename=integrasjonspunkt-1.7.93-SNAPSHOT.jar
     repositoryId=staging
-    sha1=39ba01879f7ededa62f7e5129f140089795e05bc
     """
     And no emails are sent
