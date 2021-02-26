@@ -21,27 +21,27 @@ public class DeploymanagerPropertiesSteps {
         properties.setIntegrasjonspunkt(integrasjonspunktProperties);
     }
 
-    @Given("the latest integrasjonspunkt version is \"([^\"]*)\"$")
+    @Given("^the latest integrasjonspunkt version is \"([^\"]*)\"$")
     public void theLatestIntegrasjonspunktVersionIs(String version) {
         given(integrasjonspunktProperties.getLatestVersion()).willReturn(version);
     }
 
-    @Given("the supported major version is unset")
+    @Given("^the supported major version is unset$")
     public void theCurrentSupportedMajorVersionIsNull(){
         given(integrasjonspunktProperties.getSupportedMajorVersion()).willReturn(null);
     }
 
-    @Given("the supported major version is \"([^\"]*)\"$")
+    @Given("^the supported major version is \"([^\"]*)\"$")
     public void theCurrentSupportedMajorVersionIs(String majorVersion) {
         given(integrasjonspunktProperties.getSupportedMajorVersion()).willReturn(majorVersion);
     }
 
-    @Given("the shutdown URL is \"([^\"]*)\"$")
+    @Given("^the shutdown URL is \"([^\"]*)\"$")
     public void theShutdownUrlIs(URL url){
         given(integrasjonspunktProperties.getShutdownURL()).willReturn(url);
     }
 
-    @Given("the health URL is \"([^\"]*)\"$")
+    @Given("^the health URL is \"([^\"]*)\"$")
     public void theHealthUrlIs(URL url){
         given(integrasjonspunktProperties.getHealthURL()).willReturn(url);
     }
