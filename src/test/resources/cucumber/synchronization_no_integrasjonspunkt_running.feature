@@ -1,4 +1,4 @@
-Feature: Synchronization - No metadata
+Feature: Synchronization - No integrasjonspunkt running on client
 
   Background:
     Given the latest integrasjonspunkt version is "1.7.93-SNAPSHOT"
@@ -14,13 +14,6 @@ Feature: Synchronization - No metadata
     """
     e343ab4e4151f822331e7f5998b26ecc
     """
-    And a "GET" request to "http://localhost:9092/manage/health" will respond with connection refused
-    And a "GET" request to "http://localhost:9092/manage/health" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
-    """
-    {
-        "status": "UP"
-    }
-    """
     And the health URL is "http://localhost:9092/manage/health"
     And a "GET" request to "http://localhost:9092/manage/health" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
     """
@@ -28,15 +21,16 @@ Feature: Synchronization - No metadata
         "status": "UP"
     }
     """
+    And a "GET" request to "http://localhost:9092/manage/health" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
+    """
+    {
+        "status": "UP"
+    }
+    """
 
-  Scenario: No meta data and no application is running
+  Scenario: No integrasjonspunkt is running
     Given the synchronization handler is triggered
     Then the "integrasjonspunkt-1.7.93-SNAPSHOT.jar" is successfully launched
-    And the metadata.properties is updated with:
-    """
-    version=1.7.93-SNAPSHOT
-    filename=integrasjonspunkt-1.7.93-SNAPSHOT.jar
-    """
     And an email is sent with subject "Upgrade SUCCESS integrasjonspunkt-1.7.93-SNAPSHOT.jar" and content:
     """
     Started IntegrasjonspunktApplication

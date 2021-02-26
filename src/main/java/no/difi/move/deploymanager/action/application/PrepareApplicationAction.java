@@ -11,22 +11,18 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 
-/**
- * @author Nikolai Luthman <nikolai dot luthman at inmeta dot no>
- */
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class PrepareApplicationAction implements ApplicationAction {
 
-    private final DeployManagerProperties properties;
     private final NexusRepo nexusRepo;
     private final DeployDirectoryRepo deployDirectoryRepo;
 
     public Application apply(Application application) {
         log.debug("Running PrepareApplicationAction.");
         log.info("Preparing application.");
-        File downloadFile = getDownloadFile(application);
+        File downloadFile = deployDirectoryRepo.getFile(application.getLatest().getVersion());
 
         if (deployDirectoryRepo.isBlackListed(downloadFile)) {
             throw new DeployActionException(
@@ -51,9 +47,4 @@ public class PrepareApplicationAction implements ApplicationAction {
         nexusRepo.downloadJAR(application.getLatest().getVersion(), destination.toPath());
     }
 
-    private File getDownloadFile(Application application) {
-        String root = properties.getRoot();
-        String latestVersion = application.getLatest().getVersion();
-        return new File(root, String.format("integrasjonspunkt-%s.jar", latestVersion));
-    }
 }

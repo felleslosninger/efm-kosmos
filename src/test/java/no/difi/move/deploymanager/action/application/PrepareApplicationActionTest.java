@@ -2,7 +2,6 @@ package no.difi.move.deploymanager.action.application;
 
 import lombok.SneakyThrows;
 import no.difi.move.deploymanager.action.DeployActionException;
-import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
@@ -13,7 +12,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.HttpStatus;
@@ -26,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.doThrow;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
@@ -37,14 +36,19 @@ public class PrepareApplicationActionTest {
     private static final String NEW_APPLICATION_VERSION = "newVersion";
     private static final String OLDER_APPLICATION_VERSION = "olderVersion";
 
-    @InjectMocks private PrepareApplicationAction target;
+    @InjectMocks
+    private PrepareApplicationAction target;
 
-    @Mock private DeployManagerProperties propertiesMock;
-    @Mock private NexusRepo nexusRepoMock;
-    @Mock private DeployDirectoryRepo deployDirectoryRepoMock;
-    @Mock private File fileMock;
-    @Mock private File blackListedFileMock;
-    @Mock private Path pathMock;
+    @Mock
+    private NexusRepo nexusRepoMock;
+    @Mock
+    private DeployDirectoryRepo deployDirectoryRepoMock;
+    @Mock
+    private File fileMock;
+    @Mock
+    private File blackListedFileMock;
+    @Mock
+    private Path pathMock;
 
     private Application application;
 
@@ -55,22 +59,22 @@ public class PrepareApplicationActionTest {
                 .setCurrent(new ApplicationMetadata().setVersion(OLDER_APPLICATION_VERSION))
                 .setLatest(new ApplicationMetadata().setVersion(NEW_APPLICATION_VERSION));
 
-        given(propertiesMock.getRoot()).willReturn("");
-
         whenNew(File.class).withParameterTypes(String.class, String.class)
-                .withArguments(Mockito.anyString(), Mockito.anyString())
+                .withArguments(anyString(), anyString())
                 .thenReturn(fileMock);
 
         given(fileMock.toPath()).willReturn(pathMock);
+        given(deployDirectoryRepoMock.getFile(anyString())).willReturn(fileMock);
     }
 
     @Test(expected = NullPointerException.class)
-    public void apply_toNull_shouldThrow() {
+    public void apply_ApplicationIsNull_ShouldThrow() {
         target.apply(null);
     }
 
     @Test
-    public void apply_newVersionFound_shouldDownload() {
+    public void apply_NewVersionFound_ShouldDownload() {
+        given(fileMock.exists()).willReturn(false);
         assertThat(target.apply(application)).isSameAs(application);
 
         File resultFile = application.getLatest().getFile();
@@ -80,7 +84,7 @@ public class PrepareApplicationActionTest {
     }
 
     @Test
-    public void apply_isBlackListed_shouldThrow() {
+    public void apply_NewVersionIsBlackListed_ShouldThrow() {
         given(deployDirectoryRepoMock.isBlackListed(any())).willReturn(true);
         given(deployDirectoryRepoMock.getBlackListedFile(any())).willReturn(blackListedFileMock);
         given(blackListedFileMock.getAbsolutePath()).willReturn("/tmp/test.jar.blacklisted");
@@ -92,7 +96,7 @@ public class PrepareApplicationActionTest {
     }
 
     @Test
-    public void apply_downLoadFails_shouldThrow() {
+    public void apply_DownLoadFails_ShouldThrow() {
         HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Download failed!");
         doThrow(exception).when(nexusRepoMock).downloadJAR(any(), any());
         assertThatThrownBy(() -> target.apply(application))
@@ -101,5 +105,16 @@ public class PrepareApplicationActionTest {
                 .hasCause(exception);
 
         verify(nexusRepoMock).downloadJAR(eq(NEW_APPLICATION_VERSION), same(pathMock));
+    }
+
+    @Test
+    public void apply_NewVersionIsNotFound_ShouldNotDownload() {
+        given(fileMock.exists()).willReturn(true);
+        assertThat(target.apply(application)).isSameAs(application);
+
+        File resultFile = application.getLatest().getFile();
+        assertThat(resultFile).isSameAs(fileMock);
+
+        verify(nexusRepoMock, never()).downloadJAR(anyString(), any());
     }
 }

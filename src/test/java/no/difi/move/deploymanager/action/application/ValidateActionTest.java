@@ -46,15 +46,13 @@ public class ValidateActionTest {
 
     @Mock private NexusRepo nexusRepoMock;
     @Mock private JarsSignerService jarsSignerService;
-    @Mock private InputStream inputStreamMock;
     @Mock private MessageDigest digestMock;
-    @Mock private StringWriter stringWriterMock;
     @Mock private File fileMock;
     @Mock private FileInputStream fileInputStreamMock;
     @Mock private DigestInputStream digestInputStreamMock;
     @Mock private InvalidExitValueException invalidExitValueExceptionMock;
 
-    @Spy private Application application = new Application();
+    @Spy private final Application application = new Application();
 
     @Before
     @SneakyThrows

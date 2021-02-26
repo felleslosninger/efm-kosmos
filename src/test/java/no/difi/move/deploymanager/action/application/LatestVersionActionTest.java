@@ -27,7 +27,7 @@ public class LatestVersionActionTest {
     private LatestVersionAction target;
 
     @Test
-    public void apply_ReceivesValidNexusResponse_ShouldSetLatestVersion() {
+    public void apply_LatestVersionFound_ShouldSetLatestVersion() {
         IntegrasjonspunktProperties integrasjonspunktProperties = mock(IntegrasjonspunktProperties.class);
         given(integrasjonspunktProperties.getLatestVersion()).willReturn("latest");
         given(propertiesMock.getIntegrasjonspunkt()).willReturn(integrasjonspunktProperties);

@@ -1,12 +1,7 @@
 Feature: Synchronization - Rollback
 
   Background:
-    Given the metadata.properties contains:
-    """
-    version=1.7.92-SNAPSHOT
-    filename=integrasjonspunkt-1.7.92-SNAPSHOT.jar
-    """
-    And the info URL is "http://localhost:9092/manage/info"
+    Given the info URL is "http://localhost:9092/manage/info"
     And a "GET" request to "http://localhost:9092/manage/info" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
     """
     {
@@ -59,11 +54,6 @@ Feature: Synchronization - Rollback
   Scenario: Rollback
     Given the synchronization handler is triggered
     Then the "integrasjonspunkt-1.7.92-SNAPSHOT.jar" is successfully launched
-    And the metadata.properties is updated with:
-    """
-    version=1.7.92-SNAPSHOT
-    filename=integrasjonspunkt-1.7.92-SNAPSHOT.jar
-    """
     And an email is sent with subject "Upgrade FAILED integrasjonspunkt-1.7.93-SNAPSHOT.jar" and content:
     """
     Application startup failed

@@ -14,9 +14,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 
-/**
- * @author Nikolai Luthman <nikolai dot luthman at inmeta dot no>
- */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -62,6 +59,8 @@ public class StartAction implements ApplicationAction {
     }
 
     private boolean isAlreadyRunning(Application application) {
-        return application.isSameVersion() && actuatorService.getStatus() == HealthStatus.UP;
+        return application.getCurrent() != null
+                && application.isSameVersion()
+                && actuatorService.getStatus() == HealthStatus.UP;
     }
 }

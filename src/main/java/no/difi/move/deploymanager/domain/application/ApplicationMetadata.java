@@ -4,9 +4,6 @@ import lombok.Data;
 
 import java.io.File;
 
-/**
- * @author Nikolai Luthman <nikolai dot luthman at inmeta dot no>
- */
 @Data
 public class ApplicationMetadata {
 
