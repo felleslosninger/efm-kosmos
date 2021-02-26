@@ -35,9 +35,16 @@ public class GetCurrentVersionAction implements ApplicationAction {
             VersionInfo versionInfo = actuatorService.getVersionInfo();
 
             Properties metadata = directoryRepo.getMetadata();
+            String version = versionInfo.getVersion();
+            if (null != version) {
+                log.info("The client currently runs integrasjonspunkt version {}", version);
+            } else {
+                log.info("No running integrasjonspunkt version found");
+            }
+
             application.setCurrent(
                     new ApplicationMetadata()
-                            .setVersion(versionInfo.getVersion())
+                            .setVersion(version)
                             .setFile(getFile(metadata.getProperty("filename")))
             );
         } catch (IOException ex) {

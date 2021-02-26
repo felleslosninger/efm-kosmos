@@ -27,7 +27,7 @@ public class LatestVersionAction implements ApplicationAction {
             log.info("Getting latest version");
             refreshService.refreshConfig();
             String latestVersion = properties.getIntegrasjonspunkt().getLatestVersion();
-            log.info("Latest version is set to {}", latestVersion);
+            log.info("The latest version is {}", latestVersion);
             application.setLatest(new ApplicationMetadata().setVersion(latestVersion));
             return application;
         } catch (Exception ex) {
