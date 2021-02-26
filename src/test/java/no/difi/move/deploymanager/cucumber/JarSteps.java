@@ -20,14 +20,14 @@ public class JarSteps {
     public void theExists(String path, String copyOf) {
         Files.copy(
                 getClass().getResourceAsStream(copyOf),
-                new File(propertiesSpy.getRoot(), path).toPath()
+                new File(propertiesSpy.getIntegrasjonspunkt().getHome(), path).toPath()
         );
     }
 
     @And("^the \"([^\"]*)\" exists$")
     @SneakyThrows
     public void theExists(String path) {
-        if (!new File(propertiesSpy.getRoot(), path).createNewFile()) {
+        if (!new File(propertiesSpy.getIntegrasjonspunkt().getHome(), path).createNewFile()) {
             log.error("File already exists!");
         }
     }

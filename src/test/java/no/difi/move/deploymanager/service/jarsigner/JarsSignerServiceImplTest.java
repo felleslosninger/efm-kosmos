@@ -2,12 +2,13 @@ package no.difi.move.deploymanager.service.jarsigner;
 
 import lombok.SneakyThrows;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
+import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import no.difi.move.deploymanager.config.KeystoreProperties;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.zeroturnaround.exec.ProcessExecutor;
@@ -19,28 +20,38 @@ import static org.mockito.Answers.RETURNS_SELF;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.verifyNew;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({JarsSignerServiceImpl.class})
 public class JarsSignerServiceImplTest {
-    @SuppressWarnings("unused")
-    @Spy
-    private DeployManagerProperties properties = new DeployManagerProperties()
-            .setRoot("/tmp/root")
-            .setKeystore(new KeystoreProperties()
-                    .setPath("/keystore/keystore.jks")
-                    .setPassword("xxx")
-                    .setAlias("stuntman")
-            );
 
-    @Mock private CommandBuilder commandBuilderMock;
-    @Mock private List<String> commandMock;
-    @Mock private ProcessExecutor processExecutorMock;
-    @Mock private File fileMock;
+    @Mock
+    private CommandBuilder commandBuilderMock;
+    @Mock
+    private List<String> commandMock;
+    @Mock
+    private ProcessExecutor processExecutorMock;
+    @Mock
+    private File fileMock;
+    @Mock
+    private DeployManagerProperties properties;
 
-    @InjectMocks private JarsSignerServiceImpl target;
+    @InjectMocks
+    private JarsSignerServiceImpl target;
+
+    @Before
+    public void setUp() {
+        when(properties.getIntegrasjonspunkt())
+                .thenReturn(new IntegrasjonspunktProperties().setHome("/tmp/root"));
+        when(properties.getKeystore()).thenReturn(
+                new KeystoreProperties()
+                        .setPath("/keystore/keystore.jks")
+                        .setPassword("xxx")
+                        .setAlias("stuntman"));
+    }
 
     @Test
     @SneakyThrows

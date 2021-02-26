@@ -66,7 +66,8 @@ Here is an example - Please replace the properties with your information:
 # Replace with your organization
 deploymanager.orgnumber=900000000
 
-deploymanager.root=c:/apps/integrasjonspunkt
+# Required only if your integrasjonspunkt and deploymanager do not run from the same folder:
+deploymanager.integrasjonspunkt.home=c:/apps/integrasjonspunkt
 
 # Replace hosts and ports of URL with the location
 # of your integrasjonspunkt.

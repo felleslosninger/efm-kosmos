@@ -3,6 +3,7 @@ package no.difi.move.deploymanager.action.application;
 import lombok.SneakyThrows;
 import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
+import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
@@ -37,14 +38,21 @@ public class PrepareApplicationActionTest {
     private static final String NEW_APPLICATION_VERSION = "newVersion";
     private static final String OLDER_APPLICATION_VERSION = "olderVersion";
 
-    @InjectMocks private PrepareApplicationAction target;
+    @InjectMocks
+    private PrepareApplicationAction target;
 
-    @Mock private DeployManagerProperties propertiesMock;
-    @Mock private NexusRepo nexusRepoMock;
-    @Mock private DeployDirectoryRepo deployDirectoryRepoMock;
-    @Mock private File fileMock;
-    @Mock private File blackListedFileMock;
-    @Mock private Path pathMock;
+    @Mock
+    private DeployManagerProperties propertiesMock;
+    @Mock
+    private NexusRepo nexusRepoMock;
+    @Mock
+    private DeployDirectoryRepo deployDirectoryRepoMock;
+    @Mock
+    private File fileMock;
+    @Mock
+    private File blackListedFileMock;
+    @Mock
+    private Path pathMock;
 
     private Application application;
 
@@ -55,7 +63,10 @@ public class PrepareApplicationActionTest {
                 .setCurrent(new ApplicationMetadata().setVersion(OLDER_APPLICATION_VERSION))
                 .setLatest(new ApplicationMetadata().setVersion(NEW_APPLICATION_VERSION));
 
-        given(propertiesMock.getRoot()).willReturn("");
+        given(propertiesMock.getIntegrasjonspunkt()).willReturn(
+                new IntegrasjonspunktProperties()
+                        .setHome("")
+        );
 
         whenNew(File.class).withParameterTypes(String.class, String.class)
                 .withArguments(Mockito.anyString(), Mockito.anyString())
