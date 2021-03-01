@@ -19,16 +19,17 @@ public class DeployDirectoryRepo {
     private final DeployManagerProperties properties;
 
     public File getFile(String version) {
-        File root = getOrCreateRoot();
+        File root = getOrCreateHomeFolder();
         return new File(root, String.format("integrasjonspunkt-%s.jar", version));
     }
 
-    private File getOrCreateRoot() {
-        File root = new File(properties.getRoot());
-        if (root.mkdir()) {
-            log.info("Created root folder: {}", root.getAbsolutePath());
+    private File getOrCreateHomeFolder() {
+        File home = new File(properties.getIntegrasjonspunkt().getHome());
+
+        if (home.mkdir()) {
+            log.info("Created home folder: {}", home.getAbsolutePath());
         }
-        return root;
+        return home;
     }
 
     @SneakyThrows

@@ -58,11 +58,9 @@ public class PrepareApplicationActionTest {
         application = new Application()
                 .setCurrent(new ApplicationMetadata().setVersion(OLDER_APPLICATION_VERSION))
                 .setLatest(new ApplicationMetadata().setVersion(NEW_APPLICATION_VERSION));
-
         whenNew(File.class).withParameterTypes(String.class, String.class)
                 .withArguments(anyString(), anyString())
                 .thenReturn(fileMock);
-
         given(fileMock.toPath()).willReturn(pathMock);
         given(deployDirectoryRepoMock.getFile(anyString())).willReturn(fileMock);
     }

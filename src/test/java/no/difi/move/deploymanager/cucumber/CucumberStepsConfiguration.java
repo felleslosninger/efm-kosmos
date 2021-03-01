@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.DeployManagerMain;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
-import no.difi.move.deploymanager.service.config.RefreshService;
 import no.difi.move.deploymanager.service.launcher.LauncherServiceImpl;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -82,7 +81,7 @@ public class CucumberStepsConfiguration {
     @SneakyThrows
     public void before() {
         temporaryFolder.create();
-        doReturn(temporaryFolder.getRoot().getAbsolutePath()).when(propertiesSpy).getRoot();
+        doReturn(temporaryFolder.getRoot().getAbsolutePath()).when(integrasjonspunktPropertiesMock).getHome();
         when(propertiesSpy.getIntegrasjonspunkt()).thenReturn(integrasjonspunktPropertiesMock);
     }
 
