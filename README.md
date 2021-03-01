@@ -63,9 +63,6 @@ You will need a file named deploymanager-local.properties in the same folder as 
 Here is an example - Please replace the properties with your information:
 
 ```properties
-# Replace with your organization
-deploymanager.orgnumber=900000000
-
 # Required only if your integrasjonspunkt and deploymanager do not run from the same folder:
 deploymanager.integrasjonspunkt.home=c:/apps/integrasjonspunkt
 

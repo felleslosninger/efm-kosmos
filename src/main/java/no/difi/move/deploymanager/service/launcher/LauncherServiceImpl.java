@@ -14,7 +14,7 @@ import org.zeroturnaround.exec.ProcessResult;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
 import java.util.concurrent.Future;
 
 @Service
@@ -50,6 +50,7 @@ public class LauncherServiceImpl implements LauncherService {
 
             Future<ProcessResult> future = new ProcessExecutor(Arrays.asList(
                     "java", "-jar", jarPath,
+                    "--difi.move.org.number=" + properties.getOrgnumber(),
                     "--management.endpoint.shutdown.enabled=true",
                     "--app.logger.enableSSL=false",
                     "--spring.profiles.active=" + properties.getIntegrasjonspunkt().getProfile()))
