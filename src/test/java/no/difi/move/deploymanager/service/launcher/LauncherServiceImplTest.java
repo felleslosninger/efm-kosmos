@@ -100,7 +100,6 @@ public class LauncherServiceImplTest {
         verifyNew(ProcessExecutor.class).withArguments(listArgumentCaptor.capture());
 
         assertThat(listArgumentCaptor.getValue()).containsExactly("java", "-jar", "test.jar",
-                "--difi.move.org.number=910077473",
                 "--management.endpoint.shutdown.enabled=true",
                 "--app.logger.enableSSL=false",
                 "--spring.profiles.active=staging"
