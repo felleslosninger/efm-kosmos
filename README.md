@@ -45,7 +45,7 @@ We are using [https://github.com/kohsuke/winsw] as a Windows service wrapper. Pl
   
   <!-- Path to the executable, which should be started -->
   <executable>java</executable>
-  <arguments>-jar %BASE%\deploymanager-x.y.z.jar --spring.profiles.active=production</arguments>          
+    <arguments>-jar %BASE%\deploymanager-X.Y.Z.jar --spring.profiles.active=production --spring.config.additional-location=file:%BASE%\integrasjonspunkt-local.properties</arguments>
   <logpath>%BASE%\deploymanager-logs</logpath>
   
   <log mode="roll-by-size">
@@ -63,9 +63,6 @@ You will need a file named deploymanager-local.properties in the same folder as 
 Here is an example - Please replace the properties with your information:
 
 ```properties
-# Required only if your integrasjonspunkt and deploymanager do not run from the same folder:
-deploymanager.integrasjonspunkt.home=c:/apps/integrasjonspunkt
-
 # Replace hosts and ports of URL with the location
 # of your integrasjonspunkt.
 deploymanager.integrasjonspunkt.URL=http://localhost:9093
