@@ -7,9 +7,6 @@ import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.service.actuator.ActuatorService;
 import org.springframework.stereotype.Component;
 
-/**
- * @author Nikolai Luthman <nikolai dot luthman at inmeta dot no>
- */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -28,7 +25,9 @@ public class ShutdownAction implements ApplicationAction {
     }
 
     private boolean needToShutdown(Application application) {
-        return !application.isSameVersion() && actuatorService.getStatus() == HealthStatus.UP;
+        return application.getCurrent() != null
+                && !application.isSameVersion()
+                && actuatorService.getStatus() == HealthStatus.UP;
     }
 
     private void doShutdown() {

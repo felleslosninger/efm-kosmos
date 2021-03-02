@@ -9,9 +9,6 @@ import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
 import no.difi.move.deploymanager.service.config.RefreshService;
 import org.springframework.stereotype.Component;
 
-/**
- * @author Nikolai Luthman <nikolai dot luthman at inmeta dot no>
- */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -27,12 +24,8 @@ public class LatestVersionAction implements ApplicationAction {
             log.info("Getting latest version");
             refreshService.refreshConfig();
             String latestVersion = properties.getIntegrasjonspunkt().getLatestVersion();
-            log.info("Latest version is set to {}", latestVersion);
-            application.setLatest(
-                    new ApplicationMetadata()
-                            .setVersion(latestVersion)
-                            .setRepositoryId(properties.getRepository())
-            );
+            log.info("The latest version is {}", latestVersion);
+            application.setLatest(new ApplicationMetadata().setVersion(latestVersion));
             return application;
         } catch (Exception ex) {
             throw new DeployActionException("Error getting latest version", ex);

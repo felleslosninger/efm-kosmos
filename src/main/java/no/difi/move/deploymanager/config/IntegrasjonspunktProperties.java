@@ -19,6 +19,7 @@ public class IntegrasjonspunktProperties {
     @NotNull
     private URL URL;
     private URL healthURL;
+    private URL infoURL;
     private URL shutdownURL;
 
     @NotNull

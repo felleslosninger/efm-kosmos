@@ -45,4 +45,9 @@ public class DeploymanagerPropertiesSteps {
     public void theHealthUrlIs(URL url){
         given(integrasjonspunktProperties.getHealthURL()).willReturn(url);
     }
+
+    @Given("the info URL is \"([^\"]*)\"$")
+    public void theInfoUrlIs(URL url){
+        given(integrasjonspunktProperties.getInfoURL()).willReturn(url);
+    }
 }

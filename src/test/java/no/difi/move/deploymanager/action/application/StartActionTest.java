@@ -56,6 +56,8 @@ public class StartActionTest {
 
     @Test
     public void apply_currentVersionIsLatestAndHealthStatusIsUp_shouldNotStart() {
+        given(applicationMock.getCurrent())
+                .willReturn(new ApplicationMetadata().setVersion("latest"));
         given(applicationMock.isSameVersion()).willReturn(true);
         given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.UP);
         assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
@@ -64,6 +66,8 @@ public class StartActionTest {
 
     @Test
     public void apply_currentVersionIsLatestAndHealthStatusIsDown_shouldStart() {
+        given(applicationMock.getCurrent())
+                .willReturn(new ApplicationMetadata().setVersion("latest"));
         given(applicationMock.isSameVersion()).willReturn(true);
         given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.DOWN);
         given(fileMock.getAbsolutePath()).willReturn("the path");
@@ -74,6 +78,8 @@ public class StartActionTest {
 
     @Test
     public void apply_currentVersionIsOldAndHealthStatusIsUp_shouldStart() {
+        given(applicationMock.getCurrent())
+                .willReturn(new ApplicationMetadata().setVersion("old"));
         given(applicationMock.isSameVersion()).willReturn(false);
         given(fileMock.getAbsolutePath()).willReturn("the path");
         assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
@@ -89,6 +95,8 @@ public class StartActionTest {
                         .setStartupLog("theStartupLog")
         );
 
+        given(applicationMock.getCurrent())
+                .willReturn(new ApplicationMetadata().setVersion("latest"));
         given(applicationMock.isSameVersion()).willReturn(true);
         given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.DOWN);
         given(fileMock.getAbsolutePath()).willReturn("the path");
@@ -106,6 +114,8 @@ public class StartActionTest {
                         .setStartupLog("theStartupLog")
         );
 
+        given(applicationMock.getCurrent())
+                .willReturn(new ApplicationMetadata().setVersion("latest"));
         given(applicationMock.isSameVersion()).willReturn(true);
         given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.DOWN, HealthStatus.UP);
         given(fileMock.getAbsolutePath()).willReturn("the path");

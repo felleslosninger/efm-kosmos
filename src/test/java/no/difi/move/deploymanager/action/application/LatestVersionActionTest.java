@@ -5,7 +5,6 @@ import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.service.config.RefreshService;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -27,20 +26,14 @@ public class LatestVersionActionTest {
     @InjectMocks
     private LatestVersionAction target;
 
-    @Before
-    public void setUp() throws Exception {
-        given(propertiesMock.getRepository()).willReturn("staging");
-    }
-
     @Test
-    public void apply_ReceivesValidNexusResponse_ShouldSetLatestVersion() {
+    public void apply_LatestVersionFound_ShouldSetLatestVersion() {
         IntegrasjonspunktProperties integrasjonspunktProperties = mock(IntegrasjonspunktProperties.class);
         given(integrasjonspunktProperties.getLatestVersion()).willReturn("latest");
         given(propertiesMock.getIntegrasjonspunkt()).willReturn(integrasjonspunktProperties);
 
         Application result = target.apply(new Application());
 
-        assertThat(result.getLatest().getRepositoryId()).isEqualTo("staging");
         assertThat(result.getLatest().getVersion()).isEqualTo("latest");
     }
 
