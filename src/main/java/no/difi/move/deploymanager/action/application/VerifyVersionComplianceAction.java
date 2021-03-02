@@ -19,22 +19,22 @@ public class VerifyVersionComplianceAction implements ApplicationAction {
 
     @Override
     public Application apply(Application application) {
-        log.debug("Running VerifyVersionComplianceAction");
+        log.trace("Calling VerifyVersionComplianceAction.apply() on application {}", application);
         String supportedMajorVersion = properties.getIntegrasjonspunkt().getSupportedMajorVersion();
         if (Strings.isNullOrEmpty(supportedMajorVersion)) {
             return application;
         }
-        log.debug("Currently supported major version is set to {}", supportedMajorVersion);
+        log.info("Currently supported major version is set to {}", supportedMajorVersion);
         String latestVersion = application.getLatest().getVersion();
         if (null == latestVersion) {
             throw new DeployActionException("No version to verify");
         }
-        log.debug("Latest available version is {}", latestVersion);
+        log.info("Latest version is {}", latestVersion);
         return compareVersions(application, supportedMajorVersion, latestVersion);
     }
 
     private Application compareVersions(Application application, String supportedMajorVersion, String latestVersion) {
-        log.info("Comparing supported major ({}) and latest available ({}) versions", supportedMajorVersion, latestVersion);
+        log.trace("Comparing supported major ({}) and latest available ({}) versions", supportedMajorVersion, latestVersion);
         try {
             Semver latestMajor = new Semver(latestVersion, Semver.SemverType.LOOSE);
             Semver currentlySupported = new Semver(supportedMajorVersion, Semver.SemverType.LOOSE);

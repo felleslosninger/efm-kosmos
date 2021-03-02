@@ -99,7 +99,7 @@ public class PrepareApplicationActionTest {
         doThrow(exception).when(nexusRepoMock).downloadJAR(any(), any());
         assertThatThrownBy(() -> target.apply(application))
                 .isInstanceOf(DeployActionException.class)
-                .hasMessage("Error getting latest version")
+                .hasMessage("Error occurred when downloading latest version")
                 .hasCause(exception);
 
         verify(nexusRepoMock).downloadJAR(eq(NEW_APPLICATION_VERSION), same(pathMock));

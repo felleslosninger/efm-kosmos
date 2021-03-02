@@ -41,6 +41,7 @@ public class ActuatorClient {
     HealthStatus getStatus() {
         try {
             URI url = deployManagerProperties.getIntegrasjonspunkt().getHealthURL().toURI();
+            log.trace("Fetching health status from URL: {}", url);
             return Optional.ofNullable(restTemplate.getForObject(url, HealthResource.class))
                     .map(p -> HealthStatus.fromString(p.getStatus()))
                     .orElse(HealthStatus.UNKNOWN);
@@ -55,13 +56,17 @@ public class ActuatorClient {
 
     @SneakyThrows(URISyntaxException.class)
     boolean requestShutdown() {
+        log.info("Requesting shutdown");
         try {
             URI url = deployManagerProperties.getIntegrasjonspunkt().getShutdownURL().toURI();
+            log.trace("Requesting shutdown at URL: {}", url);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<?> httpEntity = new HttpEntity<>(headers);
             ResponseEntity<ShutdownResource> response = restTemplate.exchange(url, HttpMethod.POST, httpEntity, ShutdownResource.class);
-            return response.getStatusCode() == HttpStatus.OK;
+            HttpStatus responseStatus = response.getStatusCode();
+            log.debug("Received response status code: {}", responseStatus);
+            return responseStatus == HttpStatus.OK;
         } catch (HttpStatusCodeException e) {
             log.warn("Could not request shutdown: {} {}", e.getStatusCode(), e.getStatusText());
         } catch (ResourceAccessException e) {
@@ -73,9 +78,12 @@ public class ActuatorClient {
 
     @SneakyThrows(URISyntaxException.class)
     VersionInfo getVersionInfo() {
+        log.info("Getting version information");
         try {
             URI infoUri = deployManagerProperties.getIntegrasjonspunkt().getInfoURL().toURI();
+            log.trace("Tries to fetch version info from URI {}", infoUri);
             InfoResource resource = restTemplate.getForObject(infoUri, InfoResource.class);
+            log.debug("Parsed InfoResource: {}", resource);
             return (Optional.ofNullable(resource)
                     .map(infoResource -> VersionInfo.builder()
                             .resolved(infoResource.getBuild() != null)
