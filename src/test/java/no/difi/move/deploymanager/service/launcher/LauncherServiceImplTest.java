@@ -71,6 +71,7 @@ public class LauncherServiceImplTest {
                         .setProfile("staging")
                         .setHome("/tmp/root")
         );
+        given(properties.getOrgnumber()).willReturn("910077473");
         whenNew(StartupLog.class).withAnyArguments().thenReturn(startupLogMock);
         given(startupLogMock.getStatus()).willReturn(LaunchStatus.UNKNOWN, LaunchStatus.SUCCESS);
         given(startupLogMock.getLog()).willReturn("theStartUpLog");
