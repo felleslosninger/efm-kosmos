@@ -80,7 +80,14 @@ spring.mail.host=smtp.yourdomain.no
 spring.mail.port=<set-your-port-here>
 ```  
 
+#### Running deploymanager and integrasjonspunkt from different folders
+The recommended setup (requires less configuration) is to have both JARs in the same directory. If for some reason you should prefer running the applications from different directories, the following settings have to be added.
 
-
-
-
+Add the following property to deploymanager-local.properties:
+```properties
+deploymanager.integrasjonspunkt.home={path-to-where-your-integrasjonspunkt-runs}
+```
+Modify the arguments tag in deploymanager's XML configuration file:
+```xml
+<arguments>-jar %BASE%\deploymanager-X.Y.Z.jar --spring.profiles.active=production --spring.config.additional-location=file:{path-to-where-your-integrasjonspunkt-runs}\integrasjonspunkt-local.properties</arguments>
+```
