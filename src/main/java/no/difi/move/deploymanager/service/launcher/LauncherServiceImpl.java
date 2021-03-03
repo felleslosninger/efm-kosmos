@@ -46,7 +46,7 @@ public class LauncherServiceImpl implements LauncherService {
         LaunchResult launchResult = new LaunchResult()
                 .setJarPath(jarPath);
 
-        try (StartupLog startupLog = new StartupLog(properties.isVerbose())) {
+        try (StartupLog startupLog = new StartupLog(properties.getIntegrasjonspunkt().isIncludeLog())) {
             log.debug("Starting application in {}", jarPath);
 
             Future<ProcessResult> future = new ProcessExecutor(Arrays.asList(

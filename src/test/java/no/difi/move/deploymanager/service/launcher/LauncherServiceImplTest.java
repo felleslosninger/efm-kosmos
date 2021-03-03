@@ -29,8 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.verifyNew;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
 
@@ -65,7 +64,9 @@ public class LauncherServiceImplTest {
     public void before() {
         given(properties.getLaunchPollIntervalInMs()).willReturn(100);
         given(properties.getLaunchTimeoutInMs()).willReturn(300);
-        given(properties.isVerbose()).willReturn(false);
+        IntegrasjonspunktProperties integrasjonspunktProperties = mock(IntegrasjonspunktProperties.class);
+        given(integrasjonspunktProperties.isIncludeLog()).willReturn(false);
+        given(properties.getIntegrasjonspunkt()).willReturn(integrasjonspunktProperties);
         given(properties.getIntegrasjonspunkt()).willReturn(
                 new IntegrasjonspunktProperties()
                         .setProfile("staging")
