@@ -26,10 +26,10 @@ public class StartAction implements ApplicationAction {
 
     @Override
     public Application apply(Application application) {
-        log.debug("Running StartAction.");
+        log.trace("Calling StartAction.apply() on application: {}", application);
 
         if (isAlreadyRunning(application)) {
-            log.info("The application is already running.");
+            log.info("The application is already running");
             return application;
         }
 
@@ -37,9 +37,11 @@ public class StartAction implements ApplicationAction {
         LaunchResult launchResult = launcherService.launchIntegrasjonspunkt(jarFile.getAbsolutePath());
 
         if (launchResult.getStatus() != LaunchStatus.SUCCESS) {
+            log.info("Launch failed, the version will be blacklisted");
             deployDirectoryRepo.blackList(jarFile);
 
             if (actuatorService.getStatus() == HealthStatus.UP) {
+                log.trace("The application started in the mean time, but is now shutting down");
                 actuatorService.shutdown();
             }
         }

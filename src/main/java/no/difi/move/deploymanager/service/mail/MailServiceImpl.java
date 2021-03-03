@@ -23,8 +23,8 @@ public class MailServiceImpl implements MailService {
 
     @Override
     public void sendMail(String subject, String content) {
+        log.trace("Sending email with subject '{}' and content '{}'", subject, content);
         MailProperties mail = properties.getMail();
-
         if (mail == null) {
             return;
         }

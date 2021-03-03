@@ -23,7 +23,7 @@ public class SynchronizationHandler {
 
     @Scheduled(fixedRateString = "${deploymanager.schedulerFixedRateInMs}")
     public void run() {
-        log.debug("Starting synchronization.");
+        log.debug("Starting synchronization");
         currentVersionAction
                 .andThen(latestVersionAction)
                 .andThen(verifyVersionComplianceAction)
@@ -33,6 +33,6 @@ public class SynchronizationHandler {
                 .andThen(startAction)
                 .andThen(rollbackAction)
                 .apply(new Application());
-        log.debug("Finished synchronization.");
+        log.debug("Finished synchronization");
     }
 }

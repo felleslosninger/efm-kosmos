@@ -19,10 +19,10 @@ public class PrepareApplicationAction implements ApplicationAction {
     private final DeployDirectoryRepo deployDirectoryRepo;
 
     public Application apply(Application application) {
-        log.debug("Running PrepareApplicationAction.");
-        log.info("Preparing application.");
+        log.info("Preparing application");
+        log.trace("Calling PrepareApplicationAction.apply() on application {}", application);
         File downloadFile = deployDirectoryRepo.getFile(application.getLatest().getVersion());
-
+        log.debug("The latest version is in file {}", downloadFile);
         if (deployDirectoryRepo.isBlackListed(downloadFile)) {
             throw new DeployActionException(
                     String.format("The latest version is black listed! Remove %s to white list.",
@@ -30,11 +30,11 @@ public class PrepareApplicationAction implements ApplicationAction {
         }
 
         if (!downloadFile.exists()) {
-            log.info("Latest is different from current. Downloading newest version.");
+            log.info("Latest version is different from current, and will be downloaded");
             try {
                 doDownload(application, downloadFile);
             } catch (Exception ex) {
-                throw new DeployActionException("Error getting latest version", ex);
+                throw new DeployActionException("Error occurred when downloading latest version", ex);
             }
         }
 

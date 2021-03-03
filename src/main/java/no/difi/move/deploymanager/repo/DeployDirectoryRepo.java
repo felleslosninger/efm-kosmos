@@ -3,13 +3,11 @@ package no.difi.move.deploymanager.repo;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
-import no.difi.move.deploymanager.domain.application.Application;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
-import java.util.Properties;
+import java.io.File;
+import java.io.IOException;
 
 @Slf4j
 @Component

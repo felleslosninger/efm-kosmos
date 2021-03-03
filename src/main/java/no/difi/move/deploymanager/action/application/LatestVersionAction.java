@@ -19,9 +19,9 @@ public class LatestVersionAction implements ApplicationAction {
 
     @Override
     public Application apply(Application application) {
-        log.debug("Running LatestVersionAction.");
+        log.info("Getting latest version");
+        log.trace("Calling LatestVersionAction.apply() on application: {}", application);
         try {
-            log.info("Getting latest version");
             refreshService.refreshConfig();
             String latestVersion = properties.getIntegrasjonspunkt().getLatestVersion();
             log.info("The latest version is {}", latestVersion);

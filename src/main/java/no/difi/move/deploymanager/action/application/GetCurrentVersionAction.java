@@ -19,9 +19,10 @@ public class GetCurrentVersionAction implements ApplicationAction {
 
     @Override
     public Application apply(Application application) {
-        log.debug("Running GetCurrentVersionAction.");
         log.info("Getting current version");
+        log.trace("Calling GetCurrentVersionAction.apply() on application {}", application);
         VersionInfo versionInfo = actuatorService.getVersionInfo();
+        log.debug("Version info received: {}", versionInfo);
         String version = versionInfo.getVersion();
         if (null != version) {
             log.info("The client currently runs integrasjonspunkt version {}", version);
