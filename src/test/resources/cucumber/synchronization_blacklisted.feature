@@ -18,6 +18,7 @@ Feature: Synchronization - Blacklisted
     And the "integrasjonspunkt-1.7.93-SNAPSHOT.jar" exists as a copy of "/cucumber/success.jar"
     And the "integrasjonspunkt-1.7.93-SNAPSHOT.blacklisted" exists
     And the latest integrasjonspunkt version is "1.7.93-SNAPSHOT"
+    And the early bird setting is not activated
     And the supported major version is unset
 
   Scenario: Blacklisted

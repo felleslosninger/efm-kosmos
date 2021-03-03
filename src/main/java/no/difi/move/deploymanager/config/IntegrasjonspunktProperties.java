@@ -26,4 +26,7 @@ public class IntegrasjonspunktProperties {
     private String latestVersion;
 
     private String supportedMajorVersion;
+
+    private boolean earlyBird;
+    private String earlyBirdVersion;
 }
