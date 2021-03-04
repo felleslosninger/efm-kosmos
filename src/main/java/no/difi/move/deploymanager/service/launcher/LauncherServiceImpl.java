@@ -46,7 +46,7 @@ public class LauncherServiceImpl implements LauncherService {
         LaunchResult launchResult = new LaunchResult()
                 .setJarPath(jarPath);
 
-        try (StartupLog startupLog = new StartupLog(properties.isVerbose())) {
+        try (StartupLog startupLog = new StartupLog(properties.getIntegrasjonspunkt().isIncludeLog())) {
             log.debug("Starting application in {}", jarPath);
 
             Future<ProcessResult> future = new ProcessExecutor(Arrays.asList(
@@ -92,7 +92,7 @@ public class LauncherServiceImpl implements LauncherService {
     private LaunchStatus waitForStartup(StartupLog startupLog) throws InterruptedException {
         int pollIntervalInMs = properties.getLaunchPollIntervalInMs();
         int timeoutInMs = properties.getLaunchTimeoutInMs();
-        log.trace("Waiting {} ms for startup with timeout after {}", pollIntervalInMs, timeoutInMs);
+        log.debug("Waiting {} ms for startup with timeout after {}", pollIntervalInMs, timeoutInMs);
         long start = System.currentTimeMillis();
 
         do {
@@ -102,7 +102,6 @@ public class LauncherServiceImpl implements LauncherService {
         );
 
         startupLog.stopRecording();
-
         return startupLog.getStatus();
     }
 }
