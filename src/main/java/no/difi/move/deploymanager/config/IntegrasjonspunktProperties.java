@@ -29,4 +29,7 @@ public class IntegrasjonspunktProperties {
 
     private boolean earlyBird;
     private String earlyBirdVersion;
+
+    @NotNull
+    private boolean includeLog;
 }

@@ -8,6 +8,7 @@ import org.zeroturnaround.exec.stream.LogOutputStream;
 @Slf4j
 class StartupLog extends LogOutputStream {
 
+    private final static String VERBOSITY_PREFIX = "[INCLUDED]";
     private final boolean verbose;
     private final StringBuilder logBuilder = new StringBuilder();
 
@@ -23,7 +24,7 @@ class StartupLog extends LogOutputStream {
     protected void processLine(String line) {
         if (record) {
             if (verbose) {
-                log.info(line);
+                log.info(VERBOSITY_PREFIX + " " + line);
             }
 
             logBuilder.append(line).append("\n");
