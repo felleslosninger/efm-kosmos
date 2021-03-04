@@ -17,6 +17,7 @@ Feature: Synchronization - Major version not supported
     And the "integrasjonspunkt-1.9.0.jar" exists as a copy of "/cucumber/success.jar"
     And the "integrasjonspunkt-2.0.0.jar" exists as a copy of "/cucumber/success.jar"
     And the latest integrasjonspunkt version is "2.0.0"
+    And the early bird setting is not activated
     And the supported major version is "1"
 
   Scenario: Major version not supported

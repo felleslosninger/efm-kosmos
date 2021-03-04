@@ -27,6 +27,9 @@ public class IntegrasjonspunktProperties {
 
     private String supportedMajorVersion;
 
+    private boolean earlyBird;
+    private String earlyBirdVersion;
+
     @NotNull
     private boolean includeLog;
 }

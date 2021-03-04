@@ -36,6 +36,18 @@ public class DeploymanagerPropertiesSteps {
         given(integrasjonspunktProperties.getSupportedMajorVersion()).willReturn(majorVersion);
     }
 
+    @Given("^the early bird setting is not activated$")
+    public void theEarlyBirdSettingIsNotActivated(){
+        given(integrasjonspunktProperties.isEarlyBird()).willReturn(false);
+    }
+
+    @Given("^the early bird setting is activated with version set to \"([^\"]*)\"$")
+    public void theEarlyBirdSettingIsActivated(String version){
+        given(integrasjonspunktProperties.isEarlyBird()).willReturn(true);
+        given(integrasjonspunktProperties.getEarlyBirdVersion()).willReturn(version);
+    }
+
+
     @Given("^the shutdown URL is \"([^\"]*)\"$")
     public void theShutdownUrlIs(URL url){
         given(integrasjonspunktProperties.getShutdownURL()).willReturn(url);
