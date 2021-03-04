@@ -27,8 +27,8 @@ public class LatestVersionAction implements ApplicationAction {
         log.trace("Calling LatestVersionAction.apply() on application: {}", application);
         try {
             refreshService.refreshConfig();
-            Optional<String> earlyBirdVersion = getEarlyBirdOption();
-            String latestVersion = earlyBirdVersion.orElseGet(() -> properties.getIntegrasjonspunkt().getLatestVersion());
+            String latestVersion = getEarlyBirdOption()
+                    .orElseGet(() -> properties.getIntegrasjonspunkt().getLatestVersion());
             log.info("The latest version is {}", latestVersion);
             application.setLatest(new ApplicationMetadata().setVersion(latestVersion));
             return application;
@@ -39,15 +39,14 @@ public class LatestVersionAction implements ApplicationAction {
 
     private Optional<String> getEarlyBirdOption() {
         IntegrasjonspunktProperties integrasjonspunktProperties = properties.getIntegrasjonspunkt();
-        boolean earlyBird = integrasjonspunktProperties.isEarlyBird();
         String earlyBirdVersion = null;
-        if (earlyBird) {
+        if (integrasjonspunktProperties.isEarlyBird()) {
             log.info("The early bird setting is activated");
             earlyBirdVersion = integrasjonspunktProperties.getEarlyBirdVersion();
-            if (Strings.isNullOrEmpty(earlyBirdVersion)) {
-                throw new IllegalStateException("Early bird setting is activated, but no version is specified");
-            }
             log.debug("Early bird version is {}", earlyBirdVersion);
+            if (Strings.isNullOrEmpty(earlyBirdVersion)){
+                log.info("Early bird setting is activated but no version is selected, will default to latest version");
+            }
         }
         return Optional.ofNullable(earlyBirdVersion);
     }

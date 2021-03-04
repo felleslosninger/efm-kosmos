@@ -49,11 +49,15 @@ public class LatestVersionActionTest {
         target.apply(new Application());
     }
 
-    @Test(expected = DeployActionException.class)
-    public void apply_EarlyBirdIsTrueButVersionIsNull_ShouldThrow() {
+    @Test
+    public void apply_EarlyBirdIsTrueButVersionIsNull_ShouldDefaultToLatestVersion() {
         given(integrasjonspunktProperties.isEarlyBird()).willReturn(true);
         given(integrasjonspunktProperties.getEarlyBirdVersion()).willReturn(null);
-        target.apply(new Application());
+        given(integrasjonspunktProperties.getLatestVersion()).willReturn("Latest");
+
+        Application result = target.apply(new Application());
+
+        assertThat(StringUtils.equals("Latest", result.getLatest().getVersion())).isTrue();
     }
 
     @Test
