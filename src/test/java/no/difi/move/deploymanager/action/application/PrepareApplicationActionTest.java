@@ -84,7 +84,7 @@ public class PrepareApplicationActionTest {
     @Test
     public void apply_NewVersionIsBlackListed_ShouldThrow() {
         given(deployDirectoryRepoMock.isBlackListed(any())).willReturn(true);
-        given(deployDirectoryRepoMock.getBlackListedFile(any())).willReturn(blackListedFileMock);
+        given(deployDirectoryRepoMock.getBlacklistPath(any())).willReturn(blackListedFileMock);
         given(blackListedFileMock.getAbsolutePath()).willReturn("/tmp/test.jar.blacklisted");
 
         assertThatThrownBy(() -> target.apply(application))

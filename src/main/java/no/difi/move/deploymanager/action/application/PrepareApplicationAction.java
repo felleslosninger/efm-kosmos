@@ -26,7 +26,7 @@ public class PrepareApplicationAction implements ApplicationAction {
         if (deployDirectoryRepo.isBlackListed(downloadFile)) {
             throw new DeployActionException(
                     String.format("The latest version is black listed! Remove %s to white list.",
-                            deployDirectoryRepo.getBlackListedFile(downloadFile).getAbsolutePath()));
+                            deployDirectoryRepo.getBlacklistPath(downloadFile).getAbsolutePath()));
         }
 
         if (!downloadFile.exists()) {

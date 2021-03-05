@@ -52,6 +52,9 @@ public class RollbackAction implements ApplicationAction {
     }
 
     private boolean shouldRollback(Application application) {
-        return actuatorService.getStatus() != HealthStatus.UP && application.getCurrent().getFile() != null;
+        log.debug("Determining whether application {} should roll back", application);
+        return actuatorService.getStatus() != HealthStatus.UP
+                && application.getCurrent() != null
+                && application.getCurrent().getFile() != null;
     }
 }

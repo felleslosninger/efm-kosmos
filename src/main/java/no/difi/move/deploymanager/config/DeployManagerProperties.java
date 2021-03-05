@@ -75,6 +75,10 @@ public class DeployManagerProperties {
     @Positive
     private Integer schedulerFixedRateInMs;
 
+    @NotNull
+    @Positive
+    private Integer blacklistDurationInHours;
+
     @Valid
     @NestedConfigurationProperty
     private IntegrasjonspunktProperties integrasjonspunkt;
