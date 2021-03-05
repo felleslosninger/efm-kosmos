@@ -1,5 +1,6 @@
 package no.difi.move.deploymanager.repo;
 
+import no.difi.move.deploymanager.config.BlacklistProperties;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import org.apache.commons.io.FileUtils;
@@ -49,7 +50,9 @@ public class DeployDirectoryRepoTest {
     @Before
     public void setUp() throws IOException {
         temporaryFolder.create();
-        when(properties.getBlacklistDurationInHours()).thenReturn(2);
+        BlacklistProperties blacklistProperties = mock(BlacklistProperties.class);
+        when(blacklistProperties.getDurationInHours()).thenReturn(2);
+        when(properties.getBlacklist()).thenReturn(blacklistProperties);
         when(file.getAbsolutePath()).thenReturn(temporaryFolder.getRoot().getAbsolutePath(), "file.jar");
         when(file.getName()).thenReturn("application");
     }

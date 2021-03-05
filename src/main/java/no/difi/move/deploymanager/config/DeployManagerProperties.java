@@ -75,9 +75,9 @@ public class DeployManagerProperties {
     @Positive
     private Integer schedulerFixedRateInMs;
 
-    @NotNull
-    @Positive
-    private Integer blacklistDurationInHours;
+    @Valid
+    @NestedConfigurationProperty
+    private BlacklistProperties blacklist;
 
     @Valid
     @NestedConfigurationProperty

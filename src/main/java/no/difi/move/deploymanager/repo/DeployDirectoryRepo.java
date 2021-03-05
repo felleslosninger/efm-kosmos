@@ -81,7 +81,7 @@ public class DeployDirectoryRepo {
         final File blacklistFile = getBlacklistPath(file);
         log.debug("Blacklist file pathname is {}", blacklistFile.getAbsolutePath());
         try (BufferedWriter writer = Files.newBufferedWriter(blacklistFile.toPath(), StandardCharsets.UTF_8)) {
-            int durationInHours = properties.getBlacklistDurationInHours();
+            int durationInHours = properties.getBlacklist().getDurationInHours();
             log.debug("Blacklist duration is {} hours", durationInHours);
             LocalDateTime expires = LocalDateTime.now().plusHours(durationInHours);
             log.debug("Blacklisting {} until {}", file.getName(), expires);
