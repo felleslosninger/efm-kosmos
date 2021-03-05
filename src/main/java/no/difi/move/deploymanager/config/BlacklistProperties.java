@@ -8,6 +8,8 @@ import javax.validation.constraints.Positive;
 @Data
 public class BlacklistProperties {
 
+    private boolean enabled;
+
     @NotNull
     @Positive
     private Integer durationInHours;

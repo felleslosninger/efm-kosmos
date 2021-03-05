@@ -2,6 +2,8 @@ package no.difi.move.deploymanager.action.application;
 
 import lombok.SneakyThrows;
 import no.difi.move.deploymanager.action.DeployActionException;
+import no.difi.move.deploymanager.config.BlacklistProperties;
+import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
@@ -40,6 +42,8 @@ public class PrepareApplicationActionTest {
     private PrepareApplicationAction target;
 
     @Mock
+    private DeployManagerProperties propertiesMock;
+    @Mock
     private NexusRepo nexusRepoMock;
     @Mock
     private DeployDirectoryRepo deployDirectoryRepoMock;
@@ -49,12 +53,16 @@ public class PrepareApplicationActionTest {
     private File blackListedFileMock;
     @Mock
     private Path pathMock;
+    @Mock
+    private BlacklistProperties blacklistPropertiesMock;
 
     private Application application;
 
     @Before
     @SneakyThrows
     public void before() {
+        given(blacklistPropertiesMock.isEnabled()).willReturn(true);
+        given(propertiesMock.getBlacklist()).willReturn(blacklistPropertiesMock);
         application = new Application()
                 .setCurrent(new ApplicationMetadata().setVersion(OLDER_APPLICATION_VERSION))
                 .setLatest(new ApplicationMetadata().setVersion(NEW_APPLICATION_VERSION));
@@ -94,6 +102,16 @@ public class PrepareApplicationActionTest {
     }
 
     @Test
+    public void apply_NewVersionIsBlackListedAndBlacklistIsDisabled_ShouldNotThrow() {
+        given(blacklistPropertiesMock.isEnabled()).willReturn(false);
+        given(deployDirectoryRepoMock.isBlackListed(any())).willReturn(true);
+        given(deployDirectoryRepoMock.getBlacklistPath(any())).willReturn(blackListedFileMock);
+        given(blackListedFileMock.getAbsolutePath()).willReturn("/tmp/test.jar.blacklisted");
+
+        target.apply(application);
+    }
+
+    @Test
     public void apply_DownLoadFails_ShouldThrow() {
         HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Download failed!");
         doThrow(exception).when(nexusRepoMock).downloadJAR(any(), any());
@@ -111,8 +129,8 @@ public class PrepareApplicationActionTest {
         assertThat(target.apply(application)).isSameAs(application);
 
         File resultFile = application.getLatest().getFile();
-        assertThat(resultFile).isSameAs(fileMock);
 
+        assertThat(resultFile).isSameAs(fileMock);
         verify(nexusRepoMock, never()).downloadJAR(anyString(), any());
     }
 }
