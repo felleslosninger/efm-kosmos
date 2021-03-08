@@ -32,7 +32,7 @@ public class GetCurrentVersionAction implements ApplicationAction {
                             .setFile(directoryRepo.getFile(version))
             );
         } else {
-            log.info("No running integrasjonspunkt version found");
+            log.info("No running integrasjonspunkt found");
         }
 
         return application;

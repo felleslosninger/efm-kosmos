@@ -81,7 +81,7 @@ public class ActuatorClient {
         log.info("Getting version information");
         try {
             URI infoUri = deployManagerProperties.getIntegrasjonspunkt().getInfoURL().toURI();
-            log.trace("Tries to fetch version info from URI {}", infoUri);
+            log.trace("Fetching version info from URI {}", infoUri);
             InfoResource resource = restTemplate.getForObject(infoUri, InfoResource.class);
             log.debug("Parsed InfoResource: {}", resource);
             return (Optional.ofNullable(resource)

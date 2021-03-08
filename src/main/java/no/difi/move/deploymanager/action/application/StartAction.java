@@ -2,6 +2,7 @@ package no.difi.move.deploymanager.action.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.HealthStatus;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
@@ -19,6 +20,7 @@ import java.io.File;
 @RequiredArgsConstructor
 public class StartAction implements ApplicationAction {
 
+    private final DeployManagerProperties properties;
     private final ActuatorService actuatorService;
     private final LauncherService launcherService;
     private final DeployDirectoryRepo deployDirectoryRepo;
@@ -36,7 +38,11 @@ public class StartAction implements ApplicationAction {
         File jarFile = application.getLatest().getFile();
         LaunchResult launchResult = launcherService.launchIntegrasjonspunkt(jarFile.getAbsolutePath());
 
-        if (launchResult.getStatus() != LaunchStatus.SUCCESS) {
+        boolean blacklistEnabled = properties.getBlacklist().isEnabled();
+        if (!blacklistEnabled){
+            log.info("Blacklist mechanism is disabled");
+        }
+        if (blacklistEnabled && launchResult.getStatus() != LaunchStatus.SUCCESS) {
             log.info("Launch failed, the version will be blacklisted");
             deployDirectoryRepo.blackList(jarFile);
 

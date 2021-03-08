@@ -25,7 +25,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
                 .filter(k -> properties.getEnvironment().getPrefixesRemovedFromChildProcess().stream()
                         .anyMatch(k::startsWith))
                 .collect(Collectors.toList());
-        log.debug("Excludes the following variables: {}", exclusions);
+        log.debug("Excluding the following variables from child process environment: {}", exclusions);
         exclusions.forEach(e -> environment.put(e, null));
         return environment;
     }

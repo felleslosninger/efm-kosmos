@@ -77,6 +77,10 @@ public class DeployManagerProperties {
 
     @Valid
     @NestedConfigurationProperty
+    private BlacklistProperties blacklist;
+
+    @Valid
+    @NestedConfigurationProperty
     private IntegrasjonspunktProperties integrasjonspunkt;
 
     @Valid
