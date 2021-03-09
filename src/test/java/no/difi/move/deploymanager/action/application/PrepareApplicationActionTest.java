@@ -9,6 +9,8 @@ import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
 import no.difi.move.deploymanager.repo.NexusRepo;
 import org.apache.commons.io.IOUtils;
+import org.assertj.core.api.Assertions;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +24,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.io.File;
 import java.nio.file.Path;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
@@ -108,13 +111,14 @@ public class PrepareApplicationActionTest {
         given(deployDirectoryRepoMock.getBlacklistPath(any())).willReturn(blackListedFileMock);
         given(blackListedFileMock.getAbsolutePath()).willReturn("/tmp/test.jar.blacklisted");
 
-        target.apply(application);
+        assertThatCode(()->target.apply(application)).doesNotThrowAnyException();
     }
 
     @Test
     public void apply_DownLoadFails_ShouldThrow() {
         HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Download failed!");
         doThrow(exception).when(nexusRepoMock).downloadJAR(any(), any());
+
         assertThatThrownBy(() -> target.apply(application))
                 .isInstanceOf(DeployActionException.class)
                 .hasMessage("Error occurred when downloading latest version")
