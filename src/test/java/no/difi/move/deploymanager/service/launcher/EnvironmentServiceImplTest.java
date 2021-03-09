@@ -48,7 +48,7 @@ public class EnvironmentServiceImplTest {
 
         Map<String, String> result = target.getChildProcessEnvironment();
 
-        assertEquals(result, MOCK_ENVIRONMENT);
+        assertEquals(MOCK_ENVIRONMENT, result);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class EnvironmentServiceImplTest {
 
         Map<String, String> result = target.getChildProcessEnvironment();
 
-        assertNotEquals(result, MOCK_ENVIRONMENT);
+        assertNotEquals(MOCK_ENVIRONMENT, result);
         assertNull(result.get("prefix1.name.here"));
         assertEquals("value2", result.get("prefix2.name.here"));
     }
