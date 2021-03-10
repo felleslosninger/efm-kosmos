@@ -17,7 +17,7 @@ public class IntegrasjonspunktProperties {
     private String profile;
 
     @NotNull
-    private URL URL;
+    private URL baseURL;
     private URL healthURL;
     private URL infoURL;
     private URL shutdownURL;

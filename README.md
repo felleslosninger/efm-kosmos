@@ -65,7 +65,7 @@ Here is an example - Please replace the properties with your information:
 ```properties
 # Replace hosts and ports of URL with the location
 # of your integrasjonspunkt.
-deploymanager.integrasjonspunkt.URL=http://localhost:9093
+deploymanager.integrasjonspunkt.baseURL=http://localhost:9093
 
 deploymanager.keystore.path=file:c:/jks/deploymanager.jks
 deploymanager.keystore.password=xxx
