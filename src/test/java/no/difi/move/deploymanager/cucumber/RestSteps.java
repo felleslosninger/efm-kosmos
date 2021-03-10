@@ -6,7 +6,7 @@ import cucumber.api.java.en.Given;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import no.difi.move.deploymanager.repo.NexusRepo;
-import no.difi.move.deploymanager.service.actuator.ActuatorClient;
+import no.difi.move.deploymanager.service.actuator.RestTemplateActuatorClient;
 import org.springframework.boot.test.web.client.MockServerRestTemplateCustomizer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
@@ -26,7 +26,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 public class RestSteps {
 
     private final MockServerRestTemplateCustomizer mockServerRestTemplateCustomizer;
-    private final ActuatorClient actuatorClient;
+    private final RestTemplateActuatorClient actuatorClient;
     private final NexusRepo nexusRepo;
 
     private ResponseActions responseActions;

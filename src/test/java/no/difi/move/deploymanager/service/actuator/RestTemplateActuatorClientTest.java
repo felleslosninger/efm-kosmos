@@ -25,9 +25,9 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
 @RunWith(SpringRunner.class)
-@RestClientTest(ActuatorClient.class)
+@RestClientTest(RestTemplateActuatorClient.class)
 @ActiveProfiles("test")
-public class ActuatorClientTest {
+public class RestTemplateActuatorClientTest {
 
     private static final String HEALTH_URI = "http://localhost:8080/manage/health";
     private static final String SHUTDOWN_URI = "http://localhost:8080/manage/shutdown";
