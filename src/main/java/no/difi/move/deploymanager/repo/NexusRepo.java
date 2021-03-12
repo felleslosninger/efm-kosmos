@@ -3,6 +3,7 @@ package no.difi.move.deploymanager.repo;
 import ch.qos.logback.core.encoder.ByteArrayUtil;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -24,6 +25,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 @Component
+@Slf4j
 public class NexusRepo {
 
     private final DeployManagerProperties properties;
@@ -73,5 +75,14 @@ public class NexusRepo {
         }
 
         return builder.build().toUri();
+    }
+
+    public String downloadPublicKey() {
+        URI uri = UriComponentsBuilder.fromUriString(properties.getVerification().getPublicKeyURL()).build().toUri();
+        log.trace("Downloading public key from {}", uri);
+        return Optional.ofNullable(restTemplate.getForObject(uri, String.class))
+                .orElseThrow(() -> new DeployActionException("Couldn't download " + uri.toString()));
+
+
     }
 }

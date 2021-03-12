@@ -6,7 +6,6 @@ import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
 import no.difi.move.deploymanager.repo.NexusRepo;
-import no.difi.move.deploymanager.service.jarsigner.JarsSignerService;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,13 +27,12 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.*;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ValidateAction.class, IOUtils.class, MessageDigest.class, ByteArrayUtil.class})
@@ -45,7 +43,8 @@ public class ValidateActionTest {
     @InjectMocks private ValidateAction target;
 
     @Mock private NexusRepo nexusRepoMock;
-    @Mock private JarsSignerService jarsSignerService;
+    //@Mock private JarsSignerService jarsSignerService;
+    //TODO rewrite test to use gpgService
     @Mock private InputStream inputStreamMock;
     @Mock private MessageDigest digestMock;
     @Mock private StringWriter stringWriterMock;
@@ -98,6 +97,8 @@ public class ValidateActionTest {
         target.apply(application);
     }
 
+    //TODO add tests for gpg verification
+    /*
     @Test
     public void apply_jarSigningVerificationFails_shouldThrow() {
         doThrow(invalidExitValueExceptionMock).when(jarsSignerService).verify(any());
@@ -113,5 +114,5 @@ public class ValidateActionTest {
         assertThat(target.apply(application)).isSameAs(application);
         verify(jarsSignerService).verify("jarPath");
         verify(nexusRepoMock).getChecksum("version", "jar.sha1");
-    }
+    } */
 }

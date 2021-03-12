@@ -4,9 +4,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.action.DeployActionException;
+import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.repo.NexusRepo;
-import no.difi.move.deploymanager.service.jarsigner.JarsSignerService;
+import no.difi.move.deploymanager.service.codesigner.GpgService;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
@@ -27,7 +28,7 @@ import java.security.NoSuchAlgorithmException;
 public class ValidateAction implements ApplicationAction {
 
     private final NexusRepo nexusRepo;
-    private final JarsSignerService jarsSignerService;
+    private final GpgService gpgService;
 
     @Override
     public Application apply(Application application) {
@@ -36,7 +37,9 @@ public class ValidateAction implements ApplicationAction {
             log.info("Validating jar.");
             assertChecksumIsCorrect(application, ALGORITHM.SHA1);
             assertChecksumIsCorrect(application, ALGORITHM.MD5);
-            jarsSignerService.verify(application.getLatest().getFile().getAbsolutePath());
+            String publicKey = downloadPublicKey();
+            gpgService.verify(application.getLatest().getFile().getAbsolutePath(), application.getSignature().getFile().getAbsolutePath(), publicKey);
+            //TODO skriv metodar for å laste ned public key frå url på github
             return application;
         } catch (Exception ex) {
             throw new DeployActionException("Error validating jar", ex);
@@ -73,5 +76,12 @@ public class ValidateAction implements ApplicationAction {
 
         private final String name;
         private final String fileNameSuffix;
+    }
+
+    private String downloadPublicKey() {
+        String publicKey = nexusRepo.downloadPublicKey();
+        log.trace("Downloaded public key {} ", publicKey);
+        //TODO Også laste ned fingerprint for å verifisere at nøkkelen er gyldig.
+        return publicKey;
     }
 }

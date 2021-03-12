@@ -26,24 +26,27 @@ public class PrepareApplicationAction implements ApplicationAction {
     public Application apply(Application application) {
         log.debug("Running PrepareApplicationAction.");
         log.info("Preparing application.");
-        File downloadFile = getDownloadFile(application);
+        File downloadJarFile = getDownloadFile(application, "integrasjonspunkt-%s.jar");
+        File downloadAscFile = getDownloadFile(application, "integrasjonspunkt-%s.jar.asc");
 
-        if (deployDirectoryRepo.isBlackListed(downloadFile)) {
+        if (deployDirectoryRepo.isBlackListed(downloadJarFile)) {
             throw new DeployActionException(
                     String.format("The latest version is black listed! Remove %s to white list.",
-                            deployDirectoryRepo.getBlackListedFile(downloadFile).getAbsolutePath()));
+                            deployDirectoryRepo.getBlackListedFile(downloadJarFile).getAbsolutePath()));
         }
 
-        if (!downloadFile.exists()) {
+        if (!downloadJarFile.exists()) {
             log.info("Latest is different from current. Downloading newest version.");
             try {
-                doDownload(application, downloadFile);
+                doDownload(application, downloadJarFile);
+                doDownload(application, downloadAscFile);
             } catch (Exception ex) {
                 throw new DeployActionException("Error getting latest version", ex);
             }
         }
 
-        application.getLatest().setFile(downloadFile);
+        application.getLatest().setFile(downloadJarFile);
+        application.getSignature().setFile(downloadAscFile);
         return application;
     }
 
@@ -51,9 +54,9 @@ public class PrepareApplicationAction implements ApplicationAction {
         nexusRepo.downloadJAR(application.getLatest().getVersion(), destination.toPath());
     }
 
-    private File getDownloadFile(Application application) {
+    private File getDownloadFile(Application application, String fileName) {
         String home = properties.getIntegrasjonspunkt().getHome();
         String latestVersion = application.getLatest().getVersion();
-        return new File(home, String.format("integrasjonspunkt-%s.jar", latestVersion));
+        return new File(home, String.format(fileName, latestVersion));
     }
 }

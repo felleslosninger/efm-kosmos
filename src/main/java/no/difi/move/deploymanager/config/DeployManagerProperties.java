@@ -84,6 +84,10 @@ public class DeployManagerProperties {
 
     @Valid
     @NestedConfigurationProperty
+    private VerificationProperties verification;
+
+    @Valid
+    @NestedConfigurationProperty
     private MailProperties mail;
 
     @Valid

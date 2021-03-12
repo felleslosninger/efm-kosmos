@@ -1,4 +1,4 @@
-package no.difi.move.deploymanager.service.jarsigner;
+package no.difi.move.deploymanager.service.codesigner;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
