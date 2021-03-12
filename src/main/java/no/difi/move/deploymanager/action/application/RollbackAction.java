@@ -26,13 +26,14 @@ public class RollbackAction implements ApplicationAction {
 
     @Override
     public Application apply(Application application) {
-        log.debug("Running RollbackAction.");
+        log.trace("Calling RollbackAction.apply() on application {}", application);
         if (shouldRollback(application)) {
-            log.info("Rolling back.");
+            log.info("Rolling back to previous version");
 
             File jarFile = application.getCurrent().getFile();
+            log.debug("Previous version: {}", application.getCurrent());
             LaunchResult launchResult = launcherService.launchIntegrasjonspunkt(jarFile.getAbsolutePath());
-
+            log.debug("LaunchResult: {}", launchResult);
             String subject = String.format("Rollback %s %s", launchResult.getStatus().name(), jarFile.getName());
 
             log.info(subject);
@@ -51,6 +52,9 @@ public class RollbackAction implements ApplicationAction {
     }
 
     private boolean shouldRollback(Application application) {
-        return actuatorService.getStatus() != HealthStatus.UP && application.getCurrent().getFile() != null;
+        log.debug("Determining whether application {} should roll back", application);
+        return actuatorService.getStatus() != HealthStatus.UP
+                && application.getCurrent() != null
+                && application.getCurrent().getFile() != null;
     }
 }

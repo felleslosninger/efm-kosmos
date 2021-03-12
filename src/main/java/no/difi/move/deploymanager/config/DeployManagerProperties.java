@@ -71,12 +71,13 @@ public class DeployManagerProperties {
     private Integer nexusReadTimeoutInMs;
 
     @NotNull
-    private boolean verbose;
-
-    @NotNull
     @Max(120000L)
     @Positive
     private Integer schedulerFixedRateInMs;
+
+    @Valid
+    @NestedConfigurationProperty
+    private BlacklistProperties blacklist;
 
     @Valid
     @NestedConfigurationProperty

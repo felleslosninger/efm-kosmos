@@ -7,9 +7,6 @@ import no.difi.move.deploymanager.domain.application.Application;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-/**
- * @author Nikolai Luthman <nikolai dot luthman at inmeta dot no>
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -23,11 +20,10 @@ public class SynchronizationHandler {
     private final ShutdownAction shutdownAction;
     private final StartAction startAction;
     private final RollbackAction rollbackAction;
-    private final UpdateMetadataAction updateMetadataAction;
 
     @Scheduled(fixedRateString = "${deploymanager.schedulerFixedRateInMs}")
     public void run() {
-        log.debug("Starting synchronization.");
+        log.debug("Starting synchronization");
         currentVersionAction
                 .andThen(latestVersionAction)
                 .andThen(verifyVersionComplianceAction)
@@ -36,8 +32,7 @@ public class SynchronizationHandler {
                 .andThen(shutdownAction)
                 .andThen(startAction)
                 .andThen(rollbackAction)
-                .andThen(updateMetadataAction)
                 .apply(new Application());
-        log.debug("Finished synchronization.");
+        log.debug("Finished synchronization");
     }
 }

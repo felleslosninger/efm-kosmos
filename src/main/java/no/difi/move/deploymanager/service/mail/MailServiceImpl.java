@@ -24,14 +24,12 @@ public class MailServiceImpl implements MailService {
     @Override
     public void sendMail(String subject, String content) {
         MailProperties mail = properties.getMail();
-
         if (mail == null) {
             return;
         }
-
         Objects.requireNonNull(mail.getRecipient(), "deploymanager.mail.recipient must be set");
         Objects.requireNonNull(mail.getFrom(), "deploymanager.mail.from must be set");
-
+        log.trace("Sending email from {} to {} with subject '{}'", mail.getFrom(), mail.getRecipient(), subject);
         Optional.ofNullable(mailSenderProvider.getIfAvailable()).ifPresent(mailSender ->
                 mailSender.send(mimeMessage -> {
                     log.info("Sending mail");

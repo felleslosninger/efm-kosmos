@@ -2,7 +2,9 @@ package no.difi.move.deploymanager.action.application;
 
 import no.difi.move.deploymanager.domain.HealthStatus;
 import no.difi.move.deploymanager.domain.application.Application;
+import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
 import no.difi.move.deploymanager.service.actuator.ActuatorService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -19,10 +21,19 @@ import static org.mockito.Mockito.verify;
 @PrepareForTest({ShutdownAction.class})
 public class ShutdownActionTest {
 
-    @InjectMocks private ShutdownAction target;
+    @InjectMocks
+    private ShutdownAction target;
 
-    @Mock private ActuatorService actuatorServiceMock;
-    @Mock private Application applicationMock;
+    @Mock
+    private ActuatorService actuatorServiceMock;
+    @Mock
+    private Application applicationMock;
+
+    @Before
+    public void setUp() {
+        given(applicationMock.getCurrent())
+                .willReturn(new ApplicationMetadata().setVersion("old"));
+    }
 
     @Test(expected = NullPointerException.class)
     public void apply_applicationArgumentIsNull_shouldThrow() {
@@ -40,6 +51,7 @@ public class ShutdownActionTest {
     public void apply_currentVersionIsOldAndHealthStatusIsUp_shouldShutdown() {
         given(applicationMock.isSameVersion()).willReturn(false);
         given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.UP);
+
         assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
         verify(actuatorServiceMock).shutdown();
     }

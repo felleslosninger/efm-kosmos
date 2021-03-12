@@ -7,41 +7,34 @@ import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
 import no.difi.move.deploymanager.repo.NexusRepo;
+import no.difi.move.deploymanager.util.DeployUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 
-/**
- * @author Nikolai Luthman <nikolai dot luthman at inmeta dot no>
- */
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class PrepareApplicationAction implements ApplicationAction {
-
     private final DeployManagerProperties properties;
     private final NexusRepo nexusRepo;
     private final DeployDirectoryRepo deployDirectoryRepo;
 
     public Application apply(Application application) {
-        log.debug("Running PrepareApplicationAction.");
-        log.info("Preparing application.");
-        File downloadJarFile = getDownloadFile(application, "integrasjonspunkt-%s.jar");
-        File downloadAscFile = getDownloadFile(application, "integrasjonspunkt-%s.jar.asc");
-
-        if (deployDirectoryRepo.isBlackListed(downloadJarFile)) {
-            throw new DeployActionException(
-                    String.format("The latest version is black listed! Remove %s to white list.",
-                            deployDirectoryRepo.getBlackListedFile(downloadJarFile).getAbsolutePath()));
-        }
+        log.info("Preparing application");
+        log.trace("Calling PrepareApplicationAction.apply() on application {}", application);
+        File downloadJarFile = deployDirectoryRepo.getFile(application.getLatest().getVersion(), DeployUtils.DOWNLOAD_JAR_FILE_NAME);
+        File downloadAscFile = deployDirectoryRepo.getFile(application.getSignature().getVersion(), DeployUtils.DOWNLOAD_JAR_FILE_NAME + ".asc");
+        log.debug("The latest version is in file {}", downloadJarFile);
+        checkBlacklist(downloadJarFile);
 
         if (!downloadJarFile.exists()) {
-            log.info("Latest is different from current. Downloading newest version.");
+            log.info("Latest version is different from current, and will be downloaded");
             try {
                 doDownload(application, downloadJarFile);
                 doDownload(application, downloadAscFile);
             } catch (Exception ex) {
-                throw new DeployActionException("Error getting latest version", ex);
+                throw new DeployActionException("Error occurred when downloading latest version", ex);
             }
         }
 
@@ -50,13 +43,17 @@ public class PrepareApplicationAction implements ApplicationAction {
         return application;
     }
 
-    private void doDownload(Application application, File destination) {
-        nexusRepo.downloadJAR(application.getLatest().getVersion(), destination.toPath());
+    private void checkBlacklist(File downloadFile) {
+        boolean blacklistEnabled = properties.getBlacklist().isEnabled();
+        log.info("Blacklist functionality is disabled");
+        if (blacklistEnabled && deployDirectoryRepo.isBlackListed(downloadFile)) {
+            throw new DeployActionException(
+                    String.format("The latest version is black listed! Remove %s to white list.",
+                            deployDirectoryRepo.getBlacklistPath(downloadFile).getAbsolutePath()));
+        }
     }
 
-    private File getDownloadFile(Application application, String fileName) {
-        String home = properties.getIntegrasjonspunkt().getHome();
-        String latestVersion = application.getLatest().getVersion();
-        return new File(home, String.format(fileName, latestVersion));
+    private void doDownload(Application application, File destination) {
+        nexusRepo.downloadJAR(application.getLatest().getVersion(), destination.toPath());
     }
 }

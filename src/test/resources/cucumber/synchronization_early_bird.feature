@@ -1,4 +1,4 @@
-Feature: Synchronization - Upgrade
+Feature: Synchronization - Early Bird
 
   Background:
     Given the info URL is "http://localhost:9092/manage/info"
@@ -16,14 +16,14 @@ Feature: Synchronization - Upgrade
     """
     And the "integrasjonspunkt-1.7.92-SNAPSHOT.jar" exists as a copy of "/cucumber/success.jar"
     And the latest integrasjonspunkt version is "1.7.93-SNAPSHOT"
-    And the early bird setting is not activated
     And the supported major version is "1"
-    And a "GET" request to "https://beta-meldingsutveksling.difi.no/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT" will respond with status "200" and the following "application/java-archive" in "/cucumber/success.jar"
-    And a "GET" request to "https://beta-meldingsutveksling.difi.no/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT&e=jar.sha1" will respond with status "200" and the following "application/octet-stream"
+    And the early bird setting is activated with version set to "1.8.0-SNAPSHOT"
+    And a "GET" request to "https://beta-meldingsutveksling.difi.no/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.8.0-SNAPSHOT" will respond with status "200" and the following "application/java-archive" in "/cucumber/success.jar"
+    And a "GET" request to "https://beta-meldingsutveksling.difi.no/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.8.0-SNAPSHOT&e=jar.sha1" will respond with status "200" and the following "application/octet-stream"
     """
     39ba01879f7ededa62f7e5129f140089795e05bc
     """
-    And a "GET" request to "https://beta-meldingsutveksling.difi.no/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT&e=jar.md5" will respond with status "200" and the following "application/octet-stream"
+    And a "GET" request to "https://beta-meldingsutveksling.difi.no/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.8.0-SNAPSHOT&e=jar.md5" will respond with status "200" and the following "application/octet-stream"
     """
     e343ab4e4151f822331e7f5998b26ecc
     """
@@ -57,8 +57,8 @@ Feature: Synchronization - Upgrade
 
   Scenario: Upgrade
     Given the synchronization handler is triggered
-    Then the "integrasjonspunkt-1.7.93-SNAPSHOT.jar" is successfully launched
-    And an email is sent with subject "Upgrade SUCCESS integrasjonspunkt-1.7.93-SNAPSHOT.jar" and content:
+    Then the "integrasjonspunkt-1.8.0-SNAPSHOT.jar" is successfully launched
+    And an email is sent with subject "Upgrade SUCCESS integrasjonspunkt-1.8.0-SNAPSHOT.jar" and content:
     """
     Started IntegrasjonspunktApplication
     """

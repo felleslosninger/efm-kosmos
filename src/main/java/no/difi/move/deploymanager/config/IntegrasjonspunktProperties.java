@@ -17,12 +17,19 @@ public class IntegrasjonspunktProperties {
     private String profile;
 
     @NotNull
-    private URL URL;
+    private URL baseURL;
     private URL healthURL;
+    private URL infoURL;
     private URL shutdownURL;
 
     @NotNull
     private String latestVersion;
 
     private String supportedMajorVersion;
+
+    private boolean earlyBird;
+    private String earlyBirdVersion;
+
+    @NotNull
+    private boolean includeLog;
 }

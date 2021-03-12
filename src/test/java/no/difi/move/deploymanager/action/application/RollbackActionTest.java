@@ -57,6 +57,7 @@ public class RollbackActionTest {
     @Test
     public void apply_healthStatusIsUp_shouldNotRollback() {
         given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.UP);
+
         assertThat(target.apply(application)).isSameAs(application);
         verify(launcherServiceMock, never()).launchIntegrasjonspunkt(any());
         verify(mailService, never()).sendMail(any(), any());
@@ -65,6 +66,7 @@ public class RollbackActionTest {
     @Test
     public void apply_healthStatusIsDownAndFileIsSet_shouldRollback() {
         given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.DOWN);
+
         assertThat(target.apply(application)).isSameAs(application);
         verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
         verify(mailService).sendMail("Rollback SUCCESS test.jar", "theStartupLog");
@@ -74,6 +76,7 @@ public class RollbackActionTest {
     public void apply_healthStatusIsDownAndFileIsNotSet_shouldNotRollback() {
         given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.DOWN);
         given(currentMock.getFile()).willReturn(null);
+
         assertThat(target.apply(application)).isSameAs(application);
         verify(launcherServiceMock, never()).launchIntegrasjonspunkt(any());
     }

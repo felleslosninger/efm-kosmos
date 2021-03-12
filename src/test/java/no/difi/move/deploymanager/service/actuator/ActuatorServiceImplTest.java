@@ -2,6 +2,7 @@ package no.difi.move.deploymanager.service.actuator;
 
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.HealthStatus;
+import no.difi.move.deploymanager.domain.VersionInfo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,5 +88,24 @@ public class ActuatorServiceImplTest {
 
         verify(actuatorClient).requestShutdown();
         verify(actuatorClient, times(3)).getStatus();
+    }
+
+    @Test
+    public void testGetVersion() {
+        given(actuatorClient.getVersionInfo()).willReturn(
+                VersionInfo.builder()
+                        .resolved(false)
+                        .version(null)
+                        .build(),
+                VersionInfo.builder()
+                        .resolved(true)
+                        .version("2")
+                        .build()
+        );
+
+        assertThat(actuatorServiceImpl.getVersionInfo().isResolved()).isFalse();
+        assertThat(actuatorServiceImpl.getVersionInfo().isResolved()).isTrue();
+
+        verify(actuatorClient, times(2)).getVersionInfo();
     }
 }

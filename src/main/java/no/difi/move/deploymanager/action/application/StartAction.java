@@ -2,6 +2,7 @@ package no.difi.move.deploymanager.action.application;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.HealthStatus;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
@@ -14,14 +15,12 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 
-/**
- * @author Nikolai Luthman <nikolai dot luthman at inmeta dot no>
- */
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class StartAction implements ApplicationAction {
 
+    private final DeployManagerProperties properties;
     private final ActuatorService actuatorService;
     private final LauncherService launcherService;
     private final DeployDirectoryRepo deployDirectoryRepo;
@@ -29,20 +28,26 @@ public class StartAction implements ApplicationAction {
 
     @Override
     public Application apply(Application application) {
-        log.debug("Running StartAction.");
+        log.trace("Calling StartAction.apply() on application: {}", application);
 
         if (isAlreadyRunning(application)) {
-            log.info("The application is already running.");
+            log.info("The application is already running");
             return application;
         }
 
         File jarFile = application.getLatest().getFile();
         LaunchResult launchResult = launcherService.launchIntegrasjonspunkt(jarFile.getAbsolutePath());
 
-        if (launchResult.getStatus() != LaunchStatus.SUCCESS) {
+        boolean blacklistEnabled = properties.getBlacklist().isEnabled();
+        if (!blacklistEnabled){
+            log.info("Blacklist mechanism is disabled");
+        }
+        if (blacklistEnabled && launchResult.getStatus() != LaunchStatus.SUCCESS) {
+            log.info("Launch failed, the version will be blacklisted");
             deployDirectoryRepo.blackList(jarFile);
 
             if (actuatorService.getStatus() == HealthStatus.UP) {
+                log.trace("The application started in the mean time, but is now shutting down");
                 actuatorService.shutdown();
             }
         }
@@ -62,6 +67,8 @@ public class StartAction implements ApplicationAction {
     }
 
     private boolean isAlreadyRunning(Application application) {
-        return application.isSameVersion() && actuatorService.getStatus() == HealthStatus.UP;
+        return application.getCurrent() != null
+                && application.isSameVersion()
+                && actuatorService.getStatus() == HealthStatus.UP;
     }
 }

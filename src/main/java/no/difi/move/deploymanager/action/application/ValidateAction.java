@@ -18,9 +18,6 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/**
- * @author Nikolai Luthman <nikolai dot luthman at inmeta dot no>
- */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -32,9 +29,9 @@ public class ValidateAction implements ApplicationAction {
 
     @Override
     public Application apply(Application application) {
-        log.debug("Running ValidateAction.");
+        log.info("Validating jar");
+        log.trace("Calling ValidateAction.apply on application {}", application);
         try {
-            log.info("Validating jar.");
             assertChecksumIsCorrect(application, ALGORITHM.SHA1);
             assertChecksumIsCorrect(application, ALGORITHM.MD5);
             String publicKey = downloadPublicKey();
@@ -47,8 +44,11 @@ public class ValidateAction implements ApplicationAction {
     }
 
     private void assertChecksumIsCorrect(Application application, ALGORITHM algorithm) throws IOException, NoSuchAlgorithmException {
+        log.trace("Calling ValidateAction.assertChecksumIsCorrect() with args: application: {}, algorithm: {}", application, algorithm);
         byte[] hashFromRepo = getHashFromRepo(application.getLatest().getVersion(), algorithm);
+        log.trace("Hash from repo: {}", hashFromRepo);
         byte[] fileHash = getFileHash(application.getLatest().getFile(), algorithm);
+        log.trace("File hash: {}", fileHash);
         if (!MessageDigest.isEqual(fileHash, hashFromRepo)) {
             throw new DeployActionException(String.format("%s verification failed", algorithm.getName()));
         }

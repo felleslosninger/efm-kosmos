@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import no.difi.move.deploymanager.domain.HealthStatus;
 import no.difi.move.deploymanager.service.actuator.dto.HealthResource;
+import no.difi.move.deploymanager.service.actuator.dto.InfoResource;
 import no.difi.move.deploymanager.service.actuator.dto.ShutdownResource;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +31,14 @@ public class ActuatorClientTest {
 
     private static final String HEALTH_URI = "http://localhost:8080/manage/health";
     private static final String SHUTDOWN_URI = "http://localhost:8080/manage/shutdown";
+    private static final String INFO_URI = "http://localhost:8080/manage/info";
 
-    @Autowired private ActuatorClient client;
-    @Autowired private MockRestServiceServer server;
-    @Autowired private ObjectMapper objectMapper;
+    @Autowired
+    private ActuatorClient client;
+    @Autowired
+    private MockRestServiceServer server;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     public void testGetStatus() {
@@ -110,6 +116,36 @@ public class ActuatorClientTest {
                 });
 
         assertThat(client.requestShutdown()).isFalse();
+    }
+
+    @Test
+    public void getVersion_BadRequest_ShouldReturnUnresolved() {
+        server.expect(requestTo(INFO_URI))
+                .andRespond(withBadRequest());
+
+        assertThat(client.getVersionInfo().isResolved()).isFalse();
+    }
+
+    @Test
+    public void getVersion_ServerError_ShouldReturnUnresolved() {
+        server.expect(requestTo(INFO_URI))
+                .andRespond(withServerError());
+
+        assertThat(client.getVersionInfo().isResolved()).isFalse();
+    }
+
+    @Test
+    public void getVersion_Success_ShouldReturnResolvedVersion() {
+        server.expect(requestTo(INFO_URI))
+                .andRespond(withSuccess(json(
+                        new InfoResource()
+                                .setBuild(
+                                        new InfoResource.BuildResource()
+                                                .setVersion("1")
+                                )
+                ), MediaType.APPLICATION_JSON));
+
+        assertThat(StringUtils.equals("1", client.getVersionInfo().getVersion())).isTrue();
     }
 
     @SneakyThrows(JsonProcessingException.class)

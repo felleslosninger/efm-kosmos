@@ -3,63 +3,27 @@ package no.difi.move.deploymanager.repo;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
-import java.util.Properties;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
 
-/**
- * @author Nikolai Luthman <nikolai dot luthman at inmeta dot no>
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class DeployDirectoryRepo {
 
-    private static final String META_PROPERTIES = "meta.properties";
-
     private final DeployManagerProperties properties;
 
-    public Properties getMetadata() throws IOException {
-        File propertiesFile = getOrCreateFile(META_PROPERTIES);
-
-        Properties props = new Properties();
-
-        try (InputStream is = new FileInputStream(propertiesFile)) {
-            props.load(is);
-        }
-
-        return props;
-    }
-
-    public void setMetadata(Properties properties) throws IOException {
-        File propertiesFile = getOrCreateFile(META_PROPERTIES);
-
-        try (FileOutputStream os = new FileOutputStream(propertiesFile)) {
-            properties.store(os, "Automatically generated");
-        }
-    }
-
-    public File getFile(String filename) {
-        File homeFolder = getOrCreateHomeFolder();
-        log.info("Home folder is set to: {}", homeFolder.getAbsolutePath());
-        File file = new File(homeFolder, filename);
-        if (file.exists()) {
-            return file;
-        }
-
-        throw new DeployActionException(String.format("File not found: %s", file.getAbsolutePath()));
-    }
-
-    private File getOrCreateFile(String file) throws IOException {
-        File homeFolder = getOrCreateHomeFolder();
-        File propertiesFile = new File(homeFolder, file);
-        if (propertiesFile.createNewFile()) {
-            log.info("Created file: {}", propertiesFile.getAbsolutePath());
-        }
-        return propertiesFile;
+    public File getFile(String version, String name) {
+        File root = getOrCreateHomeFolder();
+        return new File(root, String.format(name, version));
     }
 
     private File getOrCreateHomeFolder() {
@@ -74,7 +38,7 @@ public class DeployDirectoryRepo {
     @SneakyThrows
     public void blackList(File file) {
         try {
-            if (getBlackListedFile(file).createNewFile()) {
+            if (doBlacklist(file).createNewFile()) {
                 log.info("Blacklisted {}", file.getAbsolutePath());
             }
         } catch (IOException e) {
@@ -83,10 +47,48 @@ public class DeployDirectoryRepo {
     }
 
     public boolean isBlackListed(File file) {
-        return getBlackListedFile(file).exists();
+        final File blacklistFile = getBlacklistPath(file);
+        if (blacklistFile.exists()) {
+            try {
+                LocalDateTime expires = LocalDateTime.parse(FileUtils.readFileToString(blacklistFile, StandardCharsets.UTF_8));
+                log.debug("Blacklist expires at {}", expires);
+                final boolean expired = expires.isBefore(LocalDateTime.now());
+                if (expired) {
+                    removeBlacklist(blacklistFile);
+                }
+                return !expired;
+            } catch (IOException e) {
+                log.warn("Could not get blacklist information", e);
+            }
+        }
+        return false;
     }
 
-    public File getBlackListedFile(File file) {
+    public File getBlacklistPath(File file) {
         return new File(file.getAbsolutePath().replaceFirst("jar$", "blacklisted"));
+    }
+
+    private void removeBlacklist(File blacklistFile) {
+        boolean deleted = FileUtils.deleteQuietly(blacklistFile);
+        if (deleted) {
+            log.debug("Removed expired blacklist file {}", blacklistFile);
+        } else {
+            log.debug("Could not remove expired blacklist file {}", blacklistFile);
+        }
+    }
+
+    private File doBlacklist(File file) {
+        final File blacklistFile = getBlacklistPath(file);
+        log.debug("Blacklist file pathname is {}", blacklistFile.getAbsolutePath());
+        try (BufferedWriter writer = Files.newBufferedWriter(blacklistFile.toPath(), StandardCharsets.UTF_8)) {
+            int durationInHours = properties.getBlacklist().getDurationInHours();
+            log.debug("Blacklist duration is {} hours", durationInHours);
+            LocalDateTime expires = LocalDateTime.now().plusHours(durationInHours);
+            log.debug("Blacklisting {} until {}", file.getName(), expires);
+            writer.write(expires.toString());
+        } catch (IOException e) {
+            log.warn("Could not blacklist {}", file.getName());
+        }
+        return blacklistFile;
     }
 }

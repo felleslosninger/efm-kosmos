@@ -45,7 +45,7 @@ We are using [https://github.com/kohsuke/winsw] as a Windows service wrapper. Pl
   
   <!-- Path to the executable, which should be started -->
   <executable>java</executable>
-  <arguments>-jar %BASE%\deploymanager-x.y.z.jar --spring.profiles.active=production</arguments>          
+    <arguments>-jar %BASE%\deploymanager-X.Y.Z.jar --spring.profiles.active=production --spring.config.additional-location=file:%BASE%\integrasjonspunkt-local.properties</arguments>
   <logpath>%BASE%\deploymanager-logs</logpath>
   
   <log mode="roll-by-size">
@@ -63,15 +63,9 @@ You will need a file named deploymanager-local.properties in the same folder as 
 Here is an example - Please replace the properties with your information:
 
 ```properties
-# Replace with your organization
-deploymanager.orgnumber=900000000
-
-# Required only if your integrasjonspunkt and deploymanager do not run from the same folder:
-deploymanager.integrasjonspunkt.home=c:/apps/integrasjonspunkt
-
 # Replace hosts and ports of URL with the location
 # of your integrasjonspunkt.
-deploymanager.integrasjonspunkt.URL=http://localhost:9093
+deploymanager.integrasjonspunkt.baseURL=http://localhost:9093
 
 deploymanager.keystore.path=file:c:/jks/deploymanager.jks
 deploymanager.keystore.password=xxx
@@ -86,7 +80,14 @@ spring.mail.host=smtp.yourdomain.no
 spring.mail.port=<set-your-port-here>
 ```  
 
+#### Running deploymanager and integrasjonspunkt from different folders
+The recommended setup (requires less configuration) is to have both JARs in the same directory. If for some reason you should prefer running the applications from different directories, the following settings have to be added.
 
-
-
-
+Add the following property to deploymanager-local.properties:
+```properties
+deploymanager.integrasjonspunkt.home={path-to-where-your-integrasjonspunkt-runs}
+```
+Modify the arguments tag in deploymanager's XML configuration file:
+```xml
+<arguments>-jar %BASE%\deploymanager-X.Y.Z.jar --spring.profiles.active=production --spring.config.additional-location=file:{path-to-where-your-integrasjonspunkt-runs}\integrasjonspunkt-local.properties</arguments>
+```

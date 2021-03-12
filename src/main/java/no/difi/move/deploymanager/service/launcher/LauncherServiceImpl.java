@@ -14,7 +14,7 @@ import org.zeroturnaround.exec.ProcessResult;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
 import java.util.concurrent.Future;
 
 @Service
@@ -28,6 +28,7 @@ public class LauncherServiceImpl implements LauncherService {
 
     @Override
     public LaunchResult launchIntegrasjonspunkt(String jarPath) {
+        log.info("Starting application: {}", jarPath);
         LaunchResult launchResult = launch(jarPath);
         HealthStatus status = actuatorService.getStatus();
 
@@ -45,8 +46,8 @@ public class LauncherServiceImpl implements LauncherService {
         LaunchResult launchResult = new LaunchResult()
                 .setJarPath(jarPath);
 
-        try (StartupLog startupLog = new StartupLog(properties.isVerbose())) {
-            log.info("Starting application {}", jarPath);
+        try (StartupLog startupLog = new StartupLog(properties.getIntegrasjonspunkt().isIncludeLog())) {
+            log.debug("Starting application in {}", jarPath);
 
             Future<ProcessResult> future = new ProcessExecutor(Arrays.asList(
                     "java", "-jar", jarPath,
@@ -79,7 +80,7 @@ public class LauncherServiceImpl implements LauncherService {
                     .setStatus(startupLog.getStatus())
                     .setStartupLog(startupLog.getLog());
         } catch (IOException e) {
-            log.error("Failed to launch process.", e);
+            log.error("Failed to launch process", e);
             launchResult
                     .setStatus(LaunchStatus.FAILED)
                     .setStartupLog(e.getLocalizedMessage());
@@ -89,16 +90,18 @@ public class LauncherServiceImpl implements LauncherService {
     }
 
     private LaunchStatus waitForStartup(StartupLog startupLog) throws InterruptedException {
+        int pollIntervalInMs = properties.getLaunchPollIntervalInMs();
+        int timeoutInMs = properties.getLaunchTimeoutInMs();
+        log.debug("Waiting {} ms for startup with timeout after {}", pollIntervalInMs, timeoutInMs);
         long start = System.currentTimeMillis();
 
         do {
-            Thread.sleep(properties.getLaunchPollIntervalInMs());
+            Thread.sleep(pollIntervalInMs);
         } while (startupLog.getStatus() == LaunchStatus.UNKNOWN
-                && System.currentTimeMillis() - start < properties.getLaunchTimeoutInMs()
+                && System.currentTimeMillis() - start < timeoutInMs
         );
 
         startupLog.stopRecording();
-
         return startupLog.getStatus();
     }
 }
