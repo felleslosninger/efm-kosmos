@@ -21,7 +21,6 @@ import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.Optional;
 
-@Component
 @Slf4j
 public class RestTemplateActuatorClient implements ActuatorClient {
 
