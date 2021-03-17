@@ -1,91 +1,82 @@
 package no.difi.move.deploymanager.cucumber;
 
-import cucumber.api.java.Before;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.http.Fault;
+import cucumber.api.java.After;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import no.difi.move.deploymanager.repo.NexusRepo;
-import no.difi.move.deploymanager.repo.RestTemplateNexusRepo;
-import no.difi.move.deploymanager.service.actuator.RestTemplateActuatorClient;
-import org.springframework.boot.test.web.client.MockServerRestTemplateCustomizer;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.test.web.client.ResponseActions;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpHeaders;
 
-import java.net.ConnectException;
+import java.io.IOException;
 
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 
 @RequiredArgsConstructor
 public class RestSteps {
 
-    private final MockServerRestTemplateCustomizer mockServerRestTemplateCustomizer;
-    private final RestTemplateActuatorClient actuatorClient;
-    private final RestTemplateNexusRepo nexusRepo;
+    public static final String TEST_SCENARIO = "Test scenario";
+    private final CucumberResourceLoader cucumberResourceLoader;
+    private final WireMockServer wireMockServer;
 
-    private ResponseActions responseActions;
-
-    @Before
-    @SneakyThrows
-    public void before() {
-        mockServerRestTemplateCustomizer.getServers().values().forEach(MockRestServiceServer::reset);
-        mockServerRestTemplateCustomizer.customize(actuatorClient.getRestTemplate());
-    }
-
-    private MockRestServiceServer getServer(String url) {
-        return mockServerRestTemplateCustomizer.getServer(getRestTemplate(url));
-    }
-
-    @SuppressWarnings("squid:S1172")
-    private RestTemplate getRestTemplate(String url) {
-        if (url.startsWith("http://localhost:9092")) {
-            return actuatorClient.getRestTemplate();
-        }
-
-        return nexusRepo.getRestTemplate();
+    @After
+    public void after() {
+        wireMockServer.resetAll();
+        wireMockServer.resetScenarios();
     }
 
     @Given("^a \"([^\"]*)\" request to \"([^\"]*)\" will respond with status \"(\\d+)\" and the following \"([^\"]*)\"$")
     public void aRequestToWillRespondWithStatusAndTheFollowing(String method, String url, int statusCode, String contentType, String body) {
-        this.responseActions = getServer(url)
-                .expect(requestTo(url))
-                .andExpect(method(HttpMethod.valueOf(method)));
-
-        responseActions
-                .andRespond(withStatus(HttpStatus.valueOf(statusCode))
-                        .contentType(MediaType.parseMediaType(contentType))
-                        .body(body));
+        wireMockServer.stubFor(request(method, urlEqualTo(url))
+                .inScenario(TEST_SCENARIO)
+                .willReturn(aResponse()
+                        .withStatus(statusCode)
+                        .withHeader(HttpHeaders.CONTENT_TYPE, contentType)
+                        .withBody(body)));
     }
 
     @And("^a \"([^\"]*)\" request to \"([^\"]*)\" will respond with status \"([^\"]*)\" and the following \"([^\"]*)\" in \"([^\"]*)\"$")
-    public void aRequestToWillRespondWithStatusAndTheFollowingIn(String method, String url, int statusCode, String contentType, String path) {
-        this.responseActions = getServer(url)
-                .expect(requestTo(url))
-                .andExpect(method(HttpMethod.valueOf(method)));
-
-        responseActions
-                .andRespond(withStatus(HttpStatus.valueOf(statusCode))
-                        .contentType(MediaType.parseMediaType(contentType))
-                        .body(new ClassPathResource(path)));
+    public void aRequestToWillRespondWithStatusAndTheFollowingIn(String method, String url, int statusCode, String contentType, String path) throws IOException {
+        wireMockServer.stubFor(request(method, urlEqualTo(url))
+                .inScenario(TEST_SCENARIO)
+                .willReturn(aResponse()
+                        .withStatus(statusCode)
+                        .withHeader(HttpHeaders.CONTENT_TYPE, contentType)
+                        .withBody(cucumberResourceLoader.getResourceBytes(path))));
     }
 
 
-    @Given("^a \"([^\"]*)\" request to \"([^\"]*)\" will respond with connection refused$")
-    public void aRequestToWillRespondWithNoConnectionRefused(String method, String url) {
-        this.responseActions = getServer(url)
-                .expect(requestTo(url))
-                .andExpect(method(HttpMethod.valueOf(method)));
-
-        responseActions
-                .andRespond(request -> {
-                    throw new ConnectException("Connection refused: connect");
-                });
+    @Given("^state is \"([^\"]*)\" then a \"([^\"]*)\" request to \"([^\"]*)\" will set the state to \"([^\"]*)\" and respond with connection refused$")
+    public void aRequestToWillRespondWithNoConnectionRefused(String scenarioState,  String method, String url, String newState) {
+        wireMockServer.stubFor(request(method, urlEqualTo(url))
+                .inScenario(TEST_SCENARIO)
+                .whenScenarioStateIs(scenarioState)
+                .willSetStateTo(newState)
+                .willReturn(aResponse().withFault(Fault.MALFORMED_RESPONSE_CHUNK)));
     }
+
+    @Given("^state is \"([^\"]*)\" then a \"([^\"]*)\" request to \"([^\"]*)\" will set the state to \"([^\"]*)\" and respond with status \"(\\d+)\" and the following \"([^\"]*)\"$")
+    public void aRequestToWillRespondWithStatusAndTheFollowing(String scenarioState, String method, String url, String newState, int statusCode, String contentType, String body) {
+        wireMockServer.stubFor(request(method, urlEqualTo(url))
+                .inScenario(TEST_SCENARIO)
+                .whenScenarioStateIs(scenarioState)
+                .willSetStateTo(newState)
+                .willReturn(aResponse()
+                        .withStatus(statusCode)
+                        .withHeader(HttpHeaders.CONTENT_TYPE, contentType)
+                        .withBody(body)));
+    }
+
+    @Given("^state is \"([^\"]*)\" then a \"([^\"]*)\" request to \"([^\"]*)\" will respond with status \"(\\d+)\" and the following \"([^\"]*)\"$")
+    public void aRequestToWillRespondWithStatusAndTheFollowing(String scenarioState, String method, String url, int statusCode, String contentType, String body) {
+        wireMockServer.stubFor(request(method, urlEqualTo(url))
+                .inScenario(TEST_SCENARIO)
+                .whenScenarioStateIs(scenarioState)
+                .willReturn(aResponse()
+                        .withStatus(statusCode)
+                        .withHeader(HttpHeaders.CONTENT_TYPE, contentType)
+                        .withBody(body)));
+    }
+
 }

@@ -1,7 +1,6 @@
 package no.difi.move.deploymanager.service.actuator;
 
 import io.netty.channel.ChannelOption;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.HealthStatus;
@@ -28,7 +27,7 @@ import java.util.Optional;
 public class WebClientActuatorClient implements ActuatorClient {
 
     private final DeployManagerProperties properties;
-    private WebClient webClient;
+    private final WebClient webClient;
 
     public WebClientActuatorClient(DeployManagerProperties properties) {
         this.properties = properties;
@@ -50,9 +49,10 @@ public class WebClientActuatorClient implements ActuatorClient {
             return healthResourceMono.block();
         } catch (WebClientResponseException e) {
             log.debug("Could not obtain health status: {}, {}", e.getStatusCode(), e.getStatusText());
-            return HealthStatus.UNKNOWN;
         } catch (URISyntaxException e) {
             log.warn("Could not request health status: {}, {}", e.getMessage(), e.getReason());
+        } catch (Exception e) {
+            log.warn("Could not request health status: {}", e.getMessage());
         }
         return HealthStatus.UNKNOWN;
     }
@@ -71,6 +71,8 @@ public class WebClientActuatorClient implements ActuatorClient {
             log.debug("Could not achieve shutdown: {}, {}", e.getStatusCode(), e.getStatusText());
         } catch (URISyntaxException e) {
             log.warn("Could not request shutdown: {}, {}", e.getMessage(), e.getReason());
+        } catch (Exception e) {
+            log.warn("Could not request shutdown: {}", e.getMessage());
         }
         return false;
     }
@@ -94,6 +96,8 @@ public class WebClientActuatorClient implements ActuatorClient {
             log.debug("Could not obtain version information: {}, {}", e.getStatusCode(), e.getStatusText());
         } catch (URISyntaxException e) {
             log.warn("Could not request version information: {} {}", e.getMessage(), e.getReason());
+        } catch (Exception e) {
+            log.warn("Could not request version information: {}", e.getMessage());
         }
         return VersionInfo.builder().resolved(false).build();
     }

@@ -1,6 +1,7 @@
 package no.difi.move.deploymanager.cucumber;
 
 import com.dumbster.smtp.SimpleSmtpServer;
+import com.github.tomakehurst.wiremock.WireMockServer;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import lombok.SneakyThrows;
@@ -12,20 +13,19 @@ import no.difi.move.deploymanager.service.launcher.LauncherServiceImpl;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebClient;
 import org.springframework.boot.test.context.SpringBootContextLoader;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.boot.test.web.client.MockServerRestTemplateCustomizer;
 import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.web.client.UnorderedRequestExpectationManager;
 
-import static org.mockito.Mockito.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 @ContextConfiguration(classes = {
         DeployManagerMain.class,
@@ -35,15 +35,30 @@ import static org.mockito.Mockito.*;
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @ActiveProfiles("cucumber")
-@AutoConfigureWebClient(registerRestTemplate = true)
 @Slf4j
 public class CucumberStepsConfiguration {
 
     @Configuration
     @Profile("cucumber")
     @SpyBean(DeployManagerProperties.class)
+    @SpyBean(IntegrasjonspunktProperties.class)
     @SpyBean(LauncherServiceImpl.class)
     public static class SpringConfiguration {
+
+        @Bean
+        public WireMockServer wireMockServer() {
+            return new WireMockServer(options().port(9092));
+        }
+
+        @Bean
+        public WireMockMonitor wireMockMonitor(WireMockServer wireMockServer) {
+            return new WireMockMonitor(wireMockServer);
+        }
+
+        @Bean
+        public CucumberResourceLoader cucumberResourceLoader() {
+            return new CucumberResourceLoader();
+        }
 
         @Bean
         @SneakyThrows
@@ -52,37 +67,33 @@ public class CucumberStepsConfiguration {
         }
 
         @Bean
-        public MockServerRestTemplateCustomizer mockServerRestTemplateCustomizer() {
-            return new MockServerRestTemplateCustomizer(UnorderedRequestExpectationManager.class);
+        public IntegrasjonspunktProperties integrasjonspunktProperties(DeployManagerProperties deployManagerProperties) {
+            return deployManagerProperties.getIntegrasjonspunkt();
         }
 
         @Bean
-        public IntegrasjonspunktProperties mockIntegrasjonspunktProperties() {
-            return mock(IntegrasjonspunktProperties.class);
-        }
-
-        @Bean
-        public ContextRefresher contextRefresher(){
+        public ContextRefresher contextRefresher() {
             return mock(ContextRefresher.class);
         }
-
     }
 
     @Autowired
-    private DeployManagerProperties propertiesSpy;
+    private DeployManagerProperties deployManagerProperties;
 
     @Autowired
-    private IntegrasjonspunktProperties integrasjonspunktPropertiesMock;
+    private IntegrasjonspunktProperties integrasjonspunktProperties;
 
     @Rule
-    private final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    private final TemporaryFolder temporaryFolder = TemporaryFolder.builder()
+            .assureDeletion().build();
 
     @Before
     @SneakyThrows
     public void before() {
         temporaryFolder.create();
-        doReturn(temporaryFolder.getRoot().getAbsolutePath()).when(integrasjonspunktPropertiesMock).getHome();
-        when(propertiesSpy.getIntegrasjonspunkt()).thenReturn(integrasjonspunktPropertiesMock);
+
+        given(deployManagerProperties.getIntegrasjonspunkt()).willReturn(integrasjonspunktProperties);
+        given(integrasjonspunktProperties.getHome()).willReturn(temporaryFolder.getRoot().getAbsolutePath());
     }
 
     @After

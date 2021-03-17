@@ -1,8 +1,7 @@
 Feature: Synchronization - Major version not supported
 
   Background:
-    Given the info URL is "http://localhost:9092/manage/info"
-    And a "GET" request to "http://localhost:9092/manage/info" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
+    Given a "GET" request to "/manage/info" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
     """
     {
         "build": {
