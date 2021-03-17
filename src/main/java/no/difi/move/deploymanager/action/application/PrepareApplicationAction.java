@@ -24,7 +24,6 @@ public class PrepareApplicationAction implements ApplicationAction {
         log.info("Preparing application");
         log.trace("Calling PrepareApplicationAction.apply() on application {}", application);
         File downloadJarFile = deployDirectoryRepo.getFile(application.getLatest().getVersion(), DeployUtils.DOWNLOAD_JAR_FILE_NAME);
-        File downloadAscFile = deployDirectoryRepo.getFile(application.getSignature().getVersion(), DeployUtils.DOWNLOAD_JAR_FILE_NAME + ".asc");
         log.debug("The latest version is in file {}", downloadJarFile);
         checkBlacklist(downloadJarFile);
 
@@ -32,14 +31,12 @@ public class PrepareApplicationAction implements ApplicationAction {
             log.info("Latest version is different from current, and will be downloaded");
             try {
                 doDownload(application, downloadJarFile);
-                doDownload(application, downloadAscFile);
             } catch (Exception ex) {
                 throw new DeployActionException("Error occurred when downloading latest version", ex);
             }
         }
 
         application.getLatest().setFile(downloadJarFile);
-        application.getSignature().setFile(downloadAscFile);
         return application;
     }
 

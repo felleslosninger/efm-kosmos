@@ -3,6 +3,7 @@ package no.difi.move.deploymanager.repo;
 import no.difi.move.deploymanager.config.BlacklistProperties;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
+import no.difi.move.deploymanager.util.DeployUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -70,7 +71,7 @@ public class DeployDirectoryRepoTest {
         File directoryMock = mock(File.class);
         whenNew(File.class).withAnyArguments().thenReturn(directoryMock);
 
-        target.getFile("version-1");
+        target.getFile("version-1", DeployUtils.DOWNLOAD_JAR_FILE_NAME);
 
         verifyNew(File.class).withArguments(temporaryFolder.getRoot().getAbsolutePath());
         verify(directoryMock).mkdir();

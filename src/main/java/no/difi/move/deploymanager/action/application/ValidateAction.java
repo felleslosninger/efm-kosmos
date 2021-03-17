@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.action.DeployActionException;
-import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.repo.NexusRepo;
 import no.difi.move.deploymanager.service.codesigner.GpgService;
@@ -34,9 +33,13 @@ public class ValidateAction implements ApplicationAction {
         try {
             assertChecksumIsCorrect(application, ALGORITHM.SHA1);
             assertChecksumIsCorrect(application, ALGORITHM.MD5);
+            String signature = downloadSignature(application.getLatest().getVersion());
             String publicKey = downloadPublicKey();
-            gpgService.verify(application.getLatest().getFile().getAbsolutePath(), application.getSignature().getFile().getAbsolutePath(), publicKey);
-            //TODO skriv metodar for å laste ned public key frå url på github
+            boolean verify = gpgService.verify(application.getLatest().getFile().getAbsolutePath(), signature, publicKey);
+            if(verify) {
+                log.trace("Signature has been successfully verified.");
+            }
+
             return application;
         } catch (Exception ex) {
             throw new DeployActionException("Error validating jar", ex);
@@ -84,4 +87,11 @@ public class ValidateAction implements ApplicationAction {
         //TODO Også laste ned fingerprint for å verifisere at nøkkelen er gyldig.
         return publicKey;
     }
+
+    private String downloadSignature(String version) {
+        String signature = nexusRepo.downloadSignature(version);
+        log.trace("Downloaded signature {} ", signature);
+        return signature;
+    }
+
 }

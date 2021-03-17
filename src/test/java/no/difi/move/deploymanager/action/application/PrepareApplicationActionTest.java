@@ -9,8 +9,6 @@ import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
 import no.difi.move.deploymanager.repo.NexusRepo;
 import org.apache.commons.io.IOUtils;
-import org.assertj.core.api.Assertions;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,8 +22,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.io.File;
 import java.nio.file.Path;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Java6Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -73,7 +71,7 @@ public class PrepareApplicationActionTest {
                 .withArguments(anyString(), anyString())
                 .thenReturn(fileMock);
         given(fileMock.toPath()).willReturn(pathMock);
-        given(deployDirectoryRepoMock.getFile(anyString())).willReturn(fileMock);
+        given(deployDirectoryRepoMock.getFile(anyString(), anyString())).willReturn(fileMock);
     }
 
     @Test(expected = NullPointerException.class)

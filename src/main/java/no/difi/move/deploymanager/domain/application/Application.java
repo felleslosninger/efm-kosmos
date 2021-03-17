@@ -8,7 +8,6 @@ public class Application {
 
     private ApplicationMetadata latest;
     private ApplicationMetadata current;
-    private ApplicationMetadata signature;
     private LaunchResult launchResult;
 
     public boolean isSameVersion() {

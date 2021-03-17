@@ -24,7 +24,6 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Optional;
 
-@Slf4j
 @Component
 @Slf4j
 public class NexusRepo {
@@ -89,7 +88,14 @@ public class NexusRepo {
         log.trace("Downloading public key from {}", uri);
         return Optional.ofNullable(restTemplate.getForObject(uri, String.class))
                 .orElseThrow(() -> new DeployActionException("Couldn't download " + uri.toString()));
+    }
 
-
+    public String downloadSignature(String version) {
+        String classifier = "jar.asc";
+        log.trace("Calling NexusRepo.getChecksum() with args: version: {}, classifier: {}", version, classifier);
+        URI uri = getURI(version, classifier);
+        log.trace("Downloading signature from {} ", uri);
+        return Optional.ofNullable(restTemplate.getForObject(uri, String.class ))
+                .orElseThrow(() -> new DeployActionException("Couldn't download " + uri.toString()));
     }
 }

@@ -5,6 +5,7 @@ import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
 import no.difi.move.deploymanager.service.actuator.ActuatorService;
+import no.difi.move.deploymanager.util.DeployUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +19,7 @@ import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -48,7 +50,7 @@ public class GetCurrentVersionActionTest {
                         .version("1.0")
                         .build()
         );
-        given(repoMock.getFile(any())).willReturn(fileMock);
+        given(repoMock.getFile(anyString(), anyString())).willReturn(fileMock);
     }
 
     @Test(expected = NullPointerException.class)
@@ -60,7 +62,7 @@ public class GetCurrentVersionActionTest {
     public void apply_VersionFound_ShouldUpdateCurrent() {
         assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
         verify(applicationMock).setCurrent(applicationMetadataArgumentCaptor.capture());
-        verify(repoMock).getFile("1.0");
+        verify(repoMock).getFile("1.0", DeployUtils.DOWNLOAD_JAR_FILE_NAME);
     }
 
     @Test
@@ -71,6 +73,6 @@ public class GetCurrentVersionActionTest {
 
         assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
         verify(applicationMock, never()).setCurrent(any());
-        verify(repoMock, never()).getFile(any());
+        verify(repoMock, never()).getFile(anyString(), anyString());
     }
 }
