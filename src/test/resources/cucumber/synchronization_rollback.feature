@@ -1,8 +1,7 @@
 Feature: Synchronization - Rollback
 
   Background:
-    Given the info URL is "http://localhost:9092/manage/info"
-    And a "GET" request to "http://localhost:9092/manage/info" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
+    Given a "GET" request to "/manage/info" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
     """
     {
         "build": {
@@ -18,39 +17,29 @@ Feature: Synchronization - Rollback
     And the latest integrasjonspunkt version is "1.7.93-SNAPSHOT"
     And the early bird setting is not activated
     And the supported major version is unset
-    And a "GET" request to "https://beta-meldingsutveksling.difi.no/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT" will respond with status "200" and the following "application/java-archive" in "/cucumber/failure.jar"
-    And a "GET" request to "https://beta-meldingsutveksling.difi.no/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT&e=jar.sha1" will respond with status "200" and the following "application/octet-stream"
+    And a "GET" request to "/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT" will respond with status "200" and the following "application/java-archive" in "/cucumber/failure.jar"
+    And a "GET" request to "/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT&e=jar.sha1" will respond with status "200" and the following "application/octet-stream"
     """
     06d4cfb40c1bfeb3ef8d4ccfd222defe7225d425
     """
-    And a "GET" request to "https://beta-meldingsutveksling.difi.no/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT&e=jar.md5" will respond with status "200" and the following "application/octet-stream"
+    And a "GET" request to "/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT&e=jar.md5" will respond with status "200" and the following "application/octet-stream"
     """
     d45f066d54edf0c99ead70d3305865a5
     """
-    And the health URL is "http://localhost:9092/manage/health"
-    And a "GET" request to "http://localhost:9092/manage/health" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
+    And state is "Started" then a "GET" request to "/manage/health" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
     """
     {
         "status": "UP"
     }
     """
-    And the shutdown URL is "http://localhost:9092/manage/shutdown"
-    And a "POST" request to "http://localhost:9092/manage/shutdown" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
+    And state is "Started" then a "POST" request to "/manage/shutdown" will set the state to "Stopped" and respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
     """
     {
         "message": "Shutting down, bye..."
     }
     """
-    And a "GET" request to "http://localhost:9092/manage/health" will respond with connection refused
-    And a "GET" request to "http://localhost:9092/manage/health" will respond with connection refused
-    And a "GET" request to "http://localhost:9092/manage/health" will respond with connection refused
-    And a "GET" request to "http://localhost:9092/manage/health" will respond with connection refused
-    And a "GET" request to "http://localhost:9092/manage/health" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
-    """
-    {
-        "status": "UP"
-    }
-    """
+    And state is "Stopped" then a "GET" request to "/manage/health" will set the state to "Connection Refused" and respond with connection refused
+    And state is "Connection Refused" then a "GET" request to "/manage/health" will set the state to "Started" and respond with connection refused
 
   Scenario: Rollback
     Given the synchronization handler is triggered
