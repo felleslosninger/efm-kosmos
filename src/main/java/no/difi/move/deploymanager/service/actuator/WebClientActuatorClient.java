@@ -8,10 +8,10 @@ import no.difi.move.deploymanager.domain.VersionInfo;
 import no.difi.move.deploymanager.service.actuator.dto.HealthResource;
 import no.difi.move.deploymanager.service.actuator.dto.InfoResource;
 import no.difi.move.deploymanager.service.actuator.dto.ShutdownResource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
@@ -35,7 +35,7 @@ public class WebClientActuatorClient implements ActuatorClient {
                 .clientConnector(new ReactorClientHttpConnector(HttpClient.create()
                         .tcpConfiguration(client -> client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, properties.getActuatorConnectTimeoutInMs()))
                         .responseTimeout(Duration.ofMillis(properties.getActuatorReadTimeoutInMs()))))
-                .filter(logRequest()).build();
+                .build();
     }
 
     @Override
@@ -44,6 +44,7 @@ public class WebClientActuatorClient implements ActuatorClient {
             URI url = properties.getIntegrasjonspunkt().getHealthURL().toURI();
             log.trace("Fetching health status from URL: {}", url);
             Mono<HealthStatus> healthResourceMono = webClient.get().uri(url)
+                    .accept(MediaType.APPLICATION_JSON)
                     .retrieve().bodyToMono(HealthResource.class)
                     .flatMap(r -> Mono.just(HealthStatus.fromString(r.getStatus())));
             return healthResourceMono.block();
@@ -64,6 +65,7 @@ public class WebClientActuatorClient implements ActuatorClient {
             URI url = properties.getIntegrasjonspunkt().getShutdownURL().toURI();
             log.trace("Requesting shutdown at URL: {}", url);
             Mono<ResponseEntity<ShutdownResource>> httpStatusMono = webClient.post().uri(url)
+                    .accept(MediaType.APPLICATION_JSON)
                     .retrieve().toEntity(ShutdownResource.class);
             ResponseEntity<ShutdownResource> response = httpStatusMono.block();
             return response != null && response.getStatusCode().is2xxSuccessful();
@@ -84,6 +86,7 @@ public class WebClientActuatorClient implements ActuatorClient {
             URI infoUri = properties.getIntegrasjonspunkt().getInfoURL().toURI();
             log.trace("Fetching version info from URI {}", infoUri);
             Mono<InfoResource> infoResourceMono = webClient.get().uri(infoUri)
+                    .accept(MediaType.APPLICATION_JSON)
                     .retrieve().bodyToMono(InfoResource.class);
             InfoResource resource = infoResourceMono.block();
             return (Optional.ofNullable(resource)
@@ -102,15 +105,6 @@ public class WebClientActuatorClient implements ActuatorClient {
         return VersionInfo.builder().resolved(false).build();
     }
 
-    //TODO: Refactor!
-    private ExchangeFilterFunction logRequest() {
-        return (clientRequest, next) -> {
-            log.trace("Request: {} {}", clientRequest.method(), clientRequest.url());
-            clientRequest.headers()
-                    .forEach((name, values) -> values.forEach(value -> log.trace("{}={}", name, value)));
-            return next.exchange(clientRequest);
-        };
-    }
 }
 
 
