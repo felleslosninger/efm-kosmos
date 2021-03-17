@@ -46,20 +46,4 @@ public class DeploymanagerPropertiesSteps {
         given(integrasjonspunktProperties.isEarlyBird()).willReturn(true);
         given(integrasjonspunktProperties.getEarlyBirdVersion()).willReturn(version);
     }
-
-
-    @Given("^the shutdown URL is \"([^\"]*)\"$")
-    public void theShutdownUrlIs(URL url){
-        given(integrasjonspunktProperties.getShutdownURL()).willReturn(url);
-    }
-
-    @Given("^the health URL is \"([^\"]*)\"$")
-    public void theHealthUrlIs(URL url){
-        given(integrasjonspunktProperties.getHealthURL()).willReturn(url);
-    }
-
-    @Given("the info URL is \"([^\"]*)\"$")
-    public void theInfoUrlIs(URL url){
-        given(integrasjonspunktProperties.getInfoURL()).willReturn(url);
-    }
 }
