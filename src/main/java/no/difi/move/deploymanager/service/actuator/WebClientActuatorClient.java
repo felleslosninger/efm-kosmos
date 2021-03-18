@@ -88,12 +88,9 @@ public class WebClientActuatorClient implements ActuatorClient {
             Mono<InfoResource> infoResourceMono = webClient.get().uri(infoUri)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve().bodyToMono(InfoResource.class);
-            InfoResource resource = infoResourceMono.block();
-            return (Optional.ofNullable(resource)
-                    .map(infoResource -> VersionInfo.builder()
-                            .resolved(infoResource.getBuild() != null)
-                            .version(infoResource.getBuild().getVersion()))
-                    .orElseGet(() -> VersionInfo.builder().resolved(false)))
+            Optional<InfoResource> resource = infoResourceMono.blockOptional();
+            return resource.map(WebClientActuatorClient::applyInfoResourceBuilder)
+                    .orElseGet(() -> VersionInfo.builder().resolved(false))
                     .build();
         } catch (WebClientResponseException e) {
             log.debug("Could not obtain version information: {}, {}", e.getStatusCode(), e.getStatusText());
@@ -103,6 +100,12 @@ public class WebClientActuatorClient implements ActuatorClient {
             log.warn("Could not request version information: {}", e.getMessage());
         }
         return VersionInfo.builder().resolved(false).build();
+    }
+
+    private static VersionInfo.VersionInfoBuilder applyInfoResourceBuilder(InfoResource infoResource) {
+        return VersionInfo.builder()
+                .resolved(infoResource.getBuild() != null)
+                .version(infoResource.getBuild().getVersion());
     }
 
 }
