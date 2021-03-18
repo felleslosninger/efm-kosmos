@@ -2,6 +2,7 @@ package no.difi.move.deploymanager.repo;
 
 import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
+import no.difi.move.deploymanager.config.VerificationProperties;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
@@ -20,6 +21,7 @@ import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -33,6 +35,9 @@ public class WebClientNexusRepoTest {
     @Mock
     private DeployManagerProperties properties;
 
+    @Mock
+    private VerificationProperties verificationProperties;
+
     @InjectMocks
     private WebClientNexusRepo target;
 
@@ -41,6 +46,8 @@ public class WebClientNexusRepoTest {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
         when(properties.getNexus()).thenReturn(mockWebServer.url("/download").url());
+        given(properties.getVerification()).willReturn(verificationProperties);
+        when(verificationProperties.getPublicKeyURL()).thenReturn(mockWebServer.url("/publickeyPath").toString());
     }
 
     @After
@@ -94,10 +101,56 @@ public class WebClientNexusRepoTest {
     @Test
     public void getChecksum_Success_ChecksumShouldHaveExpectedContent() {
         mockWebServer.enqueue(new MockResponse()
-        .setResponseCode(200)
-        .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-        .setBody("414243"));
+                .setResponseCode(200)
+                .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .setBody("414243"));
         assertThat(target.getChecksum("2.0.0-SNAPSHOT", "sha1"))
                 .containsExactly(65, 66, 67);
+    }
+
+    @Test
+    public void downloadPublicKey_Success_KeyShouldHaveExpectedContent() {
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("pubkey1")
+                .setResponseCode(200));
+        assertThat(target.downloadPublicKey()
+                .contains("pubkey1"));
+    }
+
+    @Test
+    public void downloadPublicKey_BadRequest_ShouldThrow() {
+        mockWebServer.enqueue(new MockResponse().setResponseCode(400));
+        assertThatThrownBy(() -> target.downloadPublicKey())
+                .isInstanceOf(DeployActionException.class);
+    }
+
+    @Test
+    public void downloadPublicKey_InternalServerError_ShouldThrow() {
+        mockWebServer.enqueue(new MockResponse().setResponseCode(500));
+        assertThatThrownBy(() -> target.downloadPublicKey())
+                .isInstanceOf(DeployActionException.class);
+    }
+
+    @Test
+    public void downloadSignature_Success_SignatureShouldHaveExpectedContent() {
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("sigbody")
+                .setResponseCode(200));
+        assertThat(target.downloadSignature("2.2.0-SNAPSHOT"))
+                .contains("sigbody");
+    }
+
+    @Test
+    public void downloadSignature_BadRequest_ShouldThrow() {
+        mockWebServer.enqueue(new MockResponse().setResponseCode(400));
+        assertThatThrownBy(() -> target.downloadSignature("version"))
+                .isInstanceOf(DeployActionException.class);
+    }
+
+    @Test
+    public void downloadSignature_InternalServerError_ShouldThrow() {
+        mockWebServer.enqueue(new MockResponse().setResponseCode(500));
+        assertThatThrownBy(() -> target.downloadSignature("version"))
+                .isInstanceOf(DeployActionException.class);
     }
 }

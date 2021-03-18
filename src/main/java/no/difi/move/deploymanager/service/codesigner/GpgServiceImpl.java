@@ -18,11 +18,11 @@ import java.io.InputStream;
 public class GpgServiceImpl implements GpgService {
 
     @Override
-    public boolean verify(String signedDataFilePath, String signatureFilePath, String publicKeyFilePath) {
+    public boolean verify(String signedDataFilePath, String downloadedSignature, String downloadedPublicKey) {
         try (InputStream signedData = new FileInputStream(signedDataFilePath);
-             InputStream signature = new ByteArrayInputStream(signatureFilePath.getBytes());
-             InputStream publicKey = new ByteArrayInputStream(publicKeyFilePath.getBytes())) {
-            log.trace("Attempting GPG verification with signature {} \nand public key {}", signatureFilePath, publicKeyFilePath);
+             InputStream signature = new ByteArrayInputStream(downloadedSignature.getBytes());
+             InputStream publicKey = new ByteArrayInputStream(downloadedPublicKey.getBytes())) {
+            log.trace("Attempting GPG verification with signature {} \nand public key {}", downloadedSignature, downloadedPublicKey);
 
             PGPObjectFactory pgpFactory = new PGPObjectFactory(PGPUtil.getDecoderStream(signature), new JcaKeyFingerprintCalculator());
             PGPSignature sig = ((PGPSignatureList) pgpFactory.nextObject()).get(0);
