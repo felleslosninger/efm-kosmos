@@ -9,6 +9,7 @@ import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
@@ -40,7 +41,7 @@ public class WebClientNexusRepo implements NexusRepo {
                 .clientConnector(new ReactorClientHttpConnector(HttpClient.create()
                         .tcpConfiguration(client -> client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, properties.getNexusConnectTimeoutInMs()))
                         .responseTimeout(Duration.ofMillis(properties.getNexusReadTimeoutInMs()))))
-                .filter(logRequest()).build();
+                .build();
     }
 
     @Override
@@ -55,6 +56,7 @@ public class WebClientNexusRepo implements NexusRepo {
         log.debug("Downloading file from {}", downloadUri);
         try {
             Flux<DataBuffer> dataBufferFlux = webClient.get().uri(downloadUri)
+                    .accept(MediaType.APPLICATION_OCTET_STREAM)
                     .retrieve().bodyToFlux(DataBuffer.class);
             DataBufferUtils.write(dataBufferFlux, destination, StandardOpenOption.CREATE).block();
             log.debug("File downloaded to {}", destination);
@@ -104,6 +106,7 @@ public class WebClientNexusRepo implements NexusRepo {
             return next.exchange(clientRequest);
         };
     }
+
     public String downloadPublicKey() {
         URI uri = UriComponentsBuilder.fromUriString(properties.getVerification().getPublicKeyURL()).build().toUri();
         log.trace("Downloading public key from {}", uri);
