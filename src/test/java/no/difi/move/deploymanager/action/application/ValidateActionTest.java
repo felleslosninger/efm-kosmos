@@ -6,7 +6,9 @@ import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
 import no.difi.move.deploymanager.repo.NexusRepo;
+import no.difi.move.deploymanager.service.codesigner.GpgService;
 import org.apache.commons.io.IOUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,11 +19,9 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
-import org.zeroturnaround.exec.InvalidExitValueException;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -30,6 +30,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
 
@@ -39,19 +41,27 @@ public class ValidateActionTest {
 
     private static final byte[] CHECKSUM = "theChecksum".getBytes();
 
-    @InjectMocks private ValidateAction target;
+    @InjectMocks
+    private ValidateAction target;
 
-    @Mock private NexusRepo nexusRepoMock;
-    //@Mock private JarsSignerService jarsSignerService;
-    //TODO rewrite test to use gpgService
-    @Mock private InputStream inputStreamMock;
-    @Mock private MessageDigest digestMock;
-    @Mock private File fileMock;
-    @Mock private FileInputStream fileInputStreamMock;
-    @Mock private DigestInputStream digestInputStreamMock;
-    @Mock private InvalidExitValueException invalidExitValueExceptionMock;
+    @Mock
+    private NexusRepo nexusRepoMock;
+    @Mock
+    private GpgService gpgService;
+    @Mock
+    private MessageDigest digestMock;
+    @Mock
+    private File fileMock;
+    @Mock
+    private FileInputStream fileInputStreamMock;
+    @Mock
+    private DigestInputStream digestInputStreamMock;
 
-    @Spy private final Application application = new Application();
+    @Spy
+    private final Application application = new Application();
+
+    private String signature;
+    private String publicKey;
 
     @Before
     @SneakyThrows
@@ -61,8 +71,12 @@ public class ValidateActionTest {
                 .setFile(fileMock)
         );
 
+        signature = "signature";
+        publicKey = "publicKey";
         given(fileMock.getAbsolutePath()).willReturn("jarPath");
         given(nexusRepoMock.getChecksum(anyString(), anyString())).willReturn(CHECKSUM);
+        given(nexusRepoMock.downloadPublicKey()).willReturn(publicKey);
+        given(nexusRepoMock.downloadSignature(application.getLatest().getVersion())).willReturn(signature);
 
         whenNew(FileInputStream.class).withAnyArguments().thenReturn(fileInputStreamMock);
         whenNew(DigestInputStream.class).withAnyArguments().thenReturn(digestInputStreamMock);
@@ -95,22 +109,21 @@ public class ValidateActionTest {
         target.apply(application);
     }
 
-    //TODO add tests for gpg verification
-    /*
     @Test
-    public void apply_jarSigningVerificationFails_shouldThrow() {
-        doThrow(invalidExitValueExceptionMock).when(jarsSignerService).verify(any());
-        assertThatThrownBy(() -> target.apply(application))
-                .isInstanceOf(DeployActionException.class)
-                .hasMessage("Error validating jar")
-                .hasCause(invalidExitValueExceptionMock);
-        verify(jarsSignerService).verify("jarPath");
+    public void apply_gpgSigningVerificationSuccess_shouldSucceed() {
+        Assertions.assertThat(target.apply(application)).isSameAs(application);
+        verify(gpgService).verify("jarPath", signature, publicKey);
+        verify(nexusRepoMock).getChecksum("version", "jar.sha1");
     }
 
     @Test
-    public void apply_verificationSucceeds_shouldSucceed() {
-        assertThat(target.apply(application)).isSameAs(application);
-        verify(jarsSignerService).verify("jarPath");
-        verify(nexusRepoMock).getChecksum("version", "jar.sha1");
-    } */
+    public void apply_gpgSigningVerificationFails_shouldThrow() {
+        given(nexusRepoMock.downloadSignature(application.getLatest().getVersion())).willReturn("tull");
+        given(nexusRepoMock.downloadPublicKey()).willReturn("ball");
+        doThrow(DeployActionException.class).when(gpgService).verify(anyString(), anyString(), anyString());
+        assertThatThrownBy(() -> target.apply(application))
+                .isInstanceOf(DeployActionException.class)
+                .hasCause(new DeployActionException(null));
+        verify(gpgService).verify("jarPath", "tull", "ball");
+    }
 }
