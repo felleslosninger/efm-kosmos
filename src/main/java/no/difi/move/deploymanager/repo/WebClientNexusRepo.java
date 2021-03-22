@@ -12,7 +12,6 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -95,16 +94,6 @@ public class WebClientNexusRepo implements NexusRepo {
         }
 
         return builder.build().toUri();
-    }
-
-    //TODO: Refactor!
-    private ExchangeFilterFunction logRequest() {
-        return (clientRequest, next) -> {
-            log.trace("Request: {} {}", clientRequest.method(), clientRequest.url());
-            clientRequest.headers()
-                    .forEach((name, values) -> values.forEach(value -> log.trace("{}={}", name, value)));
-            return next.exchange(clientRequest);
-        };
     }
 
     public String downloadPublicKey() {
