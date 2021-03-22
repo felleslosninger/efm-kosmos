@@ -24,7 +24,10 @@ public class GpgServiceImpl implements GpgService {
     @Override
     public boolean verify(String signedDataFilePath, String downloadedSignature, String downloadedPublicKey) {
         if(isNullOrEmpty(signedDataFilePath) || isNullOrEmpty(downloadedSignature) || isNullOrEmpty(downloadedPublicKey)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("One or multiple values are null. " +
+                    "\nSignedDataFilePath: " + signedDataFilePath +
+                    "\n Signature: " + downloadedSignature +
+                    "\nPublic Key: " +  downloadedPublicKey);
         }
         try (InputStream signedData = new FileInputStream(signedDataFilePath);
              InputStream signature = new ByteArrayInputStream(downloadedSignature.getBytes());
