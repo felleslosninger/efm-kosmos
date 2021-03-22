@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @RunWith(MockitoJUnitRunner.class)
 public class GpgServiceImplTest {
 
-    private GpgServiceImpl target = new GpgServiceImpl();
+    private final GpgServiceImpl target = new GpgServiceImpl();
 
     private static String signedDataFilePath;
     private static String downloadedSignature;
@@ -46,13 +46,13 @@ public class GpgServiceImplTest {
 
     @Test
     public void verify_WrongSignatureInput_ShouldReturnFalse() {
-        assertThatThrownBy(() ->target.verify(signedDataFilePath, anotherSignature, downloadedPublicKey))
+        assertThatThrownBy(() -> target.verify(signedDataFilePath, anotherSignature, downloadedPublicKey))
                 .isInstanceOf(DeployActionException.class);
     }
 
     @Test
     public void verify_InputIsNull_ShouldThrow() {
-        assertThatThrownBy(() -> target.verify(null, downloadedSignature,downloadedPublicKey))
-        .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> target.verify(null, downloadedSignature, downloadedPublicKey))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }
