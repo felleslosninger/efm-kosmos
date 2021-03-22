@@ -1,6 +1,5 @@
 package no.difi.move.deploymanager.service.codesigner;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.action.DeployActionException;
 import org.bouncycastle.openpgp.*;
@@ -18,7 +17,6 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class GpgServiceImpl implements GpgService {
 
     @Override
