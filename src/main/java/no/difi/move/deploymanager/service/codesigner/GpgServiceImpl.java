@@ -26,7 +26,7 @@ public class GpgServiceImpl implements GpgService {
         if(isNullOrEmpty(signedDataFilePath) || isNullOrEmpty(downloadedSignature) || isNullOrEmpty(downloadedPublicKey)) {
             throw new IllegalArgumentException("One or multiple values are null. " +
                     "\nSignedDataFilePath: " + signedDataFilePath +
-                    "\n Signature: " + downloadedSignature +
+                    "\nSignature: " + downloadedSignature +
                     "\nPublic Key: " +  downloadedPublicKey);
         }
         try (InputStream signedData = new FileInputStream(signedDataFilePath);
