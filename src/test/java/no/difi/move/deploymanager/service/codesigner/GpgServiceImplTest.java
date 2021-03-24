@@ -1,10 +1,12 @@
 package no.difi.move.deploymanager.service.codesigner;
 
 import no.difi.move.deploymanager.action.DeployActionException;
+import org.bouncycastle.openpgp.PGPObjectFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
@@ -12,8 +14,10 @@ import java.io.IOException;
 import static java.nio.file.Files.readAllBytes;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.powermock.api.mockito.PowerMockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(GpgServiceImpl.class)
 public class GpgServiceImplTest {
 
     private final GpgServiceImpl target = new GpgServiceImpl();
@@ -54,5 +58,14 @@ public class GpgServiceImplTest {
     public void verify_InputIsNull_ShouldThrow() {
         assertThatThrownBy(() -> target.verify(null, downloadedSignature, downloadedPublicKey))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void verify_NoSignature_ShouldThrow() throws Exception {
+        PGPObjectFactory objectFactory = mock(PGPObjectFactory.class);
+        when(objectFactory.nextObject()).thenReturn(null);
+        whenNew(PGPObjectFactory.class).withAnyArguments().thenReturn(objectFactory);
+        assertThatThrownBy(() -> target.verify(signedDataFilePath, downloadedSignature, downloadedPublicKey))
+                .isInstanceOf(DeployActionException.class);
     }
 }

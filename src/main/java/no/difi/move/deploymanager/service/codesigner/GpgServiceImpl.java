@@ -21,11 +21,11 @@ public class GpgServiceImpl implements GpgService {
 
     @Override
     public boolean verify(String signedDataFilePath, String downloadedSignature, String downloadedPublicKey) {
-        if(isNullOrEmpty(signedDataFilePath) || isNullOrEmpty(downloadedSignature) || isNullOrEmpty(downloadedPublicKey)) {
+        if (isNullOrEmpty(signedDataFilePath) || isNullOrEmpty(downloadedSignature) || isNullOrEmpty(downloadedPublicKey)) {
             throw new IllegalArgumentException("One or multiple values are null. " +
                     "\nSignedDataFilePath: " + signedDataFilePath +
                     "\nSignature: " + downloadedSignature +
-                    "\nPublic Key: " +  downloadedPublicKey);
+                    "\nPublic Key: " + downloadedPublicKey);
         }
         try (InputStream signedData = new FileInputStream(signedDataFilePath);
              InputStream signature = new ByteArrayInputStream(downloadedSignature.getBytes());
@@ -33,7 +33,9 @@ public class GpgServiceImpl implements GpgService {
             log.trace("Attempting GPG verification with signature {} \nand public key {}", downloadedSignature, downloadedPublicKey);
 
             PGPObjectFactory pgpFactory = new PGPObjectFactory(PGPUtil.getDecoderStream(signature), new JcaKeyFingerprintCalculator());
-            PGPSignature sig = ((PGPSignatureList) pgpFactory.nextObject()).get(0);
+            PGPSignatureList pgpSignatures = Optional.ofNullable((PGPSignatureList) pgpFactory.nextObject())
+                    .orElseThrow(() -> new DeployActionException("Unable to read signature"));
+            PGPSignature sig = pgpSignatures.get(0);
             PGPPublicKeyRingCollection pgpPubKeyRingCollection = new PGPPublicKeyRingCollection(PGPUtil.getDecoderStream(publicKey), new JcaKeyFingerprintCalculator());
             PGPPublicKey key = Optional.ofNullable(pgpPubKeyRingCollection.getPublicKey(sig.getKeyID()))
                     .orElseThrow(() -> new DeployActionException("Signer public key not found in keyring"));
@@ -46,7 +48,6 @@ public class GpgServiceImpl implements GpgService {
                 sig.update(buffer, 0, read);
             }
             return sig.verify();
-
         } catch (IOException e) {
             log.error("IOException occured, could not verify GPG signature ", e);
         } catch (PGPException e) {
