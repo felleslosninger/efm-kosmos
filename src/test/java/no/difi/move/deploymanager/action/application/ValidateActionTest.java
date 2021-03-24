@@ -25,6 +25,8 @@ import java.io.FileInputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -61,7 +63,7 @@ public class ValidateActionTest {
     private final Application application = new Application();
 
     private String signature;
-    private String publicKey;
+    private List<String> publicKeys;
 
     @Before
     @SneakyThrows
@@ -72,10 +74,10 @@ public class ValidateActionTest {
         );
 
         signature = "signature";
-        publicKey = "publicKey";
+        publicKeys = Collections.singletonList("publicKey");
         given(fileMock.getAbsolutePath()).willReturn("jarPath");
         given(nexusRepoMock.getChecksum(anyString(), anyString())).willReturn(CHECKSUM);
-        given(nexusRepoMock.downloadPublicKey()).willReturn(publicKey);
+        given(nexusRepoMock.downloadPublicKeys()).willReturn(publicKeys);
         given(nexusRepoMock.downloadSignature(application.getLatest().getVersion())).willReturn(signature);
 
         whenNew(FileInputStream.class).withAnyArguments().thenReturn(fileInputStreamMock);
@@ -112,18 +114,18 @@ public class ValidateActionTest {
     @Test
     public void apply_gpgSigningVerificationSuccess_shouldSucceed() {
         Assertions.assertThat(target.apply(application)).isSameAs(application);
-        verify(gpgService).verify("jarPath", signature, publicKey);
+        verify(gpgService).verify("jarPath", signature, publicKeys);
         verify(nexusRepoMock).getChecksum("version", "jar.sha1");
     }
 
     @Test
     public void apply_gpgSigningVerificationFails_shouldThrow() {
         given(nexusRepoMock.downloadSignature(application.getLatest().getVersion())).willReturn("tull");
-        given(nexusRepoMock.downloadPublicKey()).willReturn("ball");
-        doThrow(DeployActionException.class).when(gpgService).verify(anyString(), anyString(), anyString());
+        given(nexusRepoMock.downloadPublicKeys()).willReturn(Collections.singletonList("ball"));
+        doThrow(DeployActionException.class).when(gpgService).verify(anyString(), anyString(), any());
         assertThatThrownBy(() -> target.apply(application))
                 .isInstanceOf(DeployActionException.class)
                 .hasCause(new DeployActionException(null));
-        verify(gpgService).verify("jarPath", "tull", "ball");
+        verify(gpgService).verify("jarPath", "tull", Collections.singletonList("ball"));
     }
 }

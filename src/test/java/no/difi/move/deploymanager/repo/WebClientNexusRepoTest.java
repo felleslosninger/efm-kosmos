@@ -18,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 import java.io.File;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -47,7 +48,7 @@ public class WebClientNexusRepoTest {
         mockWebServer.start();
         when(properties.getNexus()).thenReturn(mockWebServer.url("/download").url());
         given(properties.getVerification()).willReturn(verificationProperties);
-        when(verificationProperties.getPublicKeyURL()).thenReturn(mockWebServer.url("/publickeyPath").toString());
+        when(verificationProperties.getPublicKeyURLs()).thenReturn(Collections.singletonList(mockWebServer.url("/publickeyPath").toString()));
     }
 
     @After
@@ -109,25 +110,25 @@ public class WebClientNexusRepoTest {
     }
 
     @Test
-    public void downloadPublicKey_Success_KeyShouldHaveExpectedContent() {
+    public void downloadPublicKeys_Success_KeyShouldHaveExpectedContent() {
         mockWebServer.enqueue(new MockResponse()
                 .setBody("pubkey1")
                 .setResponseCode(200));
-        assertThat(target.downloadPublicKey()
+        assertThat(target.downloadPublicKeys()
                 .contains("pubkey1"));
     }
 
     @Test
-    public void downloadPublicKey_BadRequest_ShouldThrow() {
+    public void downloadPublicKeys_BadRequest_ShouldThrow() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(400));
-        assertThatThrownBy(() -> target.downloadPublicKey())
+        assertThatThrownBy(() -> target.downloadPublicKeys())
                 .isInstanceOf(DeployActionException.class);
     }
 
     @Test
-    public void downloadPublicKey_InternalServerError_ShouldThrow() {
+    public void downloadPublicKeys_InternalServerError_ShouldThrow() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(500));
-        assertThatThrownBy(() -> target.downloadPublicKey())
+        assertThatThrownBy(() -> target.downloadPublicKeys())
                 .isInstanceOf(DeployActionException.class);
     }
 

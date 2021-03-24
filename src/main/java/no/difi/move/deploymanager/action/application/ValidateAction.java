@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -34,9 +35,9 @@ public class ValidateAction implements ApplicationAction {
             assertChecksumIsCorrect(application, ALGORITHM.SHA1);
             assertChecksumIsCorrect(application, ALGORITHM.MD5);
             String signature = downloadSignature(application.getLatest().getVersion());
-            String publicKey = downloadPublicKey();
-            boolean verify = gpgService.verify(application.getLatest().getFile().getAbsolutePath(), signature, publicKey);
-            if(verify) {
+            List<String> publicKeys = downloadPublicKeys();
+            boolean verify = gpgService.verify(application.getLatest().getFile().getAbsolutePath(), signature, publicKeys);
+            if (verify) {
                 log.trace("Signature has been successfully verified.");
             }
 
@@ -81,11 +82,11 @@ public class ValidateAction implements ApplicationAction {
         private final String fileNameSuffix;
     }
 
-    private String downloadPublicKey() {
-        String publicKey = nexusRepo.downloadPublicKey();
-        log.trace("Downloaded public key {} ", publicKey);
+    private List<String> downloadPublicKeys() {
+        List<String> keys = nexusRepo.downloadPublicKeys();
+        log.trace("Downloaded public keys: {} ", keys);
         //TODO Også laste ned fingerprint for å verifisere at nøkkelen er gyldig.
-        return publicKey;
+        return keys;
     }
 
     private String downloadSignature(String version) {
