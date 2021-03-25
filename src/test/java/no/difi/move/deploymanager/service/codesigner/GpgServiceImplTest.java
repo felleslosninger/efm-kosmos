@@ -51,8 +51,8 @@ public class GpgServiceImplTest {
 
     @Test
     public void verify_Success_ShouldVerifyAndReturnTrue() {
-        downloadedPublicKeys = Lists.newArrayList(matchingPublicKey, notMatchingPublicKey);
-        assertTrue(target.verify(signedDataFilePath, downloadedSignature, downloadedPublicKeys));
+        List<String> bothMatchingAndNotMatchingKeys = Lists.newArrayList(matchingPublicKey, notMatchingPublicKey);
+        assertTrue(target.verify(signedDataFilePath, downloadedSignature, bothMatchingAndNotMatchingKeys));
     }
 
     @Test
