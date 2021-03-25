@@ -21,6 +21,8 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 @Slf4j
 public class GpgServiceImpl implements GpgService {
 
+    private static final JcaKeyFingerprintCalculator KEY_FINGERPRINT_CALCULATOR = new JcaKeyFingerprintCalculator();
+
     @Override
     public boolean verify(String signedData, String downloadedSignature, List<String> publicKeyFiles) {
         if (isNullOrEmpty(signedData) || isNullOrEmpty(downloadedSignature)) {
@@ -79,7 +81,7 @@ public class GpgServiceImpl implements GpgService {
     private PGPPublicKeyRingCollection readPublicKey(String key) {
         log.info("Reading public key file");
         try (InputStream publicKey = new ByteArrayInputStream(key.getBytes())) {
-            return new PGPPublicKeyRingCollection(PGPUtil.getDecoderStream(publicKey), new JcaKeyFingerprintCalculator());
+            return new PGPPublicKeyRingCollection(PGPUtil.getDecoderStream(publicKey), KEY_FINGERPRINT_CALCULATOR);
         } catch (IOException e) {
             log.warn("Could not read public key from {}", key);
         } catch (PGPException e) {
@@ -90,8 +92,8 @@ public class GpgServiceImpl implements GpgService {
 
     private PGPSignature readSignature(String signature) {
         log.info("Reading PGP signature");
-        try (InputStream signatureStream = new ByteArrayInputStream(signature.getBytes());) {
-            PGPObjectFactory pgpFactory = new PGPObjectFactory(PGPUtil.getDecoderStream(signatureStream), new JcaKeyFingerprintCalculator());
+        try (InputStream signatureStream = new ByteArrayInputStream(signature.getBytes())) {
+            PGPObjectFactory pgpFactory = new PGPObjectFactory(PGPUtil.getDecoderStream(signatureStream), KEY_FINGERPRINT_CALCULATOR);
             PGPSignatureList pgpSignatures = Optional.ofNullable((PGPSignatureList) pgpFactory.nextObject())
                     .orElseThrow(() -> new DeployActionException("Unable to read signature"));
             return pgpSignatures.get(0);
