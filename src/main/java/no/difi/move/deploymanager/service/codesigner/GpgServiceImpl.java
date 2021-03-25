@@ -3,8 +3,8 @@ package no.difi.move.deploymanager.service.codesigner;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.action.DeployActionException;
 import org.bouncycastle.openpgp.*;
-import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
 import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator;
+import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -47,7 +47,7 @@ public class GpgServiceImpl implements GpgService {
     private boolean doVerify(String signedData, PGPSignature signature, PGPPublicKey publicKey) {
         log.debug("Attempting GPG verification with public key {}", publicKey.getKeyID());
         try (InputStream signedDataStream = new BufferedInputStream(new FileInputStream(signedData))) {
-            signature.init(new BcPGPContentVerifierBuilderProvider(), publicKey);
+            signature.init(new JcaPGPContentVerifierBuilderProvider(), publicKey);
             byte[] buffer = new byte[1024];
             int read = 0;
             while ((read = signedDataStream.read(buffer)) != -1) {
