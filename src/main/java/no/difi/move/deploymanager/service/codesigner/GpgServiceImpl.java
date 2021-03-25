@@ -7,10 +7,7 @@ import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
 import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -49,7 +46,7 @@ public class GpgServiceImpl implements GpgService {
 
     private boolean doVerify(String signedData, PGPSignature signature, PGPPublicKey publicKey) {
         log.debug("Attempting GPG verification with public key {}", publicKey.getKeyID());
-        try (InputStream signedDataStream = new FileInputStream(signedData)) {
+        try (InputStream signedDataStream = new BufferedInputStream(new FileInputStream(signedData))) {
             signature.init(new BcPGPContentVerifierBuilderProvider(), publicKey);
             byte[] buffer = new byte[1024];
             int read = 0;
@@ -80,7 +77,7 @@ public class GpgServiceImpl implements GpgService {
 
     private PGPPublicKeyRingCollection readPublicKey(String key) {
         log.info("Reading public key file");
-        try (InputStream publicKey = new ByteArrayInputStream(key.getBytes())) {
+        try (InputStream publicKey = new BufferedInputStream(new ByteArrayInputStream(key.getBytes()))) {
             return new PGPPublicKeyRingCollection(PGPUtil.getDecoderStream(publicKey), KEY_FINGERPRINT_CALCULATOR);
         } catch (IOException e) {
             log.warn("Could not read public key from {}", key);
@@ -92,7 +89,7 @@ public class GpgServiceImpl implements GpgService {
 
     private PGPSignature readSignature(String signature) {
         log.info("Reading PGP signature");
-        try (InputStream signatureStream = new ByteArrayInputStream(signature.getBytes())) {
+        try (InputStream signatureStream = new BufferedInputStream(new ByteArrayInputStream(signature.getBytes()))) {
             PGPObjectFactory pgpFactory = new PGPObjectFactory(PGPUtil.getDecoderStream(signatureStream), KEY_FINGERPRINT_CALCULATOR);
             PGPSignatureList pgpSignatures = Optional.ofNullable((PGPSignatureList) pgpFactory.nextObject())
                     .orElseThrow(() -> new DeployActionException("Unable to read signature"));
