@@ -3,6 +3,7 @@ package no.difi.move.deploymanager.service.codesigner;
 import no.difi.move.deploymanager.action.DeployActionException;
 import org.assertj.core.util.Lists;
 import org.bouncycastle.openpgp.PGPObjectFactory;
+import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -75,9 +76,9 @@ public class GpgServiceImplTest {
 
     @Test
     public void verify_NoSignature_ShouldThrow() throws Exception {
-        PGPObjectFactory objectFactory = mock(PGPObjectFactory.class);
+        JcaPGPObjectFactory objectFactory = mock(JcaPGPObjectFactory.class);
         when(objectFactory.nextObject()).thenReturn(null);
-        whenNew(PGPObjectFactory.class).withAnyArguments().thenReturn(objectFactory);
+        whenNew(JcaPGPObjectFactory.class).withAnyArguments().thenReturn(objectFactory);
         assertThatThrownBy(() -> target.verify(signedDataFilePath, downloadedSignature, downloadedPublicKeys))
                 .isInstanceOf(DeployActionException.class);
     }
