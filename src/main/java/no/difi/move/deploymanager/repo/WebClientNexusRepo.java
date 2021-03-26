@@ -9,7 +9,6 @@ import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -57,7 +56,6 @@ public class WebClientNexusRepo implements NexusRepo {
         log.debug("Downloading file from {}", downloadUri);
         try {
             Flux<DataBuffer> dataBufferFlux = webClient.get().uri(downloadUri)
-                    .accept(MediaType.APPLICATION_OCTET_STREAM)
                     .retrieve().bodyToFlux(DataBuffer.class);
             DataBufferUtils.write(dataBufferFlux, destination, StandardOpenOption.CREATE).block();
             log.debug("File downloaded to {}", destination);
