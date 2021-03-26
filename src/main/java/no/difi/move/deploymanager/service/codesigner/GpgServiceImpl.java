@@ -32,7 +32,7 @@ public class GpgServiceImpl implements GpgService {
         log.info("Verifying signed data");
         PGPSignature signature = Optional.ofNullable(readSignature(downloadedSignature))
                 .orElseThrow(() -> new DeployActionException(
-                        String.format("Unable to read PGP signature from %s", downloadedSignature)));
+                        String.format("Unable to read GPG signature from %s", downloadedSignature)));
         PGPPublicKey signerKey = publicKeyFiles.stream()
                 .map(this::readPublicKey)
                 .filter(Objects::nonNull)
