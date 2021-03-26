@@ -9,7 +9,6 @@ import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -24,8 +23,10 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -55,7 +56,6 @@ public class WebClientNexusRepo implements NexusRepo {
         log.debug("Downloading file from {}", downloadUri);
         try {
             Flux<DataBuffer> dataBufferFlux = webClient.get().uri(downloadUri)
-                    .accept(MediaType.APPLICATION_OCTET_STREAM)
                     .retrieve().bodyToFlux(DataBuffer.class);
             DataBufferUtils.write(dataBufferFlux, destination, StandardOpenOption.CREATE).block();
             log.debug("File downloaded to {}", destination);
@@ -96,8 +96,15 @@ public class WebClientNexusRepo implements NexusRepo {
         return builder.build().toUri();
     }
 
-    public String downloadPublicKey() {
-        URI uri = UriComponentsBuilder.fromUriString(properties.getVerification().getPublicKeyURL()).build().toUri();
+    @Override
+    public List<String> downloadPublicKeys() {
+        return properties.getVerification().getPublicKeyURLs().stream()
+                .map(s -> UriComponentsBuilder.fromUriString(s).build().toUri())
+                .map(this::downloadPublicKey)
+                .collect(Collectors.toList());
+    }
+
+    private String downloadPublicKey(URI uri) {
         log.trace("Downloading public key from {}", uri);
         try {
             Mono<String> mono = webClient.get().uri(uri)
@@ -109,6 +116,7 @@ public class WebClientNexusRepo implements NexusRepo {
         }
     }
 
+    @Override
     public String downloadSignature(String version) {
         String classifier = "jar.asc";
         log.trace("Calling NexusRepo.getChecksum() with args: version: {}, classifier: {}", version, classifier);
