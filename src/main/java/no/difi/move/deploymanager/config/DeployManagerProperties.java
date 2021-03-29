@@ -91,10 +91,6 @@ public class DeployManagerProperties {
     @NestedConfigurationProperty
     private MailProperties mail;
 
-    @Valid
-    @NestedConfigurationProperty
-    private KeystoreProperties keystore;
-
     @NestedConfigurationProperty
     private EnvironmentProperties environment;
 
