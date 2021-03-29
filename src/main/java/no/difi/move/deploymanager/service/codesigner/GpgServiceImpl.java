@@ -8,6 +8,7 @@ import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
 import org.bouncycastle.openpgp.jcajce.JcaPGPPublicKeyRingCollection;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -31,7 +32,7 @@ public class GpgServiceImpl implements GpgService {
                     "\nSignedDataFilePath: " + signedData +
                     "\nSignature: " + downloadedSignature);
         }
-        final List<String> publicKeyPaths = properties.getVerification().getPublicKeyPaths();
+        final List<Resource> publicKeyPaths = properties.getVerification().getPublicKeyPaths();
         if (publicKeyPaths.isEmpty()) {
             throw new IllegalArgumentException("Cannot verify signature due to missing keys");
         }
@@ -80,9 +81,9 @@ public class GpgServiceImpl implements GpgService {
         return null;
     }
 
-    private PGPPublicKeyRingCollection readPublicKey(String path) {
-        log.info("Reads public key from file {}", path);
-        try (InputStream keyStream = PGPUtil.getDecoderStream(new FileInputStream(path))) {
+    private PGPPublicKeyRingCollection readPublicKey(Resource path) {
+        log.info("Reads public key from {}", path);
+        try (InputStream keyStream = PGPUtil.getDecoderStream(new FileInputStream(path.getFile()))) {
             return new JcaPGPPublicKeyRingCollection(keyStream);
         } catch (IOException e) {
             log.warn("Could not read public key from {}", path, e);

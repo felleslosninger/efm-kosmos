@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -39,18 +40,18 @@ public class GpgServiceImplTest {
     private static String signedDataFilePath;
     private static String downloadedSignature;
     private static String anotherSignature;
-    private static List<String> downloadedPublicKeys;
-    private static List<String> noMatchingPublicKeys;
-    private static String matchingPublicKeyFilePath;
-    private static String notMatchingPublicKeyFilePath;
+    private static List<Resource> downloadedPublicKeys;
+    private static List<Resource> noMatchingPublicKeys;
+    private static Resource matchingPublicKeyFilePath;
+    private static Resource notMatchingPublicKeyFilePath;
 
     @BeforeClass
     public static void beforeClass() throws IOException {
         signedDataFilePath = new ClassPathResource("/gpg/gpgTest.txt").getFile().getAbsolutePath();
         downloadedSignature = new String(readAllBytes(new ClassPathResource("/gpg/signature.asc").getFile().toPath()));
         anotherSignature = new String(readAllBytes(new ClassPathResource("/gpg/gpgTestOtherSignature.txt.asc").getFile().toPath()));
-        matchingPublicKeyFilePath = new ClassPathResource("/gpg/public-key.asc").getFile().getAbsolutePath();
-        notMatchingPublicKeyFilePath = new ClassPathResource("/gpg/invalidPublicKeyEfmTest.asc").getFile().getAbsolutePath();
+        matchingPublicKeyFilePath = new ClassPathResource("/gpg/public-key.asc");
+        notMatchingPublicKeyFilePath = new ClassPathResource("/gpg/invalidPublicKeyEfmTest.asc");
     }
 
     @Before
@@ -62,7 +63,7 @@ public class GpgServiceImplTest {
 
     @Test
     public void verify_Success_ShouldVerifyAndReturnTrue() {
-        List<String> bothMatchingAndNotMatchingKeys = Lists.newArrayList(matchingPublicKeyFilePath, notMatchingPublicKeyFilePath);
+        List<Resource> bothMatchingAndNotMatchingKeys = Lists.newArrayList(matchingPublicKeyFilePath, notMatchingPublicKeyFilePath);
         when(verificationProperties.getPublicKeyPaths()).thenReturn(bothMatchingAndNotMatchingKeys);
         assertTrue(target.verify(signedDataFilePath, downloadedSignature));
     }

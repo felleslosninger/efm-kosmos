@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.DeployManagerMain;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
-import no.difi.move.deploymanager.config.VerificationProperties;
 import no.difi.move.deploymanager.service.launcher.LauncherServiceImpl;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -21,11 +20,8 @@ import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-
-import java.util.Collections;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.mockito.BDDMockito.given;
@@ -46,7 +42,6 @@ public class CucumberStepsConfiguration {
     @Profile("cucumber")
     @SpyBean(DeployManagerProperties.class)
     @SpyBean(IntegrasjonspunktProperties.class)
-    @SpyBean(VerificationProperties.class)
     @SpyBean(LauncherServiceImpl.class)
     public static class SpringConfiguration {
 
@@ -77,11 +72,6 @@ public class CucumberStepsConfiguration {
         }
 
         @Bean
-        public VerificationProperties verificationProperties(DeployManagerProperties properties) {
-            return properties.getVerification();
-        }
-
-        @Bean
         public ContextRefresher contextRefresher() {
             return mock(ContextRefresher.class);
         }
@@ -93,9 +83,6 @@ public class CucumberStepsConfiguration {
     @Autowired
     private IntegrasjonspunktProperties integrasjonspunktProperties;
 
-    @Autowired
-    private VerificationProperties verificationProperties;
-
     @Rule
     private final TemporaryFolder temporaryFolder = TemporaryFolder.builder()
             .assureDeletion().build();
@@ -104,11 +91,8 @@ public class CucumberStepsConfiguration {
     @SneakyThrows
     public void before() {
         temporaryFolder.create();
-
         given(deployManagerProperties.getIntegrasjonspunkt()).willReturn(integrasjonspunktProperties);
         given(integrasjonspunktProperties.getHome()).willReturn(temporaryFolder.getRoot().getAbsolutePath());
-        given(deployManagerProperties.getVerification()).willReturn(verificationProperties);
-        given(verificationProperties.getPublicKeyPaths()).willReturn(Collections.singletonList(new ClassPathResource("/gpg/public-key.asc").getFile().getAbsolutePath()));
     }
 
     @After
