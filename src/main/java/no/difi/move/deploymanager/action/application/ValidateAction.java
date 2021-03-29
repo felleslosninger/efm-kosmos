@@ -35,8 +35,7 @@ public class ValidateAction implements ApplicationAction {
             assertChecksumIsCorrect(application, ALGORITHM.SHA1);
             assertChecksumIsCorrect(application, ALGORITHM.MD5);
             String signature = downloadSignature(application.getLatest().getVersion());
-            List<String> publicKeys = downloadPublicKeys();
-            boolean verify = gpgService.verify(application.getLatest().getFile().getAbsolutePath(), signature, publicKeys);
+            boolean verify = gpgService.verify(application.getLatest().getFile().getAbsolutePath(), signature);
             if (verify) {
                 log.trace("Signature has been successfully verified.");
             }
@@ -80,13 +79,6 @@ public class ValidateAction implements ApplicationAction {
 
         private final String name;
         private final String fileNameSuffix;
-    }
-
-    private List<String> downloadPublicKeys() {
-        List<String> keys = nexusRepo.downloadPublicKeys();
-        log.trace("Downloaded public keys: {} ", keys);
-        //TODO Også laste ned fingerprint for å verifisere at nøkkelen er gyldig.
-        return keys;
     }
 
     private String downloadSignature(String version) {

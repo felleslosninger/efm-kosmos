@@ -27,8 +27,6 @@ Feature: Synchronization - Signature Failed
     e343ab4e4151f822331e7f5998b26ecc
     """
     And a "GET" request to "/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT&e=jar.asc" will respond with status "200" and the following "text/plain" in "/gpg/gpgTestOtherSignature.txt.asc"
-    And a "GET" request to "/content/repositories/test_repo_1/no/difi/meldingsutveksling/integrasjonspunkt/2.2.1-SNAPSHOT/public-flaten.gpg" will respond with status "200" and the following "text/plain" in "/gpg/public-key.asc"
-
 
   Scenario: Upgrade Failed
     Given the synchronization handler is triggered

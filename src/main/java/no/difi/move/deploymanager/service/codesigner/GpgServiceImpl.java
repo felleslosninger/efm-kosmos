@@ -1,7 +1,9 @@
 package no.difi.move.deploymanager.service.codesigner;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.action.DeployActionException;
+import no.difi.move.deploymanager.config.DeployManagerProperties;
 import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
 import org.bouncycastle.openpgp.jcajce.JcaPGPPublicKeyRingCollection;
@@ -15,25 +17,29 @@ import java.util.Optional;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-@Service
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class GpgServiceImpl implements GpgService {
 
+    private final DeployManagerProperties properties;
+
     @Override
-    public boolean verify(String signedData, String downloadedSignature, List<String> publicKeyFiles) {
+    public boolean verify(String signedData, String downloadedSignature) {
         if (isNullOrEmpty(signedData) || isNullOrEmpty(downloadedSignature)) {
             throw new IllegalArgumentException("One or multiple values are null. " +
                     "\nSignedDataFilePath: " + signedData +
                     "\nSignature: " + downloadedSignature);
         }
-        if (publicKeyFiles.isEmpty()) {
+        final List<String> publicKeyPaths = properties.getVerification().getPublicKeyPaths();
+        if (publicKeyPaths.isEmpty()) {
             throw new IllegalArgumentException("Cannot verify signature due to missing keys");
         }
         log.info("Verifying signed data");
         PGPSignature signature = Optional.ofNullable(readSignature(downloadedSignature))
                 .orElseThrow(() -> new DeployActionException(
                         String.format("Unable to read GPG signature from %s", downloadedSignature)));
-        PGPPublicKey signerKey = publicKeyFiles.stream()
+        PGPPublicKey signerKey = publicKeyPaths.stream()
                 .map(this::readPublicKey)
                 .filter(Objects::nonNull)
                 .map(file -> getSignerKey(signature, file))
@@ -74,14 +80,14 @@ public class GpgServiceImpl implements GpgService {
         return null;
     }
 
-    private PGPPublicKeyRingCollection readPublicKey(String key) {
-        log.info("Reading public key file");
-        try (InputStream keyStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(key.getBytes()))) {
+    private PGPPublicKeyRingCollection readPublicKey(String path) {
+        log.info("Reads public key from file {}", path);
+        try (InputStream keyStream = PGPUtil.getDecoderStream(new FileInputStream(path))) {
             return new JcaPGPPublicKeyRingCollection(keyStream);
         } catch (IOException e) {
-            log.warn("Could not read public key from {}", key);
+            log.warn("Could not read public key from {}", path, e);
         } catch (PGPException e) {
-            log.warn("Invalid public key encountered in {}", key);
+            log.warn("Invalid public key encountered in {}", path, e);
         }
         return null;
     }

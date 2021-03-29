@@ -8,5 +8,5 @@ import java.util.List;
 @Data
 public class VerificationProperties {
     @NotNull
-    private List<String> publicKeyURLs;
+    private List<String> publicKeyPaths;
 }

@@ -23,10 +23,8 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -94,26 +92,6 @@ public class WebClientNexusRepo implements NexusRepo {
         }
 
         return builder.build().toUri();
-    }
-
-    @Override
-    public List<String> downloadPublicKeys() {
-        return properties.getVerification().getPublicKeyURLs().stream()
-                .map(s -> UriComponentsBuilder.fromUriString(s).build().toUri())
-                .map(this::downloadPublicKey)
-                .collect(Collectors.toList());
-    }
-
-    private String downloadPublicKey(URI uri) {
-        log.trace("Downloading public key from {}", uri);
-        try {
-            Mono<String> mono = webClient.get().uri(uri)
-                    .retrieve().bodyToMono(String.class);
-            return Optional.ofNullable(mono.block())
-                    .orElseThrow(() -> new DeployActionException(String.format("Couldn't download %s", uri)));
-        } catch (WebClientResponseException e) {
-            throw new DeployActionException("Public key fetch failed", e);
-        }
     }
 
     @Override
