@@ -3,9 +3,45 @@
 #Efm-Deploy-Manager
 
 ## Installation
+### Download
+Get the Deploymanager JAR from Digdir's artefact repository: TODO
+### Verify your download (recommended)
+1. Get [GnuPG](https://gnupg.org/download/), if it is not already present in for instance Git Bash.
+2. Download the detached signature from Digdir's artefact repository: TODO
+3. Download the public key of Digdir's GPG signing certificate from TODO.
+4. Verify that the fingerprint of the downloaded public key matches the expected value (published side by side with the key):
+#### Fast approach (one line)
+```shell
+$ gpg --import-options show-only --import --fingerprint <path-to-downloaded-public-key-file>
+pub   <algorithm> <creation-date> [<type-of-key>]
+      0ABA FD4F AA80 9D6E EC8A  FD98 A30B 684A 308D 8FC8 # This is the fingerprint of the downloaded public key. 
+      # Compare the value to the fingerprint published by Digdir.
+uid           [ unknown] "eFormidling Name Here <eformidling-email-address-here>"
+sub   <algorithm> <creation-date>
+
+```
+#### Conventional approach with explanations:
+```shell
+$ gpg --import <path-to-downloaded-public-key-file> # Import the public key into your local keyring.
+# Output that shows successful import:
+gpg: key <short-key-identifier-here>: public key "eFormidling Name Here <eformidling-email-address-here>" imported
+gpg: Total number processed: 1
+gpg:               imported: 1
+
+$ gpg --list-keys # List the keys in your local keyring.
+# ... Keys are listed on the following format:
+pub   <algorithm> <creation-date> [<type-of-key>]
+      0ABAFD4FAA809D6EEC8AFD98A30B684A308D8FC8 # Long key identifier
+uid           [ unknown] "eFormidling Name Here <eformidling-email-address-here>"
+sub   <algorithm> <creation-date>
+
+$ gpg --fingerprint <put-long-key-identifier-or-email-address-here>
+# Output should be similar to the fast approach.
+
+```
 ### Running Move-Deploy-Manager as a Windows service
 
-We are using [https://github.com/kohsuke/winsw] as a Windows service wrapper. Please follow the installation instructions using the following configuration:
+We are using [WinSW](https://github.com/kohsuke/winsw) as a Windows service wrapper. Please follow the installation instructions using the following configuration:
 
 ```xml
 <configuration>
@@ -28,9 +64,7 @@ We are using [https://github.com/kohsuke/winsw] as a Windows service wrapper. Pl
   </log>
 </configuration>
 ```
-
-Please note that you need to use a local administration user when installing the service.
-
+**Please note that you need to use a local administration user when installing the service.**
 #### Local property file for Move-Deploy-Manager
 
 You will need a file named deploymanager-local.properties in the same folder as winsw.
@@ -49,12 +83,15 @@ deploymanager.mail.from=noreply@yourdomain.no
 spring.mail.host=smtp.yourdomain.no
 spring.mail.port=<set-your-port-here>
 ```  
+#### Other default assumptions
+- Deploymanager and Integrasjonspunkt JARs are located in the same directory.
+- The public key of the GPG certificate used to sign Digdir's integrasjonspunkt is present in the same directory. If not, please refer to the [documentation]  (https://docs.digdir.no/) for instructions on how to configure a different path.
 
 #### Running deploymanager and integrasjonspunkt from different folders
 The recommended setup (requires less configuration) is to have both JARs in the same directory. If for some reason you should prefer running the applications from different directories, the following settings have to be added.
 
 Add the following property to deploymanager-local.properties:
-```properties
+```INI
 deploymanager.integrasjonspunkt.home={path-to-where-your-integrasjonspunkt-runs}
 ```
 Modify the arguments tag in deploymanager's XML configuration file:
