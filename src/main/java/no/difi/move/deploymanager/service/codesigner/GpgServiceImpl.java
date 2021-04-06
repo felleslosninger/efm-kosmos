@@ -1,12 +1,13 @@
 package no.difi.move.deploymanager.service.codesigner;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.action.DeployActionException;
 import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
 import org.bouncycastle.openpgp.jcajce.JcaPGPPublicKeyRingCollection;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.List;
@@ -15,9 +16,12 @@ import java.util.Optional;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-@Service
 @Slf4j
+@Component
+@RequiredArgsConstructor
 public class GpgServiceImpl implements GpgService {
+
+    private final PublicKeyVerifier keyVerifier;
 
     @Override
     public boolean verify(String signedData, String downloadedSignature, List<String> publicKeyFiles) {
@@ -40,6 +44,7 @@ public class GpgServiceImpl implements GpgService {
                 .filter(Objects::nonNull)
                 .findAny()
                 .orElseThrow(() -> new DeployActionException("Signer public key not found in keyring"));
+        keyVerifier.verify(signerKey);
         return doVerify(signedData, signature, signerKey);
     }
 
@@ -99,3 +104,4 @@ public class GpgServiceImpl implements GpgService {
         return null;
     }
 }
+

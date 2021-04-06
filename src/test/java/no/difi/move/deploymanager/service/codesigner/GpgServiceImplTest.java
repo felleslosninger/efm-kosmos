@@ -2,12 +2,14 @@ package no.difi.move.deploymanager.service.codesigner;
 
 import no.difi.move.deploymanager.action.DeployActionException;
 import org.assertj.core.util.Lists;
-import org.bouncycastle.openpgp.PGPObjectFactory;
+import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.core.io.ClassPathResource;
@@ -19,13 +21,18 @@ import java.util.List;
 import static java.nio.file.Files.readAllBytes;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.powermock.api.mockito.PowerMockito.*;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(GpgServiceImpl.class)
 public class GpgServiceImplTest {
 
-    private final GpgServiceImpl target = new GpgServiceImpl();
+    @Mock
+    private PublicKeyVerifier keyVerifier;
+
+    @InjectMocks
+    private GpgServiceImpl target;
 
     private static String signedDataFilePath;
     private static String downloadedSignature;
@@ -82,4 +89,13 @@ public class GpgServiceImplTest {
         assertThatThrownBy(() -> target.verify(signedDataFilePath, downloadedSignature, downloadedPublicKeys))
                 .isInstanceOf(DeployActionException.class);
     }
+
+    @Test
+    public void verify_ExpiredPublicKey_ShouldThrow() {
+        doThrow(new DeployActionException("Expired key")).when(keyVerifier).verify(any(PGPPublicKey.class));
+        assertThatThrownBy(
+                () -> target.verify(signedDataFilePath, downloadedSignature, downloadedPublicKeys))
+                .isInstanceOf(DeployActionException.class);
+    }
+
 }
