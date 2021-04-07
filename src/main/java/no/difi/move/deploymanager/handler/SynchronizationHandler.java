@@ -21,7 +21,7 @@ public class SynchronizationHandler {
     private final StartAction startAction;
     private final RollbackAction rollbackAction;
 
-    @Scheduled(fixedRateString = "${deploymanager.schedulerFixedRateInMs}")
+    @Scheduled(cron = "${deploymanager.schedulerCronExpression}", zone = "Europe/Oslo")
     public void run() {
         log.debug("Starting synchronization");
         currentVersionAction

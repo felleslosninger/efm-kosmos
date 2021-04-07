@@ -71,9 +71,8 @@ public class DeployManagerProperties {
     private Integer nexusReadTimeoutInMs;
 
     @NotNull
-    @Max(120000L)
-    @Positive
-    private Integer schedulerFixedRateInMs;
+    @NotEmpty
+    private String schedulerCronExpression;
 
     @Valid
     @NestedConfigurationProperty
