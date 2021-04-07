@@ -2,7 +2,6 @@ package no.difi.move.deploymanager.repo;
 
 import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
-import no.difi.move.deploymanager.config.VerificationProperties;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
@@ -18,11 +17,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
 import java.io.File;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,9 +33,6 @@ public class WebClientNexusRepoTest {
     @Mock
     private DeployManagerProperties properties;
 
-    @Mock
-    private VerificationProperties verificationProperties;
-
     @InjectMocks
     private WebClientNexusRepo target;
 
@@ -47,8 +41,6 @@ public class WebClientNexusRepoTest {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
         when(properties.getNexus()).thenReturn(mockWebServer.url("/download").url());
-        given(properties.getVerification()).willReturn(verificationProperties);
-        when(verificationProperties.getPublicKeyURLs()).thenReturn(Collections.singletonList(mockWebServer.url("/publickeyPath").toString()));
     }
 
     @After
@@ -107,29 +99,6 @@ public class WebClientNexusRepoTest {
                 .setBody("414243"));
         assertThat(target.getChecksum("2.0.0-SNAPSHOT", "sha1"))
                 .containsExactly(65, 66, 67);
-    }
-
-    @Test
-    public void downloadPublicKeys_Success_KeyShouldHaveExpectedContent() {
-        mockWebServer.enqueue(new MockResponse()
-                .setBody("pubkey1")
-                .setResponseCode(200));
-        assertThat(target.downloadPublicKeys()
-                .contains("pubkey1"));
-    }
-
-    @Test
-    public void downloadPublicKeys_BadRequest_ShouldThrow() {
-        mockWebServer.enqueue(new MockResponse().setResponseCode(400));
-        assertThatThrownBy(() -> target.downloadPublicKeys())
-                .isInstanceOf(DeployActionException.class);
-    }
-
-    @Test
-    public void downloadPublicKeys_InternalServerError_ShouldThrow() {
-        mockWebServer.enqueue(new MockResponse().setResponseCode(500));
-        assertThatThrownBy(() -> target.downloadPublicKeys())
-                .isInstanceOf(DeployActionException.class);
     }
 
     @Test

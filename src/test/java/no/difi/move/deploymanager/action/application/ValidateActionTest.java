@@ -63,7 +63,6 @@ public class ValidateActionTest {
     private final Application application = new Application();
 
     private String signature;
-    private List<String> publicKeys;
 
     @Before
     @SneakyThrows
@@ -74,10 +73,9 @@ public class ValidateActionTest {
         );
 
         signature = "signature";
-        publicKeys = Collections.singletonList("publicKey");
         given(fileMock.getAbsolutePath()).willReturn("jarPath");
         given(nexusRepoMock.getChecksum(anyString(), anyString())).willReturn(CHECKSUM);
-        given(nexusRepoMock.downloadPublicKeys()).willReturn(publicKeys);
+
         given(nexusRepoMock.downloadSignature(application.getLatest().getVersion())).willReturn(signature);
 
         whenNew(FileInputStream.class).withAnyArguments().thenReturn(fileInputStreamMock);
@@ -114,18 +112,17 @@ public class ValidateActionTest {
     @Test
     public void apply_gpgSigningVerificationSuccess_shouldSucceed() {
         Assertions.assertThat(target.apply(application)).isSameAs(application);
-        verify(gpgService).verify("jarPath", signature, publicKeys);
+        verify(gpgService).verify("jarPath", signature);
         verify(nexusRepoMock).getChecksum("version", "jar.sha1");
     }
 
     @Test
     public void apply_gpgSigningVerificationFails_shouldThrow() {
         given(nexusRepoMock.downloadSignature(application.getLatest().getVersion())).willReturn("tull");
-        given(nexusRepoMock.downloadPublicKeys()).willReturn(Collections.singletonList("ball"));
-        doThrow(DeployActionException.class).when(gpgService).verify(anyString(), anyString(), any());
+        doThrow(DeployActionException.class).when(gpgService).verify(anyString(), anyString());
         assertThatThrownBy(() -> target.apply(application))
                 .isInstanceOf(DeployActionException.class)
                 .hasCause(new DeployActionException(null));
-        verify(gpgService).verify("jarPath", "tull", Collections.singletonList("ball"));
+        verify(gpgService).verify("jarPath", "tull");
     }
 }

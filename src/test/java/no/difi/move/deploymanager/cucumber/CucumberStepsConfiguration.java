@@ -91,7 +91,6 @@ public class CucumberStepsConfiguration {
     @SneakyThrows
     public void before() {
         temporaryFolder.create();
-
         given(deployManagerProperties.getIntegrasjonspunkt()).willReturn(integrasjonspunktProperties);
         given(integrasjonspunktProperties.getHome()).willReturn(temporaryFolder.getRoot().getAbsolutePath());
     }
