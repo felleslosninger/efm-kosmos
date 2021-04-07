@@ -39,6 +39,18 @@ $ gpg --fingerprint <put-long-key-identifier-or-email-address-here>
 # Output should be similar to the fast approach.
 
 ```
+#### Manual verification of .jar file
+You may also want to manually verify the .jar file using the detached signature you can download above. This is also done automatically by the application.
+
+**Example:**
+```shell
+gpg --verify "integrasjonspunkt-X.Y.Z-SNAPSHOT.jar.asc" "integrasjonspunkt-X.Y.Z-SNAPSHOT.jar"
+gpg: Signature made Tue Mar 16 10:16:16 2021 CET
+gpg:                using RSA key 0ABAFD4FAA809D6EEC8AFD98A30B684A308D8FC8
+gpg:                issuer "issuerEmail"
+gpg: Good signature from "LongName (test2) <issuerEmail>" [ultimate]
+``` 
+
 ### Running Move-Deploy-Manager as a Windows service
 
 We are using [WinSW](https://github.com/kohsuke/winsw) as a Windows service wrapper. Please follow the installation instructions using the following configuration:
