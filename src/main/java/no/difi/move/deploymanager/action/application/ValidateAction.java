@@ -29,7 +29,11 @@ public class ValidateAction implements ApplicationAction {
 
     @Override
     public Application apply(Application application) {
-        log.info("Validating jar");
+        if (!application.isMarkedForValidation()){
+            log.info("Skipping validation, as no new distribution has been downloaded");
+            return application;
+        }
+        log.info("Validating application");
         log.trace("Calling ValidateAction.apply on application {}", application);
         try {
             assertChecksumIsCorrect(application, ALGORITHM.SHA1);
@@ -39,7 +43,6 @@ public class ValidateAction implements ApplicationAction {
             if (verify) {
                 log.trace("Signature has been successfully verified.");
             }
-
             return application;
         } catch (Exception ex) {
             throw new DeployActionException("Error validating jar", ex);

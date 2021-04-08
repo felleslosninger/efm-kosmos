@@ -25,15 +25,12 @@ import java.io.FileInputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
 
@@ -71,6 +68,7 @@ public class ValidateActionTest {
                 .setVersion("version")
                 .setFile(fileMock)
         );
+        application.setMarkedForValidation(true);
 
         signature = "signature";
         given(fileMock.getAbsolutePath()).willReturn("jarPath");
@@ -124,5 +122,15 @@ public class ValidateActionTest {
                 .isInstanceOf(DeployActionException.class)
                 .hasCause(new DeployActionException(null));
         verify(gpgService).verify("jarPath", "tull");
+    }
+
+    @Test
+    public void apply_NoNewDistributionHasBeenDownloaded_ShouldNotValidate() {
+        application.setMarkedForValidation(false);
+
+        target.apply(application);
+
+        verify(nexusRepoMock,never()).downloadSignature(anyString());
+        verify(gpgService, never()).verify(anyString(), anyString());
     }
 }

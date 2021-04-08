@@ -82,11 +82,13 @@ public class PrepareApplicationActionTest {
     @Test
     public void apply_NewVersionFound_ShouldDownload() {
         given(fileMock.exists()).willReturn(false);
-        assertThat(target.apply(application)).isSameAs(application);
 
+        final Application result = target.apply(application);
+
+        assertThat(result.isMarkedForValidation()).isTrue();
+        assertThat(result).isSameAs(application);
         File resultFile = application.getLatest().getFile();
         assertThat(resultFile).isSameAs(fileMock);
-
         verify(nexusRepoMock).downloadJAR(eq(NEW_APPLICATION_VERSION), same(pathMock));
     }
 
@@ -109,7 +111,7 @@ public class PrepareApplicationActionTest {
         given(deployDirectoryRepoMock.getBlacklistPath(any())).willReturn(blackListedFileMock);
         given(blackListedFileMock.getAbsolutePath()).willReturn("/tmp/test.jar.blacklisted");
 
-        assertThatCode(()->target.apply(application)).doesNotThrowAnyException();
+        assertThatCode(() -> target.apply(application)).doesNotThrowAnyException();
     }
 
     @Test
@@ -126,7 +128,7 @@ public class PrepareApplicationActionTest {
     }
 
     @Test
-    public void apply_NewVersionIsNotFound_ShouldNotDownload() {
+    public void apply_NoNewVersionIsDownloaded_ShouldNotDownload() {
         given(fileMock.exists()).willReturn(true);
         assertThat(target.apply(application)).isSameAs(application);
 
