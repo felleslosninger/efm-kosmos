@@ -43,7 +43,9 @@ public class PrepareApplicationAction implements ApplicationAction {
 
     private void checkBlacklist(File downloadFile) {
         boolean blacklistEnabled = properties.getBlacklist().isEnabled();
-        log.info("Blacklist functionality is disabled");
+        if (!blacklistEnabled) {
+            log.info("Blacklist functionality is disabled");
+        }
         if (blacklistEnabled && deployDirectoryRepo.isBlackListed(downloadFile)) {
             throw new DeployActionException(
                     String.format("The latest version is black listed! Remove %s to white list.",
