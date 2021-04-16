@@ -22,7 +22,7 @@ public class IntegrasjonspunktProperties {
     private URL infoURL;
     private URL shutdownURL;
 
-    @NotNull
+    //@NotNull
     private String latestVersion;
 
     private String supportedMajorVersion;
