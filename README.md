@@ -79,16 +79,12 @@ We are using [WinSW](https://github.com/kohsuke/winsw) as a Windows service wrap
 **Please note that you need to use a local administration user when installing the service.**
 #### Local property file for Move-Deploy-Manager
 
-You will need a file named deploymanager-local.properties in the same folder as winsw.
+You might need a file named deploymanager-local.properties in the same folder as winsw.
 Here is an example - Please replace the properties with your information:
 
 ```properties
-# Replace hosts and ports of URL with the location
-# of your integrasjonspunkt.
-deploymanager.integrasjonspunkt.baseURL=http://localhost:9093
-
-# E-mail is optional. Please specify these properties 
-# to receive e-mails when the deploy-manager updates the integrasjonspunkt-application.
+# E-mail is an optional feature. Please specify these properties 
+# to receive e-mails when the deploy-manager updates the integrasjonspunkt.
 deploymanager.mail.recipient=someone@yourdomain.no
 deploymanager.mail.from=noreply@yourdomain.no
 
@@ -105,8 +101,4 @@ The recommended setup (requires less configuration) is to have both JARs in the 
 Add the following property to deploymanager-local.properties:
 ```INI
 deploymanager.integrasjonspunkt.home={path-to-where-your-integrasjonspunkt-runs}
-```
-Modify the arguments tag in deploymanager's XML configuration file:
-```xml
-<arguments>-jar %BASE%\deploymanager-X.Y.Z.jar --spring.profiles.active=production --spring.config.additional-location=file:{path-to-where-your-integrasjonspunkt-runs}\integrasjonspunkt-local.properties</arguments>
 ```
