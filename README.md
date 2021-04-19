@@ -67,7 +67,7 @@ We are using [WinSW](https://github.com/kohsuke/winsw) as a Windows service wrap
   
   <!-- Path to the executable, which should be started -->
   <executable>java</executable>
-    <arguments>-jar %BASE%\deploymanager-X.Y.Z.jar --spring.profiles.active=production --spring.config.additional-location=file:%BASE%\integrasjonspunkt-local.properties</arguments>
+    <arguments>-jar %BASE%\deploymanager-X.Y.Z.jar --spring.profiles.active=production</arguments>
   <logpath>%BASE%\deploymanager-logs</logpath>
   
   <log mode="roll-by-size">
@@ -83,6 +83,8 @@ You will need a file named deploymanager-local.properties in the same folder as 
 Here is an example - Please replace the properties with your information:
 
 ```properties
+difi.move.org.number=<your-nine-digit-organization-number>
+
 # Replace hosts and ports of URL with the location
 # of your integrasjonspunkt.
 deploymanager.integrasjonspunkt.baseURL=http://localhost:9093
