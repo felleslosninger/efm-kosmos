@@ -26,11 +26,13 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
 
@@ -109,7 +111,9 @@ public class ValidateActionTest {
 
     @Test
     public void apply_gpgSigningVerificationSuccess_shouldSucceed() {
-        Assertions.assertThat(target.apply(application)).isSameAs(application);
+        given(gpgService.verify(anyString(), anyString())).willReturn(true);
+
+        assertThat(target.apply(application)).isSameAs(application);
         verify(gpgService).verify("jarPath", signature);
         verify(nexusRepoMock).getChecksum("version", "jar.sha1");
     }
@@ -117,10 +121,11 @@ public class ValidateActionTest {
     @Test
     public void apply_gpgSigningVerificationFails_shouldThrow() {
         given(nexusRepoMock.downloadSignature(application.getLatest().getVersion())).willReturn("tull");
-        doThrow(DeployActionException.class).when(gpgService).verify(anyString(), anyString());
+        given(gpgService.verify(anyString(), anyString())).willReturn(false);
+
         assertThatThrownBy(() -> target.apply(application))
-                .isInstanceOf(DeployActionException.class)
-                .hasCause(new DeployActionException(null));
+                .isInstanceOf(DeployActionException.class);
+
         verify(gpgService).verify("jarPath", "tull");
     }
 
@@ -130,7 +135,7 @@ public class ValidateActionTest {
 
         target.apply(application);
 
-        verify(nexusRepoMock,never()).downloadSignature(anyString());
+        verify(nexusRepoMock, never()).downloadSignature(anyString());
         verify(gpgService, never()).verify(anyString(), anyString());
     }
 }

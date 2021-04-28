@@ -42,8 +42,9 @@ public class ValidateAction implements ApplicationAction {
             boolean verify = gpgService.verify(application.getLatest().getFile().getAbsolutePath(), signature);
             if (verify) {
                 log.trace("Signature has been successfully verified.");
+                return application;
             }
-            return application;
+            throw new DeployActionException("Invalid artifact signature");
         } catch (Exception ex) {
             throw new DeployActionException("Error validating jar", ex);
         }
