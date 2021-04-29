@@ -7,6 +7,8 @@ import no.difi.move.deploymanager.domain.application.Application;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -21,6 +23,7 @@ public class SynchronizationHandler {
     private final StartAction startAction;
     private final RollbackAction rollbackAction;
 
+    @PostConstruct
     @Scheduled(cron = "${deploymanager.schedulerCronExpression}", zone = "Europe/Oslo")
     public void run() {
         log.debug("Starting synchronization");
