@@ -25,6 +25,14 @@ public class SynchronizationHandler {
 
     @PostConstruct
     @Scheduled(cron = "${deploymanager.schedulerCronExpression}", zone = "Europe/Oslo")
+    public void scheduledRun() {
+        try {
+            run();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
     public void run() {
         log.debug("Starting synchronization");
         currentVersionAction
@@ -38,4 +46,5 @@ public class SynchronizationHandler {
                 .apply(new Application());
         log.debug("Finished synchronization");
     }
+
 }
