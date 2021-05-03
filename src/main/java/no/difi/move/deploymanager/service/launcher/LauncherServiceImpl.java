@@ -29,16 +29,7 @@ public class LauncherServiceImpl implements LauncherService {
     @Override
     public LaunchResult launchIntegrasjonspunkt(String jarPath) {
         log.info("Starting application: {}", jarPath);
-        LaunchResult launchResult = launch(jarPath);
-        HealthStatus status = actuatorService.getStatus();
-
-        log.info("Status is {}", status);
-
-        if (status != HealthStatus.UP) {
-            launchResult.setStatus(LaunchStatus.FAILED);
-        }
-
-        return launchResult;
+        return launch(jarPath);
     }
 
     @SneakyThrows(InterruptedException.class)
@@ -60,24 +51,10 @@ public class LauncherServiceImpl implements LauncherService {
                     .start()
                     .getFuture();
 
-            switch (waitForStartup(startupLog)) {
-                case SUCCESS:
-                    log.info("Application started successfully!");
-                    break;
-                case FAILED:
-                    log.error("Application failed!");
-                    future.cancel(true);
-                    break;
-                case UNKNOWN:
-                    log.warn("A timeout occurred!");
-                    future.cancel(true);
-                    break;
-                default:
-                    break;
-            }
-
+            LaunchStatus launchStatus = waitForStartup(future);
+            startupLog.stopRecording();
             launchResult
-                    .setStatus(startupLog.getStatus())
+                    .setStatus(launchStatus)
                     .setStartupLog(startupLog.getLog());
         } catch (IOException e) {
             log.error("Failed to launch process", e);
@@ -89,20 +66,29 @@ public class LauncherServiceImpl implements LauncherService {
         return launchResult;
     }
 
-    private LaunchStatus waitForStartup(StartupLog startupLog) throws InterruptedException {
+    private LaunchStatus waitForStartup(Future<ProcessResult> futureProcessResult) throws InterruptedException {
         int pollIntervalInMs = properties.getLaunchPollIntervalInMs();
         int timeoutInMs = properties.getLaunchTimeoutInMs();
         log.debug("Waiting {} ms for startup with timeout after {}", pollIntervalInMs, timeoutInMs);
         long start = System.currentTimeMillis();
 
-        do {
+        while (true) {
             Thread.sleep(pollIntervalInMs);
-        } while (startupLog.getStatus() == LaunchStatus.UNKNOWN
-                && System.currentTimeMillis() - start < timeoutInMs
-        );
-
-        startupLog.stopRecording();
-        return startupLog.getStatus();
+            if (actuatorService.getStatus() == HealthStatus.UP) {
+                log.info("Application started successfully!");
+                return LaunchStatus.SUCCESS;
+            }
+            if (futureProcessResult.isDone() || futureProcessResult.isCancelled()) {
+                log.error("Application failed!");
+                return LaunchStatus.FAILED;
+            }
+            if (System.currentTimeMillis() - start >= timeoutInMs) {
+                log.warn("A timeout occurred!");
+                futureProcessResult.cancel(true);
+                return LaunchStatus.FAILED;
+            }
+        }
     }
+
 }
 

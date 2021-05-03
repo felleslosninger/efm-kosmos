@@ -74,7 +74,6 @@ public class LauncherServiceImplTest {
         );
         given(properties.getOrgnumber()).willReturn("910077473");
         whenNew(StartupLog.class).withAnyArguments().thenReturn(startupLogMock);
-        given(startupLogMock.getStatus()).willReturn(LaunchStatus.UNKNOWN, LaunchStatus.SUCCESS);
         given(startupLogMock.getLog()).willReturn("theStartUpLog");
         whenNew(ProcessExecutor.class).withAnyArguments().thenReturn(processExecutorMock);
         whenNew(File.class).withAnyArguments().thenReturn(fileMock);
@@ -123,8 +122,6 @@ public class LauncherServiceImplTest {
     @Test
     @SneakyThrows
     public void testLaunchIntegrasjonspunkt_whenStartUpLogReturnsFailure() {
-        given(startupLogMock.getStatus()).willReturn(LaunchStatus.UNKNOWN, LaunchStatus.FAILED);
-
         assertThat(launcherService.launchIntegrasjonspunkt("test.jar"))
                 .hasFieldOrPropertyWithValue("jarPath", "test.jar")
                 .hasFieldOrPropertyWithValue("status", LaunchStatus.FAILED)
@@ -136,8 +133,6 @@ public class LauncherServiceImplTest {
     @Test
     @SneakyThrows
     public void testLaunchIntegrasjonspunkt_whenTimeOut() {
-        given(startupLogMock.getStatus()).willReturn(LaunchStatus.UNKNOWN);
-
         assertThat(launcherService.launchIntegrasjonspunkt("test.jar"))
                 .hasFieldOrPropertyWithValue("jarPath", "test.jar")
                 .hasFieldOrPropertyWithValue("status", LaunchStatus.FAILED)
