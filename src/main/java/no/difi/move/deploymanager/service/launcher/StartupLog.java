@@ -1,8 +1,6 @@
 package no.difi.move.deploymanager.service.launcher;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import no.difi.move.deploymanager.service.launcher.dto.LaunchStatus;
 import org.zeroturnaround.exec.stream.LogOutputStream;
 
 @Slf4j
@@ -12,8 +10,6 @@ class StartupLog extends LogOutputStream {
     private final boolean verbose;
     private final StringBuilder logBuilder = new StringBuilder();
 
-    @Getter
-    private LaunchStatus status = LaunchStatus.UNKNOWN;
     private boolean record = true;
 
     StartupLog(boolean verbose) {
@@ -28,14 +24,6 @@ class StartupLog extends LogOutputStream {
             }
 
             logBuilder.append(line).append("\n");
-
-            if (line.contains("Application startup failed")) {
-                status = LaunchStatus.FAILED;
-            }
-
-            if (line.contains("Started IntegrasjonspunktApplication")) {
-                status = LaunchStatus.SUCCESS;
-            }
         }
     }
 
