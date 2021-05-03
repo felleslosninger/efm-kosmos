@@ -28,7 +28,7 @@ Feature: Synchronization - Expired Blacklist
     """
     e343ab4e4151f822331e7f5998b26ecc
     """
-    And a "GET" request to "/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT&e=jar.asc" will respond with status "200" and the following "text/plain" in "/gpg/signature.asc"
+    And a "GET" request to "/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT&e=jar.asc" will respond with status "200" and the following "text/plain" in "/cucumber/success.jar.asc"
     And state is "Started" then a "GET" request to "/manage/health" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
     """
     {

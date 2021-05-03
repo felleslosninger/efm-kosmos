@@ -4,7 +4,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.action.DeployActionException;
+import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
+import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
 import no.difi.move.deploymanager.repo.NexusRepo;
 import no.difi.move.deploymanager.service.codesigner.GpgService;
 import org.springframework.stereotype.Component;
@@ -26,13 +28,11 @@ public class ValidateAction implements ApplicationAction {
 
     private final NexusRepo nexusRepo;
     private final GpgService gpgService;
+    private final DeployDirectoryRepo deployDirectoryRepo;
+    private final DeployManagerProperties properties;
 
     @Override
     public Application apply(Application application) {
-        if (!application.isMarkedForValidation()){
-            log.info("Skipping validation, as no new distribution has been downloaded");
-            return application;
-        }
         log.info("Validating application");
         log.trace("Calling ValidateAction.apply on application {}", application);
         try {
@@ -43,6 +43,10 @@ public class ValidateAction implements ApplicationAction {
             if (verify) {
                 log.trace("Signature has been successfully verified.");
                 return application;
+            }
+            if(properties.getBlacklist().isEnabled()) {
+                log.trace("Signature could not be verified.. Blacklisting version.");
+                deployDirectoryRepo.blackList(application.getLatest().getFile());
             }
             throw new DeployActionException("Invalid artifact signature");
         } catch (Exception ex) {
