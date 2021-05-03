@@ -1,8 +1,6 @@
 package no.difi.move.deploymanager.action.application;
 
 import com.google.common.base.Strings;
-import com.vdurmont.semver4j.Semver;
-import com.vdurmont.semver4j.SemverException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.action.DeployActionException;
@@ -35,16 +33,30 @@ public class VerifyVersionComplianceAction implements ApplicationAction {
 
     private Application compareVersions(Application application, String supportedMajorVersion, String latestVersion) {
         log.trace("Comparing supported major ({}) and latest available ({}) versions", supportedMajorVersion, latestVersion);
+        int latestMajor = resolveMajorVersionFromSemanticVersion(latestVersion);
+        int currentlySupported = resolveMajorVersionFromSemanticVersion(supportedMajorVersion);
+        if (latestMajor > currentlySupported) {
+            throw new DeployActionException(
+                    String.format("Latest version (%s) is not supported yet. The currently supported major version is %s.",
+                            latestMajor, currentlySupported));
+        }
+        return application;
+    }
+
+    private int resolveMajorVersionFromSemanticVersion(String semanticVersion) {
+        if (semanticVersion == null) {
+            throw new IllegalArgumentException("Semantic version is null");
+        }
+        String majorVersionString;
+        int firstDot = semanticVersion.indexOf('.');
+        if (firstDot == -1) {
+            majorVersionString = semanticVersion;
+        } else {
+            majorVersionString = semanticVersion.substring(0, firstDot);
+        }
         try {
-            Semver latestMajor = new Semver(latestVersion, Semver.SemverType.LOOSE);
-            Semver currentlySupported = new Semver(supportedMajorVersion, Semver.SemverType.LOOSE);
-            if (latestMajor.getMajor() > currentlySupported.getMajor()) {
-                throw new DeployActionException(
-                        String.format("Latest version (%s) is not supported yet. The currently supported major version is %s.",
-                                latestMajor, currentlySupported));
-            }
-            return application;
-        } catch (SemverException e) {
+            return Integer.parseInt(majorVersionString);
+        } catch (NumberFormatException e) {
             throw new DeployActionException("Invalid version specifier encountered", e);
         }
     }
