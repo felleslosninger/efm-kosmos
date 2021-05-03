@@ -9,9 +9,5 @@ public class Application {
     private ApplicationMetadata latest;
     private ApplicationMetadata current;
     private LaunchResult launchResult;
-    private boolean markedForValidation;
 
-    public boolean isSameVersion() {
-        return latest.getVersion().equals(current.getVersion());
-    }
 }

@@ -31,7 +31,6 @@ public class PrepareApplicationAction implements ApplicationAction {
             log.info("Latest version is different from current, and will be downloaded");
             try {
                 doDownload(application, downloadJarFile);
-                application.setMarkedForValidation(true);
             } catch (Exception ex) {
                 throw new DeployActionException("Error occurred when downloading latest version", ex);
             }

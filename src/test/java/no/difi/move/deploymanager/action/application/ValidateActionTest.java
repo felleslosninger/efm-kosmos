@@ -70,7 +70,7 @@ public class ValidateActionTest {
                 .setVersion("version")
                 .setFile(fileMock)
         );
-        application.setMarkedForValidation(true);
+        //application.setMarkedForValidation(true);
 
         signature = "signature";
         given(fileMock.getAbsolutePath()).willReturn("jarPath");
@@ -127,15 +127,5 @@ public class ValidateActionTest {
                 .isInstanceOf(DeployActionException.class);
 
         verify(gpgService).verify("jarPath", "tull");
-    }
-
-    @Test
-    public void apply_NoNewDistributionHasBeenDownloaded_ShouldNotValidate() {
-        application.setMarkedForValidation(false);
-
-        target.apply(application);
-
-        verify(nexusRepoMock, never()).downloadSignature(anyString());
-        verify(gpgService, never()).verify(anyString(), anyString());
     }
 }
