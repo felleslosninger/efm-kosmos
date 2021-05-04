@@ -52,8 +52,11 @@ public class StartAction implements ApplicationAction {
             }
         }
 
-        String subject = String.format("Upgrade %s %s", launchResult.getStatus().name(), jarFile.getName());
+        if(launchResult.getStatus() == LaunchStatus.SUCCESS) {
+            properties.getIntegrasjonspunkt().setCurrentVersion(application.getLatest().getVersion());
+        }
 
+        String subject = String.format("Upgrade %s %s", launchResult.getStatus().name(), jarFile.getName());
         log.info(subject);
 
         mailService.sendMail(

@@ -6,8 +6,6 @@ import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import org.junit.Before;
 
-import java.net.URL;
-
 import static org.mockito.BDDMockito.given;
 
 @RequiredArgsConstructor
@@ -29,6 +27,11 @@ public class DeploymanagerPropertiesSteps {
     @Given("^the supported major version is unset$")
     public void theCurrentSupportedMajorVersionIsNull(){
         given(integrasjonspunktProperties.getSupportedMajorVersion()).willReturn(null);
+    }
+
+    @Given("^the current version is unset$")
+    public void theCurrentVersionIsNull(){
+        given(integrasjonspunktProperties.getCurrentVersion()).willReturn(null);
     }
 
     @Given("^the supported major version is \"([^\"]*)\"$")
