@@ -10,4 +10,7 @@ public class Application {
     private ApplicationMetadata current;
     private LaunchResult launchResult;
 
+    public boolean isSameVersion() {
+        return latest.getVersion().equals(current.getVersion());
+    }
 }
