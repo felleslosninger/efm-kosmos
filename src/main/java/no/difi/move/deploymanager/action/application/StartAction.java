@@ -53,7 +53,12 @@ public class StartAction implements ApplicationAction {
         }
 
         if(launchResult.getStatus() == LaunchStatus.SUCCESS) {
-            properties.getIntegrasjonspunkt().setCurrentVersion(application.getLatest().getVersion());
+            log.info("Launch success, the version {} will be whitelisted", application.getLatest().getVersion());
+            String version = deployDirectoryRepo.getWhitelistVersion();
+            if(version != null) {
+                deployDirectoryRepo.removeWhitelist(deployDirectoryRepo.getFile(version, "integrasjonspunkt-%s.whitelisted"));
+            }
+            deployDirectoryRepo.whitelist(jarFile, String.format("integrasjonspunkt-%s.whitelisted", application.getLatest().getVersion()));
         }
 
         String subject = String.format("Upgrade %s %s", launchResult.getStatus().name(), jarFile.getName());

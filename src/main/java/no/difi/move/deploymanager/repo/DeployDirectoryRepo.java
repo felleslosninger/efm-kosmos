@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -90,5 +91,62 @@ public class DeployDirectoryRepo {
             log.warn("Could not blacklist {}", file.getName());
         }
         return blacklistFile;
+    }
+
+    @SneakyThrows
+    public void whitelist(File file, String fileName) {
+        try {
+            if (doWhitelist(file, fileName).createNewFile()) {
+                log.info("Whitelisted {}", file.getAbsolutePath());
+            }
+        } catch (IOException e) {
+            log.debug("Could not whitelist {}", file.getAbsolutePath(), e);
+        }
+    }
+
+    private File doWhitelist(File file, String fileName)  {
+        File whitelistFile = new File(properties.getIntegrasjonspunkt().getHome() + "/" + fileName);
+        log.debug("Whitelist file pathname is {}", whitelistFile.getAbsolutePath());
+        try(BufferedWriter writer = Files.newBufferedWriter(whitelistFile.toPath(), StandardCharsets.UTF_8)) {
+            LocalDateTime created = LocalDateTime.now();
+            log.debug("Whitelist {} created: {}", file.getName(), created);
+            writer.write(created.toString());
+        } catch (IOException e) {
+            log.warn("Could not whitelist {}", file.getName());
+        }
+        return whitelistFile;
+    }
+
+    public File getWhitelistFile() {
+        String[] filesNames;
+        File f = new File(properties.getIntegrasjonspunkt().getHome());
+        FilenameFilter filter = (f1, name) -> name.endsWith(".whitelisted");
+        filesNames = f.list(filter);
+
+        if(filesNames.length < 1) {
+            return null;
+        } else
+            return new File(filesNames[0]);
+    }
+
+    public String getWhitelistVersion() {
+        File file = getWhitelistFile();
+        if(file != null){
+            return file
+                    .getName()
+                    .replaceFirst(".whitelisted", "")
+                    .replace("integrasjonspunkt-", "");
+        } else {
+            return null;
+        }
+    }
+
+    public void removeWhitelist(File whitelistPath) {
+        boolean deleted = FileUtils.deleteQuietly(whitelistPath);
+        if (deleted) {
+            log.debug("Removed whitelist file {}", whitelistPath);
+        } else {
+            log.debug("Could not remove whitelist file {}", whitelistPath);
+        }
     }
 }

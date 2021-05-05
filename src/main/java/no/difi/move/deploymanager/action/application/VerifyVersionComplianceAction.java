@@ -6,6 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
+import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
+import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
+import no.difi.move.deploymanager.util.DeployUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Component;
 public class VerifyVersionComplianceAction implements ApplicationAction {
 
     private final DeployManagerProperties properties;
+    private final DeployDirectoryRepo deployDirectoryRepo;
 
     @Override
     public Application apply(Application application) {
@@ -36,9 +40,22 @@ public class VerifyVersionComplianceAction implements ApplicationAction {
         int latestMajor = resolveMajorVersionFromSemanticVersion(latestVersion);
         int currentlySupported = resolveMajorVersionFromSemanticVersion(supportedMajorVersion);
         if (latestMajor > currentlySupported) {
+            log.warn(String.format("Latest version (%s) is not supported yet. The currently supported major version is %s. " +
+                            "Attempting to start integrasjonspunkt with previous version based on .whitelist file if available.",
+                    latestMajor, currentlySupported));
+            String version = deployDirectoryRepo.getWhitelistVersion();
+            if(version != null) {
+                application.setLatest(
+                        new ApplicationMetadata()
+                                .setVersion(version)
+                                .setFile(deployDirectoryRepo.getFile(version, DeployUtils.DOWNLOAD_JAR_FILE_NAME)));
+
+                return application;
+            }
             throw new DeployActionException(
-                    String.format("Latest version (%s) is not supported yet. The currently supported major version is %s.",
-                            latestMajor, currentlySupported));
+                    String.format("Latest version (%s) is not supported yet. The currently supported major version is %s. " +
+                                    "Please change your supported major version(deploymanager.integrasjonspunkt.supported-major-version) to match the latest %s and restart the application.",
+                            latestMajor, currentlySupported, latestMajor));
         }
         return application;
     }

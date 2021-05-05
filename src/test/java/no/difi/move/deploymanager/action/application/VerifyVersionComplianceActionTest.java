@@ -5,6 +5,7 @@ import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
+import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -27,8 +28,9 @@ public class VerifyVersionComplianceActionTest {
     final static ApplicationMetadata METADATA_MOCK = mock(ApplicationMetadata.class);
     final static Application APPLICATION_SPY = spy(new Application());
     final static DeployManagerProperties PROPERTIES = mock(DeployManagerProperties.class);
+    final static DeployDirectoryRepo REPO = mock(DeployDirectoryRepo.class);
 
-    final static VerifyVersionComplianceAction TARGET = new VerifyVersionComplianceAction(PROPERTIES);
+    final static VerifyVersionComplianceAction TARGET = new VerifyVersionComplianceAction(PROPERTIES, REPO);
 
     @RunWith(Parameterized.class)
     public static class NonCompliantTests {

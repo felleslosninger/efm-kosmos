@@ -1,8 +1,8 @@
 package no.difi.move.deploymanager.action.application;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.VersionInfo;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
@@ -18,8 +18,9 @@ public class GetCurrentVersionAction implements ApplicationAction {
 
     private final DeployDirectoryRepo directoryRepo;
     private final ActuatorService actuatorService;
-    private final DeployManagerProperties properties;
+    private final DeployDirectoryRepo deployDirectoryRepo;
 
+    @SneakyThrows
     @Override
     public Application apply(Application application) {
         log.info("Getting current version");
@@ -27,11 +28,12 @@ public class GetCurrentVersionAction implements ApplicationAction {
         VersionInfo versionInfo = actuatorService.getVersionInfo();
         log.debug("Version info received: {}", versionInfo);
         String version = versionInfo.getVersion();
-        String currentVersion = properties.getIntegrasjonspunkt().getCurrentVersion();
+        String currentVersion = deployDirectoryRepo.getWhitelistVersion();
         if (null != version) {
             log.info("The client currently runs integrasjonspunkt version {}", version);
             setCurrentVersion(application, version);
-        } else if (currentVersion != null) {
+        }
+        else if (currentVersion != null) {
             log.info("No running integrasjonspunkt found, but starting previously used version {}", currentVersion);
             setCurrentVersion(application, currentVersion);
         }
@@ -39,7 +41,7 @@ public class GetCurrentVersionAction implements ApplicationAction {
             log.info("No running integrasjonspunkt found");
         }
 
-        return application;
+         return application;
     }
 
     public void setCurrentVersion(Application application, String version) {

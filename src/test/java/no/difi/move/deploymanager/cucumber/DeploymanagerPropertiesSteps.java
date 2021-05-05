@@ -29,11 +29,6 @@ public class DeploymanagerPropertiesSteps {
         given(integrasjonspunktProperties.getSupportedMajorVersion()).willReturn(null);
     }
 
-    @Given("^the current version is unset$")
-    public void theCurrentVersionIsNull(){
-        given(integrasjonspunktProperties.getCurrentVersion()).willReturn(null);
-    }
-
     @Given("^the supported major version is \"([^\"]*)\"$")
     public void theCurrentSupportedMajorVersionIs(String majorVersion) {
         given(integrasjonspunktProperties.getSupportedMajorVersion()).willReturn(majorVersion);
