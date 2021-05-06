@@ -1,6 +1,6 @@
 package no.difi.move.deploymanager.action.application;
 
-import no.difi.move.deploymanager.config.BlacklistProperties;
+import no.difi.move.deploymanager.config.BlocklistProperties;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.HealthStatus;
 import no.difi.move.deploymanager.domain.application.Application;
@@ -50,12 +50,12 @@ public class StartActionTest {
     @Mock
     private File fileMock;
     @Mock
-    private BlacklistProperties blacklistProperties;
+    private BlocklistProperties blocklistProperties;
 
     @Before
     public void before() {
-        given(blacklistProperties.isEnabled()).willReturn(true);
-        given(propertiesMock.getBlacklist()).willReturn(blacklistProperties);
+        given(blocklistProperties.isEnabled()).willReturn(true);
+        given(propertiesMock.getBlocklist()).willReturn(blocklistProperties);
         given(applicationMock.getLatest()).willReturn(latestMock);
         given(latestMock.getFile()).willReturn(fileMock);
         given(fileMock.getName()).willReturn("test.jar");
@@ -120,7 +120,7 @@ public class StartActionTest {
         assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
         verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
         verify(mailService).sendMail("Upgrade FAILED test.jar", "theStartupLog");
-        verify(deployDirectoryRepoMock).blackList(fileMock);
+        verify(deployDirectoryRepoMock).blockList(fileMock);
     }
 
     @Test
@@ -136,13 +136,13 @@ public class StartActionTest {
         given(applicationMock.isSameVersion()).willReturn(true);
         given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.DOWN);
         given(fileMock.getAbsolutePath()).willReturn("the path");
-        given(blacklistProperties.isEnabled()).willReturn(false);
+        given(blocklistProperties.isEnabled()).willReturn(false);
 
         assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
 
         verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
         verify(mailService).sendMail("Upgrade FAILED test.jar", "theStartupLog");
-        verify(deployDirectoryRepoMock, never()).blackList(fileMock);
+        verify(deployDirectoryRepoMock, never()).blockList(fileMock);
     }
 
     @Test
@@ -161,7 +161,7 @@ public class StartActionTest {
         assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
         verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
         verify(mailService).sendMail("Upgrade FAILED test.jar", "theStartupLog");
-        verify(deployDirectoryRepoMock).blackList(fileMock);
+        verify(deployDirectoryRepoMock).blockList(fileMock);
         verify(actuatorServiceMock).shutdown();
     }
 
@@ -178,13 +178,13 @@ public class StartActionTest {
         given(applicationMock.isSameVersion()).willReturn(true);
         given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.DOWN, HealthStatus.UP);
         given(fileMock.getAbsolutePath()).willReturn("the path");
-        given(blacklistProperties.isEnabled()).willReturn(false);
+        given(blocklistProperties.isEnabled()).willReturn(false);
 
         assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
 
         verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
         verify(mailService).sendMail("Upgrade FAILED test.jar", "theStartupLog");
-        verify(deployDirectoryRepoMock, never()).blackList(fileMock);
+        verify(deployDirectoryRepoMock, never()).blockList(fileMock);
         verify(actuatorServiceMock, never()).shutdown();
     }
 

@@ -38,13 +38,13 @@ public class StartAction implements ApplicationAction {
         File jarFile = application.getLatest().getFile();
         LaunchResult launchResult = launcherService.launchIntegrasjonspunkt(jarFile.getAbsolutePath());
 
-        boolean blacklistEnabled = properties.getBlacklist().isEnabled();
-        if (!blacklistEnabled){
-            log.info("Blacklist mechanism is disabled");
+        boolean blocklistEnabled = properties.getBlocklist().isEnabled();
+        if (!blocklistEnabled){
+            log.info("Blocklist mechanism is disabled");
         }
-        if (blacklistEnabled && launchResult.getStatus() != LaunchStatus.SUCCESS) {
-            log.info("Launch failed, the version will be blacklisted");
-            deployDirectoryRepo.blackList(jarFile);
+        if (blocklistEnabled && launchResult.getStatus() != LaunchStatus.SUCCESS) {
+            log.info("Launch failed, the version will be blocklisted");
+            deployDirectoryRepo.blockList(jarFile);
 
             if (actuatorService.getStatus() == HealthStatus.UP) {
                 log.trace("The application started in the mean time, but is now shutting down");
@@ -53,12 +53,12 @@ public class StartAction implements ApplicationAction {
         }
 
         if(launchResult.getStatus() == LaunchStatus.SUCCESS) {
-            log.info("Launch success, the version {} will be whitelisted", application.getLatest().getVersion());
-            String version = deployDirectoryRepo.getWhitelistVersion();
+            log.info("Launch success, the version {} will be Allowlisted", application.getLatest().getVersion());
+            String version = deployDirectoryRepo.getAllowlistVersion();
             if(version != null) {
-                deployDirectoryRepo.removeWhitelist(deployDirectoryRepo.getFile(version, "integrasjonspunkt-%s.whitelisted"));
+                deployDirectoryRepo.removeAllowlist(deployDirectoryRepo.getFile(version, "integrasjonspunkt-%s.allowlisted"));
             }
-            deployDirectoryRepo.whitelist(jarFile, String.format("integrasjonspunkt-%s.whitelisted", application.getLatest().getVersion()));
+            deployDirectoryRepo.allowlist(jarFile, String.format("integrasjonspunkt-%s.allowlisted", application.getLatest().getVersion()));
         }
 
         String subject = String.format("Upgrade %s %s", launchResult.getStatus().name(), jarFile.getName());
