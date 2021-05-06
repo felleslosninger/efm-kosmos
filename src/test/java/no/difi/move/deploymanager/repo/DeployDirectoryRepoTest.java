@@ -1,6 +1,6 @@
 package no.difi.move.deploymanager.repo;
 
-import no.difi.move.deploymanager.config.BlacklistProperties;
+import no.difi.move.deploymanager.config.BlocklistProperties;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import no.difi.move.deploymanager.util.DeployUtils;
@@ -51,9 +51,9 @@ public class DeployDirectoryRepoTest {
     @Before
     public void setUp() throws IOException {
         temporaryFolder.create();
-        BlacklistProperties blacklistProperties = mock(BlacklistProperties.class);
-        when(blacklistProperties.getDurationInHours()).thenReturn(2);
-        when(properties.getBlacklist()).thenReturn(blacklistProperties);
+        BlocklistProperties blocklistProperties = mock(BlocklistProperties.class);
+        when(blocklistProperties.getDurationInHours()).thenReturn(2);
+        when(properties.getBlocklist()).thenReturn(blocklistProperties);
         when(file.getAbsolutePath()).thenReturn(temporaryFolder.getRoot().getAbsolutePath(), "file.jar");
         when(file.getName()).thenReturn("application");
     }
@@ -88,7 +88,7 @@ public class DeployDirectoryRepoTest {
 
         whenNew(BufferedWriter.class).withAnyArguments().thenReturn(writer);
 
-        target.blackList(file);
+        target.blockList(file);
 
         verify(blacklistedFile).createNewFile();
     }
@@ -99,7 +99,7 @@ public class DeployDirectoryRepoTest {
         when(blacklistedFile.exists()).thenReturn(false);
         mockStatic(FileUtils.class);
 
-        assertFalse(target.isBlackListed(file));
+        assertFalse(target.isBlockListed(file));
         PowerMockito.verifyZeroInteractions(FileUtils.class);
     }
 
@@ -112,7 +112,7 @@ public class DeployDirectoryRepoTest {
         PowerMockito.when(FileUtils.readFileToString(any(File.class), any(Charset.class)))
                 .thenReturn(expires.toString());
 
-        assertTrue(target.isBlackListed(file));
+        assertTrue(target.isBlockListed(file));
 
         PowerMockito.verifyStatic(FileUtils.class);
         FileUtils.readFileToString(any(), any(Charset.class));
@@ -129,7 +129,7 @@ public class DeployDirectoryRepoTest {
         PowerMockito.when(FileUtils.readFileToString(any(File.class), any(Charset.class)))
                 .thenReturn(expires.toString());
 
-        assertFalse(target.isBlackListed(file));
+        assertFalse(target.isBlockListed(file));
 
         PowerMockito.verifyStatic(FileUtils.class);
         FileUtils.readFileToString(any(), any(Charset.class));

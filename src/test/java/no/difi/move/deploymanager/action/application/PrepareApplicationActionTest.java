@@ -2,7 +2,7 @@ package no.difi.move.deploymanager.action.application;
 
 import lombok.SneakyThrows;
 import no.difi.move.deploymanager.action.DeployActionException;
-import no.difi.move.deploymanager.config.BlacklistProperties;
+import no.difi.move.deploymanager.config.BlocklistProperties;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
@@ -51,19 +51,19 @@ public class PrepareApplicationActionTest {
     @Mock
     private File fileMock;
     @Mock
-    private File blackListedFileMock;
+    private File blockListedFileMock;
     @Mock
     private Path pathMock;
     @Mock
-    private BlacklistProperties blacklistPropertiesMock;
+    private BlocklistProperties blocklistPropertiesMock;
 
     private Application application;
 
     @Before
     @SneakyThrows
     public void before() {
-        given(blacklistPropertiesMock.isEnabled()).willReturn(true);
-        given(propertiesMock.getBlacklist()).willReturn(blacklistPropertiesMock);
+        given(blocklistPropertiesMock.isEnabled()).willReturn(true);
+        given(propertiesMock.getBlocklist()).willReturn(blocklistPropertiesMock);
         application = new Application()
                 .setCurrent(new ApplicationMetadata().setVersion(OLDER_APPLICATION_VERSION))
                 .setLatest(new ApplicationMetadata().setVersion(NEW_APPLICATION_VERSION));
@@ -93,23 +93,23 @@ public class PrepareApplicationActionTest {
     }
 
     @Test
-    public void apply_NewVersionIsBlackListed_ShouldThrow() {
-        given(deployDirectoryRepoMock.isBlackListed(any())).willReturn(true);
-        given(deployDirectoryRepoMock.getBlacklistPath(any())).willReturn(blackListedFileMock);
-        given(blackListedFileMock.getAbsolutePath()).willReturn("/tmp/test.jar.blacklisted");
+    public void apply_NewVersionIsBlockListed_ShouldThrow() {
+        given(deployDirectoryRepoMock.isBlockListed(any())).willReturn(true);
+        given(deployDirectoryRepoMock.getBlocklistPath(any())).willReturn(blockListedFileMock);
+        given(blockListedFileMock.getAbsolutePath()).willReturn("/tmp/test.jar.blocklisted");
 
         assertThatThrownBy(() -> target.apply(application))
                 .isInstanceOf(DeployActionException.class)
-                .hasMessage("The latest version is black listed! Remove /tmp/test.jar.blacklisted to white list.")
+                .hasMessage("The latest version is block listed! Remove /tmp/test.jar.blocklisted to allow version.")
                 .hasNoCause();
     }
 
     @Test
-    public void apply_NewVersionIsBlackListedAndBlacklistIsDisabled_ShouldNotThrow() {
-        given(blacklistPropertiesMock.isEnabled()).willReturn(false);
-        given(deployDirectoryRepoMock.isBlackListed(any())).willReturn(true);
-        given(deployDirectoryRepoMock.getBlacklistPath(any())).willReturn(blackListedFileMock);
-        given(blackListedFileMock.getAbsolutePath()).willReturn("/tmp/test.jar.blacklisted");
+    public void apply_NewVersionIsBlockListedAndBlocklistIsDisabled_ShouldNotThrow() {
+        given(blocklistPropertiesMock.isEnabled()).willReturn(false);
+        given(deployDirectoryRepoMock.isBlockListed(any())).willReturn(true);
+        given(deployDirectoryRepoMock.getBlocklistPath(any())).willReturn(blockListedFileMock);
+        given(blockListedFileMock.getAbsolutePath()).willReturn("/tmp/test.jar.blocklisted");
 
         assertThatCode(() -> target.apply(application)).doesNotThrowAnyException();
     }
