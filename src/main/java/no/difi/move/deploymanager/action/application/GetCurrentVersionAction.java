@@ -28,7 +28,7 @@ public class GetCurrentVersionAction implements ApplicationAction {
         VersionInfo versionInfo = actuatorService.getVersionInfo();
         log.debug("Version info received: {}", versionInfo);
         String version = versionInfo.getVersion();
-        String currentVersion = deployDirectoryRepo.getWhitelistVersion();
+        String currentVersion = deployDirectoryRepo.getAllowlistVersion();
         if (null != version) {
             log.info("The client currently runs integrasjonspunkt version {}", version);
             setCurrentVersion(application, version);

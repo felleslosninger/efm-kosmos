@@ -41,9 +41,9 @@ public class VerifyVersionComplianceAction implements ApplicationAction {
         int currentlySupported = resolveMajorVersionFromSemanticVersion(supportedMajorVersion);
         if (latestMajor > currentlySupported) {
             log.warn(String.format("Latest version (%s) is not supported yet. The currently supported major version is %s. " +
-                            "Attempting to start integrasjonspunkt with previous version based on .whitelist file if available.",
+                            "Attempting to start integrasjonspunkt with previous version based on .allowlisted file if available.",
                     latestMajor, currentlySupported));
-            String version = deployDirectoryRepo.getWhitelistVersion();
+            String version = deployDirectoryRepo.getAllowlistVersion();
             if(version != null) {
                 application.setLatest(
                         new ApplicationMetadata()

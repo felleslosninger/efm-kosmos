@@ -25,7 +25,7 @@ public class PrepareApplicationAction implements ApplicationAction {
         log.trace("Calling PrepareApplicationAction.apply() on application {}", application);
         File downloadJarFile = deployDirectoryRepo.getFile(application.getLatest().getVersion(), DeployUtils.DOWNLOAD_JAR_FILE_NAME);
         log.debug("The latest version is in file {}", downloadJarFile);
-        checkBlacklist(downloadJarFile);
+        checkBlocklist(downloadJarFile);
 
         if (!downloadJarFile.exists()) {
             log.info("Latest version is different from current, and will be downloaded");
@@ -41,15 +41,15 @@ public class PrepareApplicationAction implements ApplicationAction {
         return application;
     }
 
-    private void checkBlacklist(File downloadFile) {
-        boolean blacklistEnabled = properties.getBlacklist().isEnabled();
-        if (!blacklistEnabled) {
-            log.info("Blacklist functionality is disabled");
+    private void checkBlocklist(File downloadFile) {
+        boolean blocklistEnabled = properties.getBlocklist().isEnabled();
+        if (!blocklistEnabled) {
+            log.info("Blocklist functionality is disabled");
         }
-        if (blacklistEnabled && deployDirectoryRepo.isBlackListed(downloadFile)) {
+        if (blocklistEnabled && deployDirectoryRepo.isBlockListed(downloadFile)) {
             throw new DeployActionException(
-                    String.format("The latest version is black listed! Remove %s to white list.",
-                            deployDirectoryRepo.getBlacklistPath(downloadFile).getAbsolutePath()));
+                    String.format("The latest version is block listed! Remove %s to allow version.",
+                            deployDirectoryRepo.getBlocklistPath(downloadFile).getAbsolutePath()));
         }
     }
 

@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
 @Data
-public class BlacklistProperties {
+public class BlocklistProperties {
 
     private boolean enabled;
 
