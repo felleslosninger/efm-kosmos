@@ -1,5 +1,6 @@
 package no.difi.move.deploymanager.repo;
 
+import com.vdurmont.semver4j.Semver;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -21,6 +23,7 @@ import java.time.LocalDateTime;
 public class DeployDirectoryRepo {
 
     private final DeployManagerProperties properties;
+    private static String ALLOWLISTEDFILENAME = "integrasjonspunkt-%s.allowlisted";
 
     public File getFile(String version, String name) {
         File root = getOrCreateHomeFolder();
@@ -94,25 +97,26 @@ public class DeployDirectoryRepo {
     }
 
     @SneakyThrows
-    public void allowlist(File file, String fileName) {
+    public void allowlist(File file, String version) {
         try {
-            if (doAllowlist(file, fileName).createNewFile()) {
+            if (doAllowlist(file, version).createNewFile()) {
                 log.info("Allowlisted {}", file.getAbsolutePath());
             }
         } catch (IOException e) {
-            log.debug("Could not Allowlist {}", file.getAbsolutePath(), e);
+            log.error("Could not Allowlist {}", file.getAbsolutePath(), e);
         }
     }
 
-    private File doAllowlist(File file, String fileName)  {
+    private File doAllowlist(File file, String version) {
+        String fileName = String.format(ALLOWLISTEDFILENAME, version);
         File allowlistFile = new File(properties.getIntegrasjonspunkt().getHome() + "/" + fileName);
         log.debug("Allowlist file pathname is {}", allowlistFile.getAbsolutePath());
-        try(BufferedWriter writer = Files.newBufferedWriter(allowlistFile.toPath(), StandardCharsets.UTF_8)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(allowlistFile.toPath(), StandardCharsets.UTF_8)) {
             LocalDateTime created = LocalDateTime.now();
-            log.debug("Allowlist {} created: {}", file.getName(), created);
+            log.debug("Allowlist file: {} created: {}", file.getName(), created);
             writer.write(created.toString());
         } catch (IOException e) {
-            log.warn("Could not Allowlist {}", file.getName());
+            log.warn("Could not Allowlist file: {}", file.getName());
         }
         return allowlistFile;
     }
@@ -123,15 +127,17 @@ public class DeployDirectoryRepo {
         FilenameFilter filter = (f1, name) -> name.endsWith(".allowlisted");
         filesNames = f.list(filter);
 
-        if(filesNames.length < 1) {
-            return null;
-        } else
-            return new File(filesNames[0]);
+        return Arrays.stream(filesNames)
+                .map(s -> new Semver(s.substring(18, 23)))
+                .sorted(Comparator.reverseOrder())
+                .findFirst()
+                .map(p -> new File(String.format(ALLOWLISTEDFILENAME, p.getValue())))
+                .orElse(null);
     }
 
     public String getAllowlistVersion() {
         File file = getAllowlistFile();
-        if(file != null){
+        if (file != null) {
             return file
                     .getName()
                     .replaceFirst(".allowlisted", "")
@@ -141,7 +147,8 @@ public class DeployDirectoryRepo {
         }
     }
 
-    public void removeAllowlist(File allowlistPath) {
+    public void removeAllowlist(String version) {
+        File allowlistPath = getFile(version, ALLOWLISTEDFILENAME);
         boolean deleted = FileUtils.deleteQuietly(allowlistPath);
         if (deleted) {
             log.debug("Removed Allowlist file {}", allowlistPath);

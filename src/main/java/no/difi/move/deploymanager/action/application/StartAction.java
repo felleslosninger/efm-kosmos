@@ -28,7 +28,7 @@ public class StartAction implements ApplicationAction {
 
     @Override
     public Application apply(Application application) {
-        log.trace("Calling StartAction.apply() on application: {}", application);
+    log.trace("Calling StartAction.apply() on application: {}", application);
 
         if (isAlreadyRunning(application)) {
             log.info("The application is already running");
@@ -56,9 +56,9 @@ public class StartAction implements ApplicationAction {
             log.info("Launch success, the version {} will be Allowlisted", application.getLatest().getVersion());
             String version = deployDirectoryRepo.getAllowlistVersion();
             if(version != null) {
-                deployDirectoryRepo.removeAllowlist(deployDirectoryRepo.getFile(version, "integrasjonspunkt-%s.allowlisted"));
+            deployDirectoryRepo.removeAllowlist(version);
             }
-            deployDirectoryRepo.allowlist(jarFile, String.format("integrasjonspunkt-%s.allowlisted", application.getLatest().getVersion()));
+            deployDirectoryRepo.allowlist(jarFile, application.getLatest().getVersion());
         }
 
         String subject = String.format("Upgrade %s %s", launchResult.getStatus().name(), jarFile.getName());
