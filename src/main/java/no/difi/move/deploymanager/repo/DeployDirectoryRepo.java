@@ -15,7 +15,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Component
@@ -24,6 +27,7 @@ public class DeployDirectoryRepo {
 
     private final DeployManagerProperties properties;
     private static String ALLOWLISTEDFILENAME = "integrasjonspunkt-%s.allowlisted";
+    private static Pattern PATTERN = Pattern.compile("-(\\d+.\\d+.\\d+[^.]*)");
 
     public File getFile(String version, String name) {
         File root = getOrCreateHomeFolder();
@@ -126,9 +130,8 @@ public class DeployDirectoryRepo {
         File f = new File(properties.getIntegrasjonspunkt().getHome());
         FilenameFilter filter = (f1, name) -> name.endsWith(".allowlisted");
         filesNames = f.list(filter);
-
         return Arrays.stream(filesNames)
-                .map(s -> new Semver(s.substring(18, 23)))
+                .map(s -> new Semver(getVersion(s)))
                 .sorted(Comparator.reverseOrder())
                 .findFirst()
                 .map(p -> new File(String.format(ALLOWLISTEDFILENAME, p.getValue())))
@@ -155,5 +158,9 @@ public class DeployDirectoryRepo {
         } else {
             log.debug("Could not remove Allowlist file {}", allowlistPath);
         }
+    }
+    private String getVersion(String filename) {
+        Matcher matcher = PATTERN.matcher(filename);
+        return matcher.find() ? matcher.group(1) : null;
     }
 }

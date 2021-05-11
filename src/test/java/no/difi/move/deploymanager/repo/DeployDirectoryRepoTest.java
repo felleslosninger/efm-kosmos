@@ -5,10 +5,7 @@ import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import no.difi.move.deploymanager.util.DeployUtils;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -24,8 +21,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -56,6 +52,8 @@ public class DeployDirectoryRepoTest {
         when(properties.getBlocklist()).thenReturn(blocklistProperties);
         when(file.getAbsolutePath()).thenReturn(temporaryFolder.getRoot().getAbsolutePath(), "file.jar");
         when(file.getName()).thenReturn("application");
+        IntegrasjonspunktProperties integrasjonspunktProperties = mock(IntegrasjonspunktProperties.class);
+        when(properties.getIntegrasjonspunkt()).thenReturn(integrasjonspunktProperties);
     }
 
     @After
@@ -134,5 +132,15 @@ public class DeployDirectoryRepoTest {
         PowerMockito.verifyStatic(FileUtils.class);
         FileUtils.readFileToString(any(), any(Charset.class));
         FileUtils.deleteQuietly(blacklistedFile);
+    }
+
+    @Test
+    public void getAllowlistFile_shouldSucceed() throws IOException {
+        temporaryFolder.newFile("integrasjonspunkt-1.1.11.allowlisted");
+        temporaryFolder.newFile("integrasjonspunkt-1.2.1.allowlisted");
+        temporaryFolder.newFile("integrasjonspunkt-2.0.12.allowlisted");
+        when(properties.getIntegrasjonspunkt().getHome()).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
+
+        assertEquals("integrasjonspunkt-2.0.12.allowlisted", target.getAllowlistFile().getName());
     }
 }
