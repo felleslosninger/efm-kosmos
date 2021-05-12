@@ -131,7 +131,7 @@ public class DeployDirectoryRepo {
         FilenameFilter filter = (f1, name) -> name.endsWith(".allowlisted");
         filesNames = f.list(filter);
         return Arrays.stream(filesNames)
-                .map(s -> new Semver(getVersion(s)))
+                .map(s -> new Semver(getSemanticVersion(s)))
                 .sorted(Comparator.reverseOrder())
                 .findFirst()
                 .map(p -> new File(String.format(ALLOWLISTEDFILENAME, p.getValue())))
@@ -159,7 +159,8 @@ public class DeployDirectoryRepo {
             log.debug("Could not remove Allowlist file {}", allowlistPath);
         }
     }
-    private String getVersion(String filename) {
+
+    private String getSemanticVersion(String filename) {
         Matcher matcher = PATTERN.matcher(filename);
         return matcher.find() ? matcher.group(1) : null;
     }
