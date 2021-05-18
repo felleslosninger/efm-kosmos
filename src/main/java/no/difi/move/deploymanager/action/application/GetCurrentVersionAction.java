@@ -1,6 +1,7 @@
 package no.difi.move.deploymanager.action.application;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.deploymanager.domain.VersionInfo;
 import no.difi.move.deploymanager.domain.application.Application;
@@ -17,7 +18,9 @@ public class GetCurrentVersionAction implements ApplicationAction {
 
     private final DeployDirectoryRepo directoryRepo;
     private final ActuatorService actuatorService;
+    private final DeployDirectoryRepo deployDirectoryRepo;
 
+    @SneakyThrows
     @Override
     public Application apply(Application application) {
         log.info("Getting current version");
@@ -25,18 +28,27 @@ public class GetCurrentVersionAction implements ApplicationAction {
         VersionInfo versionInfo = actuatorService.getVersionInfo();
         log.debug("Version info received: {}", versionInfo);
         String version = versionInfo.getVersion();
+        String currentVersion = deployDirectoryRepo.getAllowlistVersion();
         if (null != version) {
             log.info("The client currently runs integrasjonspunkt version {}", version);
-            application.setCurrent(
-                    new ApplicationMetadata()
-                            .setVersion(version)
-                            .setFile(directoryRepo.getFile(version, DeployUtils.DOWNLOAD_JAR_FILE_NAME))
-            );
-        } else {
+            setCurrentVersion(application, version);
+        }
+        else if (currentVersion != null) {
+            log.info("No running integrasjonspunkt found, but starting previously used version {}", currentVersion);
+            setCurrentVersion(application, currentVersion);
+        }
+        else {
             log.info("No running integrasjonspunkt found");
         }
 
-        return application;
+         return application;
     }
 
+    public void setCurrentVersion(Application application, String version) {
+        application.setCurrent(
+                new ApplicationMetadata()
+                        .setVersion(version)
+                        .setFile(directoryRepo.getFile(version, DeployUtils.DOWNLOAD_JAR_FILE_NAME))
+        );
+    }
 }

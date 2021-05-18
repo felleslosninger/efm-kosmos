@@ -76,7 +76,7 @@ public class DeployManagerProperties {
 
     @Valid
     @NestedConfigurationProperty
-    private BlacklistProperties blacklist;
+    private BlocklistProperties blocklist;
 
     @Valid
     @NestedConfigurationProperty

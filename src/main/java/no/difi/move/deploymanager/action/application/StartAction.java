@@ -28,7 +28,7 @@ public class StartAction implements ApplicationAction {
 
     @Override
     public Application apply(Application application) {
-        log.trace("Calling StartAction.apply() on application: {}", application);
+    log.trace("Calling StartAction.apply() on application: {}", application);
 
         if (isAlreadyRunning(application)) {
             log.info("The application is already running");
@@ -38,13 +38,13 @@ public class StartAction implements ApplicationAction {
         File jarFile = application.getLatest().getFile();
         LaunchResult launchResult = launcherService.launchIntegrasjonspunkt(jarFile.getAbsolutePath());
 
-        boolean blacklistEnabled = properties.getBlacklist().isEnabled();
-        if (!blacklistEnabled){
-            log.info("Blacklist mechanism is disabled");
+        boolean blocklistEnabled = properties.getBlocklist().isEnabled();
+        if (!blocklistEnabled){
+            log.info("Blocklist mechanism is disabled");
         }
-        if (blacklistEnabled && launchResult.getStatus() != LaunchStatus.SUCCESS) {
-            log.info("Launch failed, the version will be blacklisted");
-            deployDirectoryRepo.blackList(jarFile);
+        if (blocklistEnabled && launchResult.getStatus() != LaunchStatus.SUCCESS) {
+            log.info("Launch failed, the version will be blocklisted");
+            deployDirectoryRepo.blockList(jarFile);
 
             if (actuatorService.getStatus() == HealthStatus.UP) {
                 log.trace("The application started in the mean time, but is now shutting down");
@@ -52,8 +52,16 @@ public class StartAction implements ApplicationAction {
             }
         }
 
-        String subject = String.format("Upgrade %s %s", launchResult.getStatus().name(), jarFile.getName());
+        if(launchResult.getStatus() == LaunchStatus.SUCCESS) {
+            log.info("Launch success, the version {} will be Allowlisted", application.getLatest().getVersion());
+            String version = deployDirectoryRepo.getAllowlistVersion();
+            if(version != null) {
+            deployDirectoryRepo.removeAllowlist(version);
+            }
+            deployDirectoryRepo.allowlist(jarFile, application.getLatest().getVersion());
+        }
 
+        String subject = String.format("Upgrade %s %s", launchResult.getStatus().name(), jarFile.getName());
         log.info(subject);
 
         mailService.sendMail(

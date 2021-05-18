@@ -6,8 +6,6 @@ import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import org.junit.Before;
 
-import java.net.URL;
-
 import static org.mockito.BDDMockito.given;
 
 @RequiredArgsConstructor

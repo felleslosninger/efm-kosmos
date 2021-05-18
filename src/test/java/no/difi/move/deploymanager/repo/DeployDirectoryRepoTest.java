@@ -1,14 +1,11 @@
 package no.difi.move.deploymanager.repo;
 
-import no.difi.move.deploymanager.config.BlacklistProperties;
+import no.difi.move.deploymanager.config.BlocklistProperties;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.config.IntegrasjonspunktProperties;
 import no.difi.move.deploymanager.util.DeployUtils;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -24,8 +21,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -43,7 +39,9 @@ public class DeployDirectoryRepoTest {
     @Mock
     private File file;
     @Mock
-    private File blacklistedFile;
+    private File blocklistedFile;
+    @Mock
+    private File allowlistedFile;
 
     @Rule
     private final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -51,11 +49,13 @@ public class DeployDirectoryRepoTest {
     @Before
     public void setUp() throws IOException {
         temporaryFolder.create();
-        BlacklistProperties blacklistProperties = mock(BlacklistProperties.class);
-        when(blacklistProperties.getDurationInHours()).thenReturn(2);
-        when(properties.getBlacklist()).thenReturn(blacklistProperties);
+        BlocklistProperties blocklistProperties = mock(BlocklistProperties.class);
+        when(blocklistProperties.getDurationInHours()).thenReturn(2);
+        when(properties.getBlocklist()).thenReturn(blocklistProperties);
         when(file.getAbsolutePath()).thenReturn(temporaryFolder.getRoot().getAbsolutePath(), "file.jar");
         when(file.getName()).thenReturn("application");
+        IntegrasjonspunktProperties integrasjonspunktProperties = mock(IntegrasjonspunktProperties.class);
+        when(properties.getIntegrasjonspunkt()).thenReturn(integrasjonspunktProperties);
     }
 
     @After
@@ -79,40 +79,40 @@ public class DeployDirectoryRepoTest {
     }
 
     @Test
-    public void blacklist_FileProvided_BlacklistFileShouldBeCreated() throws Exception {
-        whenNew(File.class).withAnyArguments().thenReturn(blacklistedFile);
-        when(blacklistedFile.toPath())
+    public void blocklist_FileProvided_BlocklistFileShouldBeCreated() throws Exception {
+        whenNew(File.class).withAnyArguments().thenReturn(blocklistedFile);
+        when(blocklistedFile.toPath())
                 .thenReturn(Paths.get(temporaryFolder.getRoot().getAbsolutePath(), "file.jar"));
-        when(blacklistedFile.createNewFile()).thenReturn(true);
+        when(blocklistedFile.createNewFile()).thenReturn(true);
         BufferedWriter writer = mock(BufferedWriter.class);
 
         whenNew(BufferedWriter.class).withAnyArguments().thenReturn(writer);
 
-        target.blackList(file);
+        target.blockList(file);
 
-        verify(blacklistedFile).createNewFile();
+        verify(blocklistedFile).createNewFile();
     }
 
     @Test
-    public void isBlacklisted_FileIsNotBlacklisted_ShouldReturnFalse() throws Exception {
-        whenNew(File.class).withAnyArguments().thenReturn(blacklistedFile);
-        when(blacklistedFile.exists()).thenReturn(false);
+    public void isBlocklisted_FileIsNotBlocklisted_ShouldReturnFalse() throws Exception {
+        whenNew(File.class).withAnyArguments().thenReturn(blocklistedFile);
+        when(blocklistedFile.exists()).thenReturn(false);
         mockStatic(FileUtils.class);
 
-        assertFalse(target.isBlackListed(file));
+        assertFalse(target.isBlockListed(file));
         PowerMockito.verifyZeroInteractions(FileUtils.class);
     }
 
     @Test
     public void isBlacklisted_BlacklistIsNotExpired_ShouldReturnTrue() throws Exception {
-        whenNew(File.class).withAnyArguments().thenReturn(blacklistedFile);
+        whenNew(File.class).withAnyArguments().thenReturn(blocklistedFile);
         mockStatic(FileUtils.class);
-        when(blacklistedFile.exists()).thenReturn(true);
+        when(blocklistedFile.exists()).thenReturn(true);
         LocalDateTime expires = LocalDateTime.now().plusMinutes(2);
         PowerMockito.when(FileUtils.readFileToString(any(File.class), any(Charset.class)))
                 .thenReturn(expires.toString());
 
-        assertTrue(target.isBlackListed(file));
+        assertTrue(target.isBlockListed(file));
 
         PowerMockito.verifyStatic(FileUtils.class);
         FileUtils.readFileToString(any(), any(Charset.class));
@@ -121,18 +121,71 @@ public class DeployDirectoryRepoTest {
     }
 
     @Test
-    public void isBlacklisted_BlacklistIsExpired_ShouldReturnFalse() throws Exception {
-        whenNew(File.class).withAnyArguments().thenReturn(blacklistedFile);
+    public void isBlocklisted_BlocklistIsExpired_ShouldReturnFalse() throws Exception {
+        whenNew(File.class).withAnyArguments().thenReturn(blocklistedFile);
         mockStatic(FileUtils.class);
-        when(blacklistedFile.exists()).thenReturn(true);
+        when(blocklistedFile.exists()).thenReturn(true);
         LocalDateTime expires = LocalDateTime.now().minusSeconds(1);
         PowerMockito.when(FileUtils.readFileToString(any(File.class), any(Charset.class)))
                 .thenReturn(expires.toString());
 
-        assertFalse(target.isBlackListed(file));
+        assertFalse(target.isBlockListed(file));
 
         PowerMockito.verifyStatic(FileUtils.class);
         FileUtils.readFileToString(any(), any(Charset.class));
-        FileUtils.deleteQuietly(blacklistedFile);
+        FileUtils.deleteQuietly(blocklistedFile);
+    }
+
+    @Test
+    public void getAllowlistFile_shouldSucceed() throws IOException {
+        temporaryFolder.newFile("integrasjonspunkt-1.1.11.allowlisted");
+        temporaryFolder.newFile("integrasjonspunkt-1.2.1.allowlisted");
+        temporaryFolder.newFile("integrasjonspunkt-2.0.12.allowlisted");
+        when(properties.getIntegrasjonspunkt().getHome()).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
+
+        assertEquals("integrasjonspunkt-2.0.12.allowlisted", target.getAllowlistFile().getName());
+    }
+
+    @Test
+    public void getAllowlistFile_noFileFound_shouldReturnNull() {
+        when(properties.getIntegrasjonspunkt().getHome()).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
+        assertNull(target.getAllowlistFile());
+    }
+
+    @Test
+    public void getAllowVersion_shouldReturnSemanticVersion() throws IOException {
+        temporaryFolder.newFile("integrasjonspunkt-1.1.11.allowlisted");
+        when(properties.getIntegrasjonspunkt().getHome()).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
+        assertEquals("1.1.11", target.getAllowlistVersion());
+    }
+
+    @Test
+    public void getAllowVersion_noFileFound_shouldReturnNull() {
+        when(properties.getIntegrasjonspunkt().getHome()).thenReturn(temporaryFolder.getRoot().getAbsolutePath());
+        assertNull(target.getAllowlistVersion());
+    }
+
+    @Test
+    public void removeAllowlistFile_shouldSucceed() throws Exception {
+        String version = "1.1.11";
+        whenNew(File.class).withAnyArguments().thenReturn(allowlistedFile);
+        mockStatic(FileUtils.class);
+        when(allowlistedFile.exists()).thenReturn(true);
+        target.removeAllowlist(version);
+        PowerMockito.verifyStatic(FileUtils.class);
+        FileUtils.deleteQuietly(allowlistedFile);
+    }
+
+    @Test
+    public void allowlist_FileProvided_AllowlistFileShouldBeCreated() throws Exception {
+        whenNew(File.class).withAnyArguments().thenReturn(allowlistedFile);
+        when(allowlistedFile.toPath())
+                .thenReturn(Paths.get(temporaryFolder.getRoot().getAbsolutePath(), "file.jar"));
+        when(allowlistedFile.createNewFile()).thenReturn(true);
+        BufferedWriter writer = mock(BufferedWriter.class);
+        whenNew(BufferedWriter.class).withAnyArguments().thenReturn(writer);
+        target.allowlist(file, "1.2.1");
+
+        verify(allowlistedFile).createNewFile();
     }
 }
