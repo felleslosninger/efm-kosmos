@@ -1,4 +1,4 @@
-Feature: Synchronization - Expired Blacklist
+Feature: Synchronization - Expired Blocklist
 
   Background:
     Given a "GET" request to "/manage/info" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
@@ -15,7 +15,7 @@ Feature: Synchronization - Expired Blacklist
     """
     And the "integrasjonspunkt-1.7.92-SNAPSHOT.jar" exists as a copy of "/cucumber/success.jar"
     And the "integrasjonspunkt-1.7.93-SNAPSHOT.jar" exists as a copy of "/cucumber/success.jar"
-    And the distribution "integrasjonspunkt-1.7.93-SNAPSHOT" has an expired blacklist
+    And the distribution "integrasjonspunkt-1.7.93-SNAPSHOT" has an expired blocklist
     And the latest integrasjonspunkt version is "1.7.93-SNAPSHOT"
     And the early bird setting is not activated
     And the supported major version is unset

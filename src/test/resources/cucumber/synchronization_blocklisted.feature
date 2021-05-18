@@ -1,4 +1,4 @@
-Feature: Synchronization - Blacklisted
+Feature: Synchronization - Blocklisted
 
   Background:
     And a "GET" request to "/manage/info" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
@@ -15,12 +15,12 @@ Feature: Synchronization - Blacklisted
     """
     And the "integrasjonspunkt-1.7.92-SNAPSHOT.jar" exists as a copy of "/cucumber/success.jar"
     And the "integrasjonspunkt-1.7.93-SNAPSHOT.jar" exists as a copy of "/cucumber/success.jar"
-    And the distribution "integrasjonspunkt-1.7.93-SNAPSHOT" is blacklisted
+    And the distribution "integrasjonspunkt-1.7.93-SNAPSHOT" is blocklisted
     And the latest integrasjonspunkt version is "1.7.93-SNAPSHOT"
     And the early bird setting is not activated
     And the supported major version is unset
 
-  Scenario: Blacklisted
+  Scenario: Blocklisted
     Given the synchronization handler is triggered
     Then no JAR is launched
     And no emails are sent
