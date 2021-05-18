@@ -85,6 +85,7 @@ public class PrepareApplicationActionTest {
 
         final Application result = target.apply(application);
 
+        assertThat(result.isMarkedForValidation()).isTrue();
         assertThat(result).isSameAs(application);
         File resultFile = application.getLatest().getFile();
         assertThat(resultFile).isSameAs(fileMock);

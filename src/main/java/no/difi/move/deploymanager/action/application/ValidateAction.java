@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 
 @Component
 @Slf4j
@@ -33,6 +32,10 @@ public class ValidateAction implements ApplicationAction {
 
     @Override
     public Application apply(Application application) {
+        if (!application.isMarkedForValidation()){
+            log.info("Skipping validation, as no new distribution has been downloaded");
+            return application;
+        }
         log.info("Validating application");
         log.trace("Calling ValidateAction.apply on application {}", application);
         try {
@@ -45,7 +48,7 @@ public class ValidateAction implements ApplicationAction {
                 return application;
             }
             if(properties.getBlacklist().isEnabled()) {
-                log.trace("Signature could not be verified.. Blacklisting version.");
+                log.trace("Signature could not be verified.. Blocklisting version.");
                 deployDirectoryRepo.blackList(application.getLatest().getFile());
             }
             throw new DeployActionException("Invalid artifact signature");

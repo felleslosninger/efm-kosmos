@@ -30,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
@@ -68,6 +69,7 @@ public class ValidateActionTest {
                 .setVersion("version")
                 .setFile(fileMock)
         );
+        application.setMarkedForValidation(true);
         signature = "signature";
         given(fileMock.getAbsolutePath()).willReturn("jarPath");
         given(nexusRepoMock.getChecksum(anyString(), anyString())).willReturn(CHECKSUM);
@@ -123,5 +125,15 @@ public class ValidateActionTest {
                 .isInstanceOf(DeployActionException.class);
 
         verify(gpgService).verify("jarPath", "tull");
+    }
+
+    @Test
+    public void apply_NoNewDistributionHasBeenDownloaded_ShouldNotValidate() {
+        application.setMarkedForValidation(false);
+
+        target.apply(application);
+
+        verify(nexusRepoMock, never()).downloadSignature(anyString());
+        verify(gpgService, never()).verify(anyString(), anyString());
     }
 }
