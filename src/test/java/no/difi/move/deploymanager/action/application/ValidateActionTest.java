@@ -8,7 +8,6 @@ import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
 import no.difi.move.deploymanager.repo.NexusRepo;
 import no.difi.move.deploymanager.service.codesigner.GpgService;
 import org.apache.commons.io.IOUtils;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +25,7 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -71,7 +70,6 @@ public class ValidateActionTest {
                 .setFile(fileMock)
         );
         application.setMarkedForValidation(true);
-
         signature = "signature";
         given(fileMock.getAbsolutePath()).willReturn("jarPath");
         given(nexusRepoMock.getChecksum(anyString(), anyString())).willReturn(CHECKSUM);
@@ -94,7 +92,7 @@ public class ValidateActionTest {
     }
 
     @Test
-    public void apply_ExceptionCaught_shouldThrow() throws Exception {
+    public void apply_ExceptionCaught_shouldThrow() {
         HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.BAD_GATEWAY, "Bad gateway");
         given(nexusRepoMock.getChecksum(anyString(), anyString())).willThrow(exception);
         assertThatThrownBy(() -> target.apply(application))
