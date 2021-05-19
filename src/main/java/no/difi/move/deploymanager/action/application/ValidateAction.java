@@ -47,9 +47,9 @@ public class ValidateAction implements ApplicationAction {
                 log.trace("Signature has been successfully verified.");
                 return application;
             }
-            if(properties.getBlacklist().isEnabled()) {
+            if(properties.getBlocklist().isEnabled()) {
                 log.trace("Signature could not be verified.. Blocklisting version.");
-                deployDirectoryRepo.blackList(application.getLatest().getFile());
+                deployDirectoryRepo.blockList(application.getLatest().getFile());
             }
             throw new DeployActionException("Invalid artifact signature");
         } catch (Exception ex) {
