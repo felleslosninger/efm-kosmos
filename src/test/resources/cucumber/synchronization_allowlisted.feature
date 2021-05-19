@@ -12,6 +12,18 @@ Feature: Synchronization - Allowlisted
         "status": "UP"
     }
     """
+    And a "GET" request to "/manage/info" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
+    """
+    {
+      "build": {
+        "artifact": "integrasjonspunkt",
+        "name": "Meldingsutveksling Integrasjonspunkt",
+        "time": 1620995588.865000000,
+        "version": "1.7.90",
+        "group": "no.difi.meldingsutveksling"
+      }
+    }
+    """
 
   Scenario: Allowlisted
     Given the synchronization handler is triggered
