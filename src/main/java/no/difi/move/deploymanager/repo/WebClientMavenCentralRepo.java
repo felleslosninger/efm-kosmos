@@ -28,23 +28,23 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-public class WebClientNexusRepo implements NexusRepo {
+public class WebClientMavenCentralRepo implements MavenCentralRepo {
 
     private final DeployManagerProperties properties;
     private WebClient webClient;
 
-    public WebClientNexusRepo(DeployManagerProperties properties) {
+    public WebClientMavenCentralRepo(DeployManagerProperties properties) {
         this.properties = properties;
         this.webClient = WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(HttpClient.create()
-                        .tcpConfiguration(client -> client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, properties.getNexusConnectTimeoutInMs()))
-                        .responseTimeout(Duration.ofMillis(properties.getNexusReadTimeoutInMs()))))
+                        .tcpConfiguration(client -> client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, properties.getMavenCentralConnectTimeoutInMs()))
+                        .responseTimeout(Duration.ofMillis(properties.getMavenCentralReadTimeoutInMs()))))
                 .build();
     }
 
     @Override
     public void downloadJAR(String version, Path destination) {
-        log.trace("Entering WebClientNexusRepo.downloadJAR() with arguments: version: {}, path: {}", version, destination);
+        log.trace("Entering WebClientMavenCentralRepo.downloadJAR() with arguments: version: {}, path: {}", version, destination);
         if (Strings.isNullOrEmpty(version)) {
             throw new DeployActionException("Empty version selected for download");
         }
@@ -64,7 +64,7 @@ public class WebClientNexusRepo implements NexusRepo {
 
     @Override
     public byte[] getChecksum(String version, String classifier) {
-        log.trace("Entering WebClientNexusRepo.getChecksum() with args: version: {}, classifier: {}", version, classifier);
+        log.trace("Entering WebClientMavenCentralRepo.getChecksum() with args: version: {}, classifier: {}", version, classifier);
         URI uri = getDownloadURI(version, classifier);
         log.trace("Fetching checksum from URL {}", uri);
         try {
@@ -80,24 +80,21 @@ public class WebClientNexusRepo implements NexusRepo {
 
     @SneakyThrows(URISyntaxException.class)
     private URI getDownloadURI(String version, String classifier) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(properties.getNexus().toURI())
-                .pathSegment("service", "local", "artifact", "maven", "content")
-                .queryParam("r", properties.getRepository())
-                .queryParam("g", properties.getGroupId())
-                .queryParam("a", properties.getArtifactId())
-                .queryParam("v", version);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(properties.getMavenCentral().toURI())
+                .path(properties.getGroupId() + properties.getArtifactId() + version + "/" + "integrasjonspunkt-" + version + ".jar");
+
 
         if (classifier != null) {
-            builder.queryParam("e", classifier);
+            builder.path(classifier);
         }
-
+        System.out.println(builder.build().toUri());
         return builder.build().toUri();
     }
 
     @Override
     public String downloadSignature(String version) {
-        String classifier = "jar.asc";
-        log.trace("Calling NexusRepo.getChecksum() with args: version: {}, classifier: {}", version, classifier);
+        String classifier = ".asc";
+        log.trace("Calling MavenCentralRepo.getChecksum() with args: version: {}, classifier: {}", version, classifier);
         URI uri = getDownloadURI(version, classifier);
         log.trace("Downloading signature from {} ", uri);
         try {
