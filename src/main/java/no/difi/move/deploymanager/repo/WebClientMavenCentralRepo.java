@@ -31,7 +31,7 @@ import java.util.Optional;
 public class WebClientMavenCentralRepo implements MavenCentralRepo {
 
     private final DeployManagerProperties properties;
-    private WebClient webClient;
+    private final WebClient webClient;
 
     public WebClientMavenCentralRepo(DeployManagerProperties properties) {
         this.properties = properties;
@@ -87,7 +87,7 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
         if (classifier != null) {
             builder.path(classifier);
         }
-        System.out.println(builder.build().toUri());
+        log.info("Maven central download URI: {}", builder.build().toUri());
         return builder.build().toUri();
     }
 
