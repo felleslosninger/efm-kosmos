@@ -87,7 +87,7 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
         if (classifier != null) {
             builder.path(classifier);
         }
-        log.info("Maven central download URI: {}", builder.build().toUri());
+        log.trace("Built Maven central download URI: {}", builder.build().toUri());
         return builder.build().toUri();
     }
 
