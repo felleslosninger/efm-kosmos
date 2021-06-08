@@ -11,6 +11,7 @@ extends:
     environmentRepository: git://eformidling/eformidling
     buildDockerArtifact: false
     mavenGoals: deploy
+    deployOssrh: true
     jdkVersion: 1.8
 
 trigger:

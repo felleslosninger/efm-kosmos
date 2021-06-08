@@ -7,7 +7,7 @@ import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
-import no.difi.move.deploymanager.repo.NexusRepo;
+import no.difi.move.deploymanager.repo.MavenCentralRepo;
 import no.difi.move.deploymanager.service.codesigner.GpgService;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
@@ -25,7 +25,7 @@ import java.security.NoSuchAlgorithmException;
 @Validated
 public class ValidateAction implements ApplicationAction {
 
-    private final NexusRepo nexusRepo;
+    private final MavenCentralRepo mavenCentralRepo;
     private final GpgService gpgService;
     private final DeployDirectoryRepo deployDirectoryRepo;
     private final DeployManagerProperties properties;
@@ -79,7 +79,7 @@ public class ValidateAction implements ApplicationAction {
     }
 
     private byte[] getHashFromRepo(String applicationVersion, ALGORITHM algorithm) {
-        return nexusRepo.getChecksum(applicationVersion, "jar." + algorithm.getFileNameSuffix());
+        return mavenCentralRepo.getChecksum(applicationVersion, "." + algorithm.getFileNameSuffix());
     }
 
     @RequiredArgsConstructor
@@ -93,7 +93,7 @@ public class ValidateAction implements ApplicationAction {
     }
 
     private String downloadSignature(String version) {
-        String signature = nexusRepo.downloadSignature(version);
+        String signature = mavenCentralRepo.downloadSignature(version);
         log.trace("Downloaded signature {} ", signature);
         return signature;
     }

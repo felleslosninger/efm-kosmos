@@ -14,19 +14,19 @@ Feature: Synchronization - Rollback
     }
     """
     And the "integrasjonspunkt-1.7.92-SNAPSHOT.jar" exists as a copy of "/cucumber/success.jar"
-    And the latest integrasjonspunkt version is "1.7.93-SNAPSHOT"
+    And the latest integrasjonspunkt version is "2.2.1"
     And the early bird setting is not activated
     And the supported major version is unset
-    And a "GET" request to "/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT" will respond with status "200" and the following "application/java-archive" in "/cucumber/failure.jar"
-    And a "GET" request to "/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT&e=jar.sha1" will respond with status "200" and the following "application/octet-stream"
+    And a "GET" request to "/maven2/no/difi/meldingsutveksling/integrasjonspunkt/2.2.1/integrasjonspunkt-2.2.1.jar" will respond with status "200" and the following "application/java-archive" in "/cucumber/failure.jar"
+    And a "GET" request to "/maven2/no/difi/meldingsutveksling/integrasjonspunkt/2.2.1/integrasjonspunkt-2.2.1.jar.sha1" will respond with status "200" and the following "application/octet-stream"
     """
     06d4cfb40c1bfeb3ef8d4ccfd222defe7225d425
     """
-    And a "GET" request to "/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT&e=jar.md5" will respond with status "200" and the following "application/octet-stream"
+    And a "GET" request to "/maven2/no/difi/meldingsutveksling/integrasjonspunkt/2.2.1/integrasjonspunkt-2.2.1.jar.md5" will respond with status "200" and the following "application/octet-stream"
     """
     d45f066d54edf0c99ead70d3305865a5
     """
-    And a "GET" request to "/service/local/artifact/maven/content?r=staging&g=no.difi.meldingsutveksling&a=integrasjonspunkt&v=1.7.93-SNAPSHOT&e=jar.asc" will respond with status "200" and the following "text/plain" in "/cucumber/failure.jar.asc"
+    And a "GET" request to "/maven2/no/difi/meldingsutveksling/integrasjonspunkt/2.2.1/integrasjonspunkt-2.2.1.jar.asc" will respond with status "200" and the following "text/plain" in "/cucumber/failure.jar.asc"
     And state is "Started" then a "GET" request to "/manage/health" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
     """
     {
@@ -45,7 +45,7 @@ Feature: Synchronization - Rollback
   Scenario: Rollback
     Given the synchronization handler is triggered
     Then the "integrasjonspunkt-1.7.92-SNAPSHOT.jar" is successfully launched
-    And an email is sent with subject "Upgrade FAILED integrasjonspunkt-1.7.93-SNAPSHOT.jar" and content:
+    And an email is sent with subject "Upgrade FAILED integrasjonspunkt-2.2.1.jar" and content:
     """
     Application startup failed
     """

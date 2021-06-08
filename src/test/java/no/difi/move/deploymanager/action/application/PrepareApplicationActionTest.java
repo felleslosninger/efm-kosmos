@@ -7,7 +7,7 @@ import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
-import no.difi.move.deploymanager.repo.NexusRepo;
+import no.difi.move.deploymanager.repo.MavenCentralRepo;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class PrepareApplicationActionTest {
     @Mock
     private DeployManagerProperties propertiesMock;
     @Mock
-    private NexusRepo nexusRepoMock;
+    private MavenCentralRepo mavenCentralRepoMock;
     @Mock
     private DeployDirectoryRepo deployDirectoryRepoMock;
     @Mock
@@ -89,7 +89,7 @@ public class PrepareApplicationActionTest {
         assertThat(result).isSameAs(application);
         File resultFile = application.getLatest().getFile();
         assertThat(resultFile).isSameAs(fileMock);
-        verify(nexusRepoMock).downloadJAR(eq(NEW_APPLICATION_VERSION), same(pathMock));
+        verify(mavenCentralRepoMock).downloadJAR(eq(NEW_APPLICATION_VERSION), same(pathMock));
     }
 
     @Test
@@ -117,14 +117,14 @@ public class PrepareApplicationActionTest {
     @Test
     public void apply_DownLoadFails_ShouldThrow() {
         HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Download failed!");
-        doThrow(exception).when(nexusRepoMock).downloadJAR(any(), any());
+        doThrow(exception).when(mavenCentralRepoMock).downloadJAR(any(), any());
 
         assertThatThrownBy(() -> target.apply(application))
                 .isInstanceOf(DeployActionException.class)
                 .hasMessage("Error occurred when downloading latest version")
                 .hasCause(exception);
 
-        verify(nexusRepoMock).downloadJAR(eq(NEW_APPLICATION_VERSION), same(pathMock));
+        verify(mavenCentralRepoMock).downloadJAR(eq(NEW_APPLICATION_VERSION), same(pathMock));
     }
 
     @Test
@@ -135,6 +135,6 @@ public class PrepareApplicationActionTest {
         File resultFile = application.getLatest().getFile();
 
         assertThat(resultFile).isSameAs(fileMock);
-        verify(nexusRepoMock, never()).downloadJAR(anyString(), any());
+        verify(mavenCentralRepoMock, never()).downloadJAR(anyString(), any());
     }
 }

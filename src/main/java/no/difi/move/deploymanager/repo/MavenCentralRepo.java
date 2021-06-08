@@ -2,7 +2,7 @@ package no.difi.move.deploymanager.repo;
 
 import java.nio.file.Path;
 
-public interface NexusRepo {
+public interface MavenCentralRepo {
 
     void downloadJAR(String version, Path destination);
 

@@ -6,7 +6,7 @@ import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.config.DeployManagerProperties;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.repo.DeployDirectoryRepo;
-import no.difi.move.deploymanager.repo.NexusRepo;
+import no.difi.move.deploymanager.repo.MavenCentralRepo;
 import no.difi.move.deploymanager.util.DeployUtils;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ import java.io.File;
 @RequiredArgsConstructor
 public class PrepareApplicationAction implements ApplicationAction {
     private final DeployManagerProperties properties;
-    private final NexusRepo nexusRepo;
+    private final MavenCentralRepo mavenCentralRepo;
     private final DeployDirectoryRepo deployDirectoryRepo;
 
     public Application apply(Application application) {
@@ -54,6 +54,6 @@ public class PrepareApplicationAction implements ApplicationAction {
     }
 
     private void doDownload(Application application, File destination) {
-        nexusRepo.downloadJAR(application.getLatest().getVersion(), destination.toPath());
+        mavenCentralRepo.downloadJAR(application.getLatest().getVersion(), destination.toPath());
     }
 }

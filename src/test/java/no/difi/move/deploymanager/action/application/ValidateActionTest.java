@@ -5,7 +5,7 @@ import lombok.SneakyThrows;
 import no.difi.move.deploymanager.action.DeployActionException;
 import no.difi.move.deploymanager.domain.application.Application;
 import no.difi.move.deploymanager.domain.application.ApplicationMetadata;
-import no.difi.move.deploymanager.repo.NexusRepo;
+import no.difi.move.deploymanager.repo.MavenCentralRepo;
 import no.difi.move.deploymanager.service.codesigner.GpgService;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -45,7 +45,7 @@ public class ValidateActionTest {
     private ValidateAction target;
 
     @Mock
-    private NexusRepo nexusRepoMock;
+    private MavenCentralRepo mavenCentralRepoMock;
     @Mock
     private GpgService gpgService;
     @Mock
@@ -72,9 +72,9 @@ public class ValidateActionTest {
         application.setMarkedForValidation(true);
         signature = "signature";
         given(fileMock.getAbsolutePath()).willReturn("jarPath");
-        given(nexusRepoMock.getChecksum(anyString(), anyString())).willReturn(CHECKSUM);
+        given(mavenCentralRepoMock.getChecksum(anyString(), anyString())).willReturn(CHECKSUM);
 
-        given(nexusRepoMock.downloadSignature(application.getLatest().getVersion())).willReturn(signature);
+        given(mavenCentralRepoMock.downloadSignature(application.getLatest().getVersion())).willReturn(signature);
 
         whenNew(FileInputStream.class).withAnyArguments().thenReturn(fileInputStreamMock);
         whenNew(DigestInputStream.class).withAnyArguments().thenReturn(digestInputStreamMock);
@@ -94,7 +94,7 @@ public class ValidateActionTest {
     @Test
     public void apply_ExceptionCaught_shouldThrow() {
         HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.BAD_GATEWAY, "Bad gateway");
-        given(nexusRepoMock.getChecksum(anyString(), anyString())).willThrow(exception);
+        given(mavenCentralRepoMock.getChecksum(anyString(), anyString())).willThrow(exception);
         assertThatThrownBy(() -> target.apply(application))
                 .isInstanceOf(DeployActionException.class)
                 .hasMessage("Error validating jar")
@@ -113,12 +113,12 @@ public class ValidateActionTest {
 
         assertThat(target.apply(application)).isSameAs(application);
         verify(gpgService).verify("jarPath", signature);
-        verify(nexusRepoMock).getChecksum("version", "jar.sha1");
+        verify(mavenCentralRepoMock).getChecksum("version", ".sha1");
     }
 
     @Test
     public void apply_gpgSigningVerificationFails_shouldThrow() {
-        given(nexusRepoMock.downloadSignature(application.getLatest().getVersion())).willReturn("tull");
+        given(mavenCentralRepoMock.downloadSignature(application.getLatest().getVersion())).willReturn("tull");
         given(gpgService.verify(anyString(), anyString())).willReturn(false);
 
         assertThatThrownBy(() -> target.apply(application))
@@ -133,7 +133,7 @@ public class ValidateActionTest {
 
         target.apply(application);
 
-        verify(nexusRepoMock, never()).downloadSignature(anyString());
+        verify(mavenCentralRepoMock, never()).downloadSignature(anyString());
         verify(gpgService, never()).verify(anyString(), anyString());
     }
 }

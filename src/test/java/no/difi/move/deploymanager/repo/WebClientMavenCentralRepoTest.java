@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WebClientNexusRepoTest {
+public class WebClientMavenCentralRepoTest {
 
     @ClassRule
     public static final TemporaryFolder TEMP_FOLDER = new TemporaryFolder();
@@ -34,13 +34,13 @@ public class WebClientNexusRepoTest {
     private DeployManagerProperties properties;
 
     @InjectMocks
-    private WebClientNexusRepo target;
+    private WebClientMavenCentralRepo target;
 
     @Before
     public void setUp() throws Exception {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
-        when(properties.getNexus()).thenReturn(mockWebServer.url("/download").url());
+        when(properties.getMavenCentral()).thenReturn(mockWebServer.url("/download").url());
     }
 
     @After
