@@ -13,6 +13,7 @@ extends:
     mavenGoals: deploy
     deployOssrh: true
     jdkVersion: 1.8
+    jiraVersionPrefix: Kosmos
 
 trigger:
   batch: true
