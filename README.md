@@ -130,4 +130,4 @@ Run in current shell
 Run as a task
 ```java -jar kosmos-x.y.z.jar -Dspring.profiles.active=staging -Dspring.config.additional-location=file:%BASE%\integrasjonspunkt-local.properties &```
 
-When this command is executed the PID for the process will be returned. THis can be used if you need to stop the process. You would also find it by using for instance *htop* or *top* and shut down the Java-process. The integrasjonspunkt will start as its own Java-process.
+When this command is executed the PID for the process will be returned. This can be used if you need to stop the process. You would also find it by using for instance *htop* or *top* and shut down the Java-process. The integrasjonspunkt will start as its own Java-process.
