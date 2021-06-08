@@ -14,7 +14,8 @@ extends:
     mavenGoals: deploy
     deployOssrh: true
     jdkVersion: 1.8
-    jiraVersionPrefix: DeployManager
+    jiraVersionPrefix: Kosmos
+
 
 trigger:
   batch: true

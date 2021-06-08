@@ -3,7 +3,7 @@ FROM openjdk:8-jre-slim
 RUN groupadd -o -g 1000 java \
     && useradd -o -r -m -u 1000 -g 1000 java
 
-ENV APP_DIR=/opt/deploymanager \
+ENV APP_DIR=/opt/kosmos \
     JAVA_OPTS=""
 
 ADD /target/*.jar ${APP_DIR}/app.jar
