@@ -4,6 +4,7 @@ resources:
       type: github
       name: felleslosninger/efm-eproc-pipeline
       endpoint: felleslosninger
+      ref: development
 
 extends:
   template: build-and-deploy-template.yml@efm-eproc-pipeline
@@ -15,6 +16,7 @@ extends:
     jdkVersion: 1.8
     jiraVersionPrefix: Kosmos
 
+
 trigger:
   batch: true
   branches:
@@ -22,4 +24,3 @@ trigger:
       - '*'
 
 pr: none
-
