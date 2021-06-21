@@ -9,7 +9,7 @@ Get the KOSMOS JAR from Digdir's artefact repository: TODO
 ### Verify your download (recommended)
 1. Get [GnuPG](https://gnupg.org/download/), if it is not already present in for instance Git Bash.
 2. Download the detached signature from Digdir's artefact repository: TODO
-3. Download the public key of Digdir's GPG signing certificate from TODO.
+3. Download the public key of Digdir's GPG signing certificate [from our documentation](https://docs.digdir.no/eformidling_auto_update.html#verifisere-sertifikatet).
 4. Verify that the fingerprint of the downloaded public key matches the expected value (published side by side with the key):
 #### Fast approach (one line)
 ```shell
