@@ -5,10 +5,10 @@
 
 ## Installation
 ### Download
-Get the KOSMOS JAR from Digdir's artefact repository: TODO
+[PH:Get the KOSMOS.JAR from Digdir's artefact repository](TODO)
 ### Verify your download (recommended)
 1. Get [GnuPG](https://gnupg.org/download/), if it is not already present in for instance Git Bash.
-2. Download the detached signature from Digdir's artefact repository: TODO
+2. Download the detached signature from Digdir's artefact repository: [Pick the latest version](https://repo1.maven.org/maven2/no/difi/meldingsutveksling/integrasjonspunkt/)  and download the ```integrasjonspunkt-<version>.jar.asc``` file
 3. Download the public key of Digdir's GPG signing certificate [from our documentation](https://docs.digdir.no/eformidling_auto_update.html#verifisere-sertifikatet).
 4. Verify that the fingerprint of the downloaded public key matches the expected value (published side by side with the key):
 #### Fast approach (one line)
@@ -51,6 +51,44 @@ gpg:                using RSA key 0ABAFD4FAA809D6EEC8AFD98A30B684A308D8FC8
 gpg:                issuer "issuerEmail"
 gpg: Good signature from "LongName (test2) <issuerEmail>" [ultimate]
 ``` 
+
+---
+
+## Integrasjonspunkt pre-req for using KOSMOS
+
+- To allow KOSMOS to run as expected a ```integrasjonspunkt-local.properties``` file with your organizational configuration is needed. [Find information about how to install your integrasjonspunkt here](https://docs.digdir.no/eformidling_download_ip.html). 
+- KOSMOS requires no additional firewall-openings compared to the ones [required by the integrasjonspunkt](https://docs.digdir.no/eformidling_forutsetninger.html#brannmur%C3%A5pninger). 
+- It is required that the shutdown-, info-, env- and health-endpoints are enabled. These are enabled by default and if you did not change them you don't need to change anything. If you did here is what they should look like: 
+
+**In your ```integrasjonspunkt-local.properties``` file**
+```
+management.endpoint.env.enabled=true
+management.endpoint.health.enabled=true
+management.endpoint.info.enabled=true
+management.endpoint.shutdown.enabled=true
+```
+
+## KOSMOS properties
+> [Minimum required properties are found here](####-Local-property-file-for-KOSMOS)
+
+These properties are optional to use, for the essentials to start KOSMOS use the link above. 
+
+For KOSMOS to discover and update the integrasjonspunkt you need to tell it where to find it. You can also configure which profile the integrasjonspunkt should start with, if you want to run in prod you need to change it. Default values shown below. 
+```
+kosmos.integrasjonspunkt.baseURL=http://localhost:9093
+kosmos.integrasjonspunkt.profile=staging
+```
+
+You can imbed the integrasjonspunkt log in the application log of KOSMOS, or keep them seperate. Set to true you want to imbed. 
+```
+kosmos.integrasjonspunkt.include-log=false
+```
+
+It is possible to allow KOSMOS to blocklist new jar-files that do not pass the signature or hash checksum check to avoid it from attempting to download the same version again. The blocklisted version will be blocklisted for a set duration. By default the blocklist is disabled.
+```
+kosmos.blocklist.duration-in-hours=2
+kosmos.blocklist.enabled=true
+```
 
 ### Running KOSMOS as a Windows service
 
