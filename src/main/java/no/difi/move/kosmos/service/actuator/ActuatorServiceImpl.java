@@ -21,7 +21,7 @@ public class ActuatorServiceImpl implements ActuatorService {
 
     @Override
     public HealthStatus getStatus() {
-        log.info("Performing health check");
+        log.debug("Performing health check");
         return actuatorClient.getStatus();
     }
 
