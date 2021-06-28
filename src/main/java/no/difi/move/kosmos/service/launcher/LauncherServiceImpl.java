@@ -73,17 +73,18 @@ public class LauncherServiceImpl implements LauncherService {
         long start = System.currentTimeMillis();
 
         while (true) {
+            log.info("Waiting for health check to pass");
             Thread.sleep(pollIntervalInMs);
             if (actuatorService.getStatus() == HealthStatus.UP) {
                 log.info("Application started successfully!");
                 return LaunchStatus.SUCCESS;
             }
             if (futureProcessResult.isDone() || futureProcessResult.isCancelled()) {
-                log.error("Application failed!");
+                log.error("Application failed during startup!");
                 return LaunchStatus.FAILED;
             }
             if (System.currentTimeMillis() - start >= timeoutInMs) {
-                log.warn("A timeout occurred!");
+                log.error("Application failed to start in " + timeoutInMs + "ms!");
                 futureProcessResult.cancel(true);
                 return LaunchStatus.FAILED;
             }
