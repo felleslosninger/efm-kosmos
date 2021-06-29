@@ -116,6 +116,13 @@ We are using [WinSW](https://github.com/kohsuke/winsw) as a Windows service wrap
 </configuration>
 ```
 **Please note that you need to use a local administration user when installing the service.**
+
+For staging profile use
+```--spring.profiles.active=staging```
+
+For production profile use
+```--spring.profiles.active=production```
+
 #### Local property file for KOSMOS
 
 You will need a file named kosmos-local.properties in the same folder as winsw.
@@ -162,10 +169,26 @@ You can use the same properties-file as found above. To get it up and running yo
 
 You can choose to run in your current shell or as a task by using these commands:
 
-Run in current shell
-```java -jar kosmos-x.y.z.jar -Dspring.profiles.active=staging -Dspring.config.additional-location=file:%BASE%\integrasjonspunkt-local.properties```
+Run in current shell with staging profile
 
-Run as a task
-```java -jar kosmos-x.y.z.jar -Dspring.profiles.active=staging -Dspring.config.additional-location=file:%BASE%\integrasjonspunkt-local.properties &```
+```
+java -jar kosmos-x.y.z.jar -Dspring.profiles.active=staging -Dspring.config.additional-location=file:%BASE%\integrasjonspunkt-local.properties
+```
+
+Run as a task with staging profile
+
+```
+java -jar kosmos-x.y.z.jar -Dspring.profiles.active=staging -Dspring.config.additional-location=file:%BASE%\integrasjonspunkt-local.properties &
+```
+
+Run with production profile change this part of the command
+
+```-Dspring.profiles.active=production```
+ 
+Example:
+
+```
+java -jar kosmos-x.y.z.jar -Dspring.profiles.active=production -Dspring.config.additional-location=file:%BASE%\integrasjonspunkt-local.properties
+```
 
 When this command is executed the PID for the process will be returned. This can be used if you need to stop the process. You would also find it by using for instance *htop* or *top* and shut down the Java-process. The integrasjonspunkt will start as its own Java-process.
