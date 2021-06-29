@@ -6,13 +6,30 @@
     <artifactId>kosmos</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
+    <name>Kosmos</name>
 
     <scm>
-        <connection>scm:git:https://github.com/felleslosninger/efm-deploy-manager</connection>
-        <developerConnection>scm:git:https://github.com/felleslosninger/efm-deploy-manager</developerConnection>
-        <url>https://github.com/felleslosninger/efm-deploy-manager</url>
+        <connection>scm:git:https://github.com/felleslosninger/efm-kosmos</connection>
+        <developerConnection>scm:git:https://github.com/felleslosninger/efm-kosmos</developerConnection>
+        <url>https://github.com/felleslosninger/efm-kosmos</url>
         <tag>HEAD</tag>
     </scm>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Digdir</name>
+            <email>servicedesk@digdir.no</email>
+            <organization>Digdir</organization>
+            <organizationUrl>https://www.digdir.no</organizationUrl>
+        </developer>
+    </developers>
 
     <repositories>
         <repository>
@@ -96,9 +113,6 @@
     <profiles>
         <profile>
             <id>ossrh</id>
-            <properties>
-                <dokka.skip>false</dokka.skip>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -111,6 +125,41 @@
                                 <phase>verify</phase>
                                 <goals>
                                     <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jetbrains.dokka</groupId>
+                        <artifactId>dokka-maven-plugin</artifactId>
+                        <version>1.4.32</version>
+                        <executions>
+                            <execution>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>javadocJar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <sourceDirectories>
+                                <dir>${project.basedir}/src/main/java</dir>
+                                <dir>${project.basedir}/src/main/kotlin</dir>
+                                <dir>${project.basedir}/target/generated-sources/wsimport</dir>
+                                <dir>${project.basedir}/target/generated-sources/xjc</dir>
+                            </sourceDirectories>
+                            <skipEmptyPackages>true</skipEmptyPackages>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
                                 </goals>
                             </execution>
                         </executions>
