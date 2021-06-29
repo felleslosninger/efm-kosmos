@@ -51,9 +51,9 @@ public class WebClientActuatorClient implements ActuatorClient {
         } catch (WebClientResponseException e) {
             log.debug("Could not obtain health status: {}, {}", e.getStatusCode(), e.getStatusText());
         } catch (URISyntaxException e) {
-            log.warn("Could not request health status: {}, {}", e.getMessage(), e.getReason());
+            log.debug("Could not request health status: {}, {}", e.getMessage(), e.getReason());
         } catch (Exception e) {
-            log.warn("Could not request health status: {}", e.getMessage());
+            log.debug("Could not request health status: {}", e.getMessage());
         }
         return HealthStatus.UNKNOWN;
     }
@@ -82,7 +82,6 @@ public class WebClientActuatorClient implements ActuatorClient {
     @Override
     public VersionInfo getVersionInfo() {
         try {
-            log.info("Fetching version information");
             URI infoUri = properties.getIntegrasjonspunkt().getInfoURL().toURI();
             log.trace("Fetching version info from URI {}", infoUri);
             Mono<InfoResource> infoResourceMono = webClient.get().uri(infoUri)
@@ -95,9 +94,9 @@ public class WebClientActuatorClient implements ActuatorClient {
         } catch (WebClientResponseException e) {
             log.debug("Could not obtain version information: {}, {}", e.getStatusCode(), e.getStatusText());
         } catch (URISyntaxException e) {
-            log.warn("Could not request version information: {} {}", e.getMessage(), e.getReason());
+            log.debug("Could not request version information: {} {}", e.getMessage(), e.getReason());
         } catch (Exception e) {
-            log.warn("Could not request version information: {}", e.getMessage());
+            log.debug("Could not request version information: {}", e.getMessage());
         }
         return VersionInfo.builder().resolved(false).build();
     }
