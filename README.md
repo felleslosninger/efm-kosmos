@@ -5,7 +5,10 @@
 
 ## Installation
 ### Download
-[PH:Get the KOSMOS.JAR from Digdir's artefact repository](TODO)
+> [Get the KOSMOS.JAR here](https://repo1.maven.org/maven2/no/difi/move/kosmos/1.1.0/kosmos-1.1.0.jar)
+
+> [Get the signature here](https://repo1.maven.org/maven2/no/difi/move/kosmos/1.1.0/kosmos-1.1.0.jar.asc)
+
 ### Verify your download (recommended)
 1. Get [GnuPG](https://gnupg.org/download/), if it is not already present in for instance Git Bash.
 2. Download the detached signature from Digdir's artefact repository: [Pick the latest version](https://repo1.maven.org/maven2/no/difi/meldingsutveksling/integrasjonspunkt/)  and download the ```integrasjonspunkt-<version>.jar.asc``` file
