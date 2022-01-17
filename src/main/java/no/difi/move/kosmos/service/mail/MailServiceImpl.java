@@ -29,14 +29,19 @@ public class MailServiceImpl implements MailService {
         }
         Objects.requireNonNull(mail.getRecipient(), "kosmos.mail.recipient must be set");
         Objects.requireNonNull(mail.getFrom(), "kosmos.mail.from must be set");
+        String appendSubject = properties.getMail().getAppendSubject();
+        if (appendSubject != null && !appendSubject.isEmpty()) {
+            subject += " - " + appendSubject;
+        }
         log.trace("Sending email from {} to {} with subject '{}'", mail.getFrom(), mail.getRecipient(), subject);
+        String finalSubject = subject;
         Optional.ofNullable(mailSenderProvider.getIfAvailable()).ifPresent(mailSender ->
                 mailSender.send(mimeMessage -> {
                     log.info("Sending mail");
                     mimeMessage.setRecipient(Message.RecipientType.TO,
                             new InternetAddress(mail.getRecipient()));
                     mimeMessage.setFrom(new InternetAddress(mail.getFrom()));
-                    mimeMessage.setSubject(subject);
+                    mimeMessage.setSubject(finalSubject);
                     mimeMessage.setText(content);
                 }));
     }
