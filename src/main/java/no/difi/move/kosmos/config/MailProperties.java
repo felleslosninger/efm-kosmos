@@ -15,4 +15,6 @@ public class MailProperties {
     @NotNull
     @Email
     private String from;
+
+    private String appendSubject;
 }
