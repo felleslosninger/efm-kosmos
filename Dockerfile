@@ -8,6 +8,8 @@ ENV APP_DIR=/opt/kosmos \
 
 ADD /target/*.jar ${APP_DIR}/app.jar
 
+RUN apt-get update && apt-get upgrade -y && apt-get install -y
+
 RUN chown -R java:java ${APP_DIR}
 RUN chmod +x ${APP_DIR}/*
 
