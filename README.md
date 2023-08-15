@@ -7,7 +7,6 @@ KOSMOS er [eFormidling](https://docs.digdir.no/docs/eFormidling/Introduksjon/) s
 
 ## Teknologiar i bruk
 - Spring Boot
-- Bootstrap
 
 ## Oppstart
 ### Føresetnadar
