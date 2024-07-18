@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.kosmos.action.application.*;
 import no.difi.move.kosmos.domain.application.Application;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 
 @Slf4j
 @Component
@@ -23,7 +23,11 @@ public class SynchronizationHandler {
     private final StartAction startAction;
     private final RollbackAction rollbackAction;
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
+    public void initialRun() {
+        scheduledRun();
+    }
+
     @Scheduled(cron = "${kosmos.schedulerCronExpression}", zone = "Europe/Oslo")
     public void scheduledRun() {
         try {
