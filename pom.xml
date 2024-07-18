@@ -62,7 +62,6 @@
         <bouncycastle.version>1.68</bouncycastle.version>
         <okhttp.version>4.9.1</okhttp.version>
         <wiremock.version>2.27.2</wiremock.version>
-        <semver4j.version>3.1.0</semver4j.version>
         <maven.gpg.plugin.version>3.0.1</maven.gpg.plugin.version>
     </properties>
     <parent>
@@ -357,11 +356,6 @@
             <artifactId>wiremock-standalone</artifactId>
             <version>2.26.3</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.vdurmont</groupId>
-            <artifactId>semver4j</artifactId>
-            <version>${semver4j.version}</version>
         </dependency>
     </dependencies>
 
