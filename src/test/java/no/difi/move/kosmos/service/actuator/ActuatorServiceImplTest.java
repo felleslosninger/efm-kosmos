@@ -3,33 +3,29 @@ package no.difi.move.kosmos.service.actuator;
 import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.domain.HealthStatus;
 import no.difi.move.kosmos.domain.VersionInfo;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ActuatorServiceImplTest {
 
-    @Mock private KosmosProperties properties;
-    @Mock private ActuatorClient actuatorClient;
+    @Mock
+    private KosmosProperties properties;
+    @Mock
+    private ActuatorClient actuatorClient;
 
-    @InjectMocks private ActuatorServiceImpl actuatorServiceImpl;
+    @InjectMocks
+    private ActuatorServiceImpl actuatorServiceImpl;
 
-    @Before
-    public void before() {
-        given(properties.getShutdownRetries()).willReturn(3);
-        given(properties.getShutdownPollIntervalInMs()).willReturn(1);
-    }
-
-    @After
+    @AfterEach
     public void after() {
         verifyNoMoreInteractions(actuatorClient);
     }
@@ -68,6 +64,8 @@ public class ActuatorServiceImplTest {
 
     @Test
     public void testShutdownRetries() {
+        given(properties.getShutdownRetries()).willReturn(3);
+        given(properties.getShutdownPollIntervalInMs()).willReturn(1);
         given(actuatorClient.requestShutdown()).willReturn(true);
         given(actuatorClient.getStatus()).willReturn(
                 HealthStatus.UP, HealthStatus.UP, HealthStatus.DOWN
@@ -81,6 +79,8 @@ public class ActuatorServiceImplTest {
 
     @Test
     public void testShutdownTimeout() {
+        given(properties.getShutdownRetries()).willReturn(3);
+        given(properties.getShutdownPollIntervalInMs()).willReturn(1);
         given(actuatorClient.requestShutdown()).willReturn(true);
         given(actuatorClient.getStatus()).willReturn(HealthStatus.UP);
 

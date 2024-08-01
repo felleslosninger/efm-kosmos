@@ -3,8 +3,8 @@ package no.difi.move.kosmos.service.actuator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.config.IntegrasjonspunktProperties;
+import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.domain.HealthStatus;
 import no.difi.move.kosmos.service.actuator.dto.HealthResource;
 import no.difi.move.kosmos.service.actuator.dto.InfoResource;
@@ -12,13 +12,13 @@ import no.difi.move.kosmos.service.actuator.dto.ShutdownResource;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WebClientActuatorClientTest {
 
     private static MockWebServer mockWebServer;
@@ -40,7 +40,7 @@ public class WebClientActuatorClientTest {
     private WebClientActuatorClient target;
 
     @SneakyThrows
-    @Before
+    @BeforeEach
     public void setUp() {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
@@ -53,7 +53,7 @@ public class WebClientActuatorClientTest {
         when(properties.getIntegrasjonspunkt()).thenReturn(INTEGRASJONSPUNKT_PROPERTIES);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         mockWebServer.close();
     }
@@ -94,6 +94,7 @@ public class WebClientActuatorClientTest {
         mockWebServer.enqueue(new MockResponse().setResponseCode(400));
         assertThat(target.requestShutdown()).isFalse();
     }
+
     @Test
     public void requestShutdown_InternalServerError_ShouldReturnFalse() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(500));
