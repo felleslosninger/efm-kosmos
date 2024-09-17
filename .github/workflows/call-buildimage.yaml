@@ -7,7 +7,7 @@ on:
     types: [ ] # Empty list ensures PRs are not triggered. Trigger nytt bygg............
 
 jobs:
-  release-to-github-packages:
+  build-and-deploy-libs:
     uses: felleslosninger/github-workflows/.github/workflows/ci-maven-install-deploy-lib.yml@efm-tilpasninger-3
     with:
       java-version: 11
