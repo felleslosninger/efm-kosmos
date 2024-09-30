@@ -32,7 +32,7 @@ public class ValidateAction implements ApplicationAction {
 
     @Override
     public Application apply(Application application) {
-        if (!application.isMarkedForValidation()){
+        if (!application.isMarkedForValidation()) {
             log.info("Skipping validation, as no new distribution has been downloaded");
             return application;
         }
@@ -47,7 +47,7 @@ public class ValidateAction implements ApplicationAction {
                 log.trace("Signature has been successfully verified.");
                 return application;
             }
-            if(properties.getBlocklist().isEnabled()) {
+            if (properties.getBlocklist().isEnabled()) {
                 log.trace("Signature could not be verified.. Blocklisting version.");
                 deployDirectoryRepo.blockList(application.getLatest().getFile());
             }

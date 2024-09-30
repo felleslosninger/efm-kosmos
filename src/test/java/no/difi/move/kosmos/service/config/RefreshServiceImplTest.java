@@ -1,22 +1,22 @@
 package no.difi.move.kosmos.service.config;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.cloud.context.refresh.ContextRefresher;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.cloud.context.refresh.ConfigDataContextRefresher;
 
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RefreshServiceImplTest {
 
     @InjectMocks
     private RefreshServiceImpl target;
 
     @Mock
-    private ContextRefresher contextRefresher;
+    private ConfigDataContextRefresher contextRefresher;
 
     @Test
     public void refresh_ContextRefresherShouldBeInvoked() {

@@ -1,23 +1,24 @@
 package no.difi.move.kosmos.action.application;
 
 import no.difi.move.kosmos.action.KosmosActionException;
-import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.config.IntegrasjonspunktProperties;
+import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.service.config.RefreshService;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class LatestVersionActionTest {
 
     @Mock
@@ -25,7 +26,7 @@ public class LatestVersionActionTest {
     @Mock
     private RefreshService refreshServiceMock;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         integrasjonspunktProperties = mock(IntegrasjonspunktProperties.class);
         given(propertiesMock.getIntegrasjonspunkt()).willReturn(integrasjonspunktProperties);
@@ -43,10 +44,13 @@ public class LatestVersionActionTest {
         assertThat(result.getLatest().getVersion()).isEqualTo("latest");
     }
 
-    @Test(expected = KosmosActionException.class)
+    @Test
     public void apply_NullPointerExceptionOccurs_ShouldThrowDeployActionException() {
         given(propertiesMock.getIntegrasjonspunkt()).willThrow(NullPointerException.class);
-        target.apply(new Application());
+
+        assertThrows(KosmosActionException.class,
+                () -> target.apply(new Application())
+        );
     }
 
     @Test
