@@ -104,6 +104,10 @@
                         <include>**/*Test.java</include>
                         <include>**/*IT.java</include>
                     </includes>
+                    <!-- Ekskludert inntil me oppgraderar Spring Boot/Maven/Java/Surefire -->
+                    <excludes>
+                        <exclude>**/PublicKeyVerifierImplTest.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>

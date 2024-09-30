@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Disabled("Caused by: java.lang.SecurityException: digest missing for org/bouncycastle/openpgp/PGPPublicKey.class")
+@Disabled("C.f. maven-surefire-plugin configuration in pom.xml: Caused by: java.lang.SecurityException: digest missing for org/bouncycastle/openpgp/PGPPublicKey.class")
 @ExtendWith(MockitoExtension.class)
 public class PublicKeyVerifierImplTest {
 
