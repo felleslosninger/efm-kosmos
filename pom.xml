@@ -51,7 +51,7 @@
         <cucumber.version>2.3.1</cucumber.version>
         <dumbster.version>1.7.1</dumbster.version>
         <zt-exec.version>1.12</zt-exec.version>
-        <commons-io.version>2.7</commons-io.version>
+        <commons-io.version>2.14.0</commons-io.version>
         <docker.skip>true</docker.skip>
         <docker.image.prefix>difimove2</docker.image.prefix>
         <dockerfile.maven.plugin.version>1.4.3</dockerfile.maven.plugin.version>
