@@ -33,11 +33,16 @@
 
     <repositories>
         <repository>
-            <id>MavenArtifactFeed</id>
-            <url>https://pkgs.dev.azure.com/dificloud/_packaging/MavenArtifactFeed/maven/v1</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/felleslosninger/*</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
