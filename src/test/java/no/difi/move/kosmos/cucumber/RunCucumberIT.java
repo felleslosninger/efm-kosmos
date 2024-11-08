@@ -1,16 +1,12 @@
 package no.difi.move.kosmos.cucumber;
 
-import cucumber.api.CucumberOptions;
-import cucumber.api.junit.Cucumber;
-import lombok.experimental.UtilityClass;
-import org.junit.runner.RunWith;
+import org.junit.platform.suite.api.IncludeEngines;
+import org.junit.platform.suite.api.SelectClasspathResource;
+import org.junit.platform.suite.api.Suite;
 
-@RunWith(Cucumber.class)
-@CucumberOptions(
-        glue = {"classpath:no.difi.move.kosmos.cucumber"},
-        features = "classpath:cucumber",
-        plugin = {"pretty", "json:target/cucumber/cucumber.json"}
-)
-@UtilityClass
+@Suite
+@IncludeEngines("cucumber")
+@SelectClasspathResource("cucumber")
+//@UtilityClass
 public class RunCucumberIT {
 }

@@ -2,16 +2,14 @@ package no.difi.move.kosmos.cucumber;
 
 import com.dumbster.smtp.SimpleSmtpServer;
 import com.github.tomakehurst.wiremock.WireMockServer;
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.spring.CucumberContextConfiguration;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import no.difi.move.kosmos.KosmosMain;
-import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.config.IntegrasjonspunktProperties;
+import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.service.launcher.LauncherServiceImpl;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootContextLoader;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,11 +20,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.util.FileSystemUtils;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+@CucumberContextConfiguration
 @ContextConfiguration(classes = {
         KosmosMain.class,
         CucumberStepsConfiguration.SpringConfiguration.class
@@ -35,7 +38,6 @@ import static org.mockito.Mockito.mock;
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @ActiveProfiles("cucumber")
-@Slf4j
 public class CucumberStepsConfiguration {
 
     @Configuration
@@ -83,20 +85,18 @@ public class CucumberStepsConfiguration {
     @Autowired
     private IntegrasjonspunktProperties integrasjonspunktProperties;
 
-    @Rule
-    private final TemporaryFolder temporaryFolder = TemporaryFolder.builder()
-            .assureDeletion().build();
+    private Path temporaryPath;
 
     @Before
     @SneakyThrows
     public void before() {
-        temporaryFolder.create();
+        temporaryPath = Files.createTempDirectory("temp");
+        given(integrasjonspunktProperties.getHome()).willReturn(temporaryPath.toAbsolutePath().toString());
         given(kosmosProperties.getIntegrasjonspunkt()).willReturn(integrasjonspunktProperties);
-        given(integrasjonspunktProperties.getHome()).willReturn(temporaryFolder.getRoot().getAbsolutePath());
     }
 
     @After
     public void after() {
-        temporaryFolder.delete();
+        FileSystemUtils.deleteRecursively(temporaryPath.toFile());
     }
 }
