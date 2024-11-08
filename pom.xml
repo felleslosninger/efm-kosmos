@@ -53,7 +53,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <cucumber.version>7.11.0</cucumber.version>
+        <cucumber.version>7.10.1</cucumber.version>
+        <junit-jupiter.version>5.9.1</junit-jupiter.version>
         <dumbster.version>1.7.1</dumbster.version>
         <zt-exec.version>1.12</zt-exec.version>
         <commons-io.version>2.7</commons-io.version>
