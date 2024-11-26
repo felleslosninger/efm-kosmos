@@ -2,9 +2,9 @@ package no.difi.move.kosmos.cucumber;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.http.Fault;
-import cucumber.api.java.After;
-import cucumber.api.java.en.And;
-import cucumber.api.java.en.Given;
+import io.cucumber.java.After;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 

@@ -1,6 +1,6 @@
 package no.difi.move.kosmos.cucumber;
 
-import cucumber.api.java.en.And;
+import io.cucumber.java.en.And;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

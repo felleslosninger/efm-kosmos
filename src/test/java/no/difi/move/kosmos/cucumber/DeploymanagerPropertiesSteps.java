@@ -1,6 +1,6 @@
 package no.difi.move.kosmos.cucumber;
 
-import cucumber.api.java.en.Given;
+import io.cucumber.java.en.Given;
 import lombok.RequiredArgsConstructor;
 import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.config.IntegrasjonspunktProperties;
