@@ -68,6 +68,7 @@
         <wiremock.version>2.27.2</wiremock.version>
         <semver4j.version>3.1.0</semver4j.version>
         <maven.gpg.plugin.version>3.0.1</maven.gpg.plugin.version>
+        <commons.lang3.version>3.14.0</commons.lang3.version>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -298,6 +299,13 @@
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang3.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- org.junit.jupiter:junit-jupiter is a required workaround, cf. https://github.com/junit-team/junit5/issues/3714 -->
