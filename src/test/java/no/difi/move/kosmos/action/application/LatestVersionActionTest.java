@@ -5,7 +5,7 @@ import no.difi.move.kosmos.config.IntegrasjonspunktProperties;
 import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.service.config.RefreshService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

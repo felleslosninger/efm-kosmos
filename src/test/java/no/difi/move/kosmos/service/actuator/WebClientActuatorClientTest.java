@@ -11,7 +11,7 @@ import no.difi.move.kosmos.service.actuator.dto.InfoResource;
 import no.difi.move.kosmos.service.actuator.dto.ShutdownResource;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
