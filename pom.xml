@@ -61,7 +61,7 @@
         <docker.skip>true</docker.skip>
         <docker.image.prefix>difimove2</docker.image.prefix>
         <dockerfile.maven.plugin.version>1.4.3</dockerfile.maven.plugin.version>
-        <spring-cloud.version>2021.0.8</spring-cloud.version>
+        <spring-cloud.version>2024.0.0</spring-cloud.version>
         <guava.version>30.1-jre</guava.version>
         <bouncycastle.version>1.68</bouncycastle.version>
         <okhttp.version>4.9.1</okhttp.version>
