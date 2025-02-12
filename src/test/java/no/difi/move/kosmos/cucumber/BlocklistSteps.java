@@ -11,7 +11,6 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -23,7 +22,7 @@ public class BlocklistSteps {
     @SneakyThrows
     @Given("^the distribution \"([^\"]*)\" is blocklisted$")
     public void theVersionIsBlocklisted(String version) {
-        final Path path = Paths.get(propertiesSpy.getIntegrasjonspunkt().getHome(), version + ".blocklisted");
+        final Path path = Path.of(propertiesSpy.getIntegrasjonspunkt().getHome(), version + ".blocklisted");
         if (!new File(path.toString()).createNewFile()) {
             log.error("blocklist file already exists");
         }
@@ -35,7 +34,7 @@ public class BlocklistSteps {
     @SneakyThrows
     @Given("^the distribution \"([^\"]*)\" has an expired blocklist$")
     public void theVersionHasExpiredBlocklist(String version) {
-        final Path path = Paths.get(propertiesSpy.getIntegrasjonspunkt().getHome(), version + ".blocklisted");
+        final Path path = Path.of(propertiesSpy.getIntegrasjonspunkt().getHome(), version + ".blocklisted");
         if (!new File(path.toString()).createNewFile()) {
             log.error("blocklist file already exists");
         }

@@ -48,7 +48,7 @@ public class PrepareApplicationAction implements ApplicationAction {
         }
         if (blocklistEnabled && kosmosDirectoryRepo.isBlockListed(downloadFile)) {
             throw new KosmosActionException(
-                    String.format("The latest version is block listed! Remove %s to allow version.",
+                    "The latest version is block listed! Remove %s to allow version.".formatted(
                             kosmosDirectoryRepo.getBlocklistPath(downloadFile).getAbsolutePath()));
         }
     }

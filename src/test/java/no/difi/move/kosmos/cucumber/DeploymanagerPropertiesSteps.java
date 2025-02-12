@@ -3,8 +3,8 @@ package no.difi.move.kosmos.cucumber;
 import io.cucumber.java.en.Given;
 import lombok.RequiredArgsConstructor;
 import no.difi.move.kosmos.config.KosmosProperties;
+import org.junit.jupiter.api.BeforeEach;
 import no.difi.move.kosmos.config.IntegrasjonspunktProperties;
-import org.junit.Before;
 
 import static org.mockito.BDDMockito.given;
 
@@ -14,7 +14,7 @@ public class DeploymanagerPropertiesSteps {
     private final KosmosProperties properties;
     private final IntegrasjonspunktProperties integrasjonspunktProperties;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         properties.setIntegrasjonspunkt(integrasjonspunktProperties);
     }

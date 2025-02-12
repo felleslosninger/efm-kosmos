@@ -4,13 +4,12 @@ import no.difi.move.kosmos.config.BlocklistProperties;
 import no.difi.move.kosmos.config.IntegrasjonspunktProperties;
 import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.util.KosmosUtils;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,12 +36,11 @@ public class KosmosDirectoryRepoTest {
     @Mock
     private File allowlistedFile;
 
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public File temporaryFolder;
 
     @BeforeEach
     public void setUp() throws IOException {
-        temporaryFolder.create();
         BlocklistProperties blocklistProperties = mock(BlocklistProperties.class);
         when(blocklistProperties.getDurationInHours()).thenReturn(2);
 //        when(properties.getBlocklist()).thenReturn(blocklistProperties);
@@ -61,7 +59,7 @@ public class KosmosDirectoryRepoTest {
     public void getFile_Success_VerifyInteractions() {
         when(properties.getIntegrasjonspunkt())
                 .thenReturn(new IntegrasjonspunktProperties()
-                        .setHome(temporaryFolder.getRoot().getAbsolutePath()));
+                        .setHome(temporaryFolder.getAbsolutePath()));
         //File directoryMock = mock(File.class);
         //whenNew(File.class).withAnyArguments().thenReturn(directoryMock);
 

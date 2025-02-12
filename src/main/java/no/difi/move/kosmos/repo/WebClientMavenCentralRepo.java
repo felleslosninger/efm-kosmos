@@ -71,7 +71,7 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
             Mono<String> mono = webClient.get().uri(uri)
                     .retrieve().bodyToMono(String.class);
             String hexString = Optional.ofNullable(mono.block())
-                    .orElseThrow(() -> new KosmosActionException(String.format("Couldn't download %s", uri)));
+                    .orElseThrow(() -> new KosmosActionException("Couldn't download %s".formatted(uri)));
             return ByteArrayUtil.hexStringToByteArray(hexString);
         } catch (WebClientResponseException e) {
             throw new KosmosActionException("Checksum fetch failed", e);
@@ -101,7 +101,7 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
             Mono<String> mono = webClient.get().uri(uri)
                     .retrieve().bodyToMono(String.class);
             return Optional.ofNullable(mono.block())
-                    .orElseThrow(() -> new KosmosActionException(String.format("Couldn't download %s", uri)));
+                    .orElseThrow(() -> new KosmosActionException("Couldn't download %s".formatted(uri)));
         } catch (WebClientResponseException e) {
             throw new KosmosActionException("Signature fetch failed", e);
         }

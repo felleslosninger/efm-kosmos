@@ -40,7 +40,7 @@ public class GpgServiceImpl implements GpgService {
         log.info("Verifying signed data");
         PGPSignature signature = Optional.ofNullable(readSignature(downloadedSignature))
                 .orElseThrow(() -> new KosmosActionException(
-                        String.format("Unable to read GPG signature from %s", downloadedSignature)));
+                "Unable to read GPG signature from %s".formatted(downloadedSignature)));
         PGPPublicKey signerKey = publicKeyPaths.stream()
                 .map(this::readPublicKey)
                 .filter(Objects::nonNull)

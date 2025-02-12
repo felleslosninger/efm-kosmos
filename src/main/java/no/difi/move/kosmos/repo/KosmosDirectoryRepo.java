@@ -31,7 +31,7 @@ public class KosmosDirectoryRepo {
 
     public File getFile(String version, String name) {
         File root = getOrCreateHomeFolder();
-        return new File(root, String.format(name, version));
+        return new File(root, name.formatted(version));
     }
 
     private File getOrCreateHomeFolder() {
@@ -112,7 +112,7 @@ public class KosmosDirectoryRepo {
     }
 
     private File doAllowlist(File file, String version) {
-        String fileName = String.format(ALLOWLISTEDFILENAME, version);
+        String fileName = ALLOWLISTEDFILENAME.formatted(version);
         File allowlistFile = new File(properties.getIntegrasjonspunkt().getHome() + "/" + fileName);
         log.debug("Allowlist file pathname is {}", allowlistFile.getAbsolutePath());
         try (BufferedWriter writer = Files.newBufferedWriter(allowlistFile.toPath(), StandardCharsets.UTF_8)) {
@@ -134,7 +134,7 @@ public class KosmosDirectoryRepo {
                 .map(s -> new Semver(getSemanticVersion(s)))
                 .sorted(Comparator.reverseOrder())
                 .findFirst()
-                .map(p -> new File(String.format(ALLOWLISTEDFILENAME, p.getValue())))
+                .map(p -> new File(ALLOWLISTEDFILENAME.formatted(p.getValue())))
                 .orElse(null);
     }
 

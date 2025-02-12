@@ -122,4 +122,5 @@ public class WebClientMavenCentralRepoTest {
         assertThatThrownBy(() -> target.downloadSignature("version"))
                 .isInstanceOf(KosmosActionException.class);
     }
+
 }
