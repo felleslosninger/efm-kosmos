@@ -77,7 +77,7 @@ public class GpgServiceImpl implements GpgService {
         log.trace("Looking for signer key {} in file {}", keyID, file);
         try {
             return file.getPublicKey(keyID);
-        } catch (PGPException e) {
+        } catch (Exception e) {
             log.warn("Could not get signer public key from file {}", file);
         }
         return null;
@@ -107,4 +107,5 @@ public class GpgServiceImpl implements GpgService {
         }
         return null;
     }
+
 }

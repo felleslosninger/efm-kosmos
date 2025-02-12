@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
@@ -33,8 +34,10 @@ public class EnvironmentServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        mockStatic(System.class);
-        when(System.getenv()).thenReturn(MOCK_ENVIRONMENT);
+        try (MockedStatic<System> mockSystem = mockStatic(System.class)) {
+            // FIXME Mockito forbids mocking the static methods of System (and Thread).
+            mockSystem.when(System::getenv).thenReturn(MOCK_ENVIRONMENT);
+        }
     }
 
     @Test
