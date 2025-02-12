@@ -8,13 +8,16 @@ KOSMOS er [eFormidling](https://docs.digdir.no/docs/eFormidling/Introduksjon/) s
 ## Teknologiar i bruk
 - Spring Boot
 
-## Oppstart
-### Føresetnadar
-- Java 8
+## Føresetnadar
+- Java 21
 - Maven 3
 
-### Bygging
-```mvn clean install```
+## Bygging
+Testet og bygget med OpenJDK 21.0.5 og Maven 3.9.9.
 
-### Dokumentasjon
+```bash
+mvn clean package
+```
+
+## Dokumentasjon
 - Sjå [Digdir Docs](https://docs.digdir.no/docs/eFormidling/installasjon/automatisk_oppgradering)
