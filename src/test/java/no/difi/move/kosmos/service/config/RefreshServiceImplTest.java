@@ -23,4 +23,5 @@ public class RefreshServiceImplTest {
         target.refreshConfig();
         verify(contextRefresher).refresh();
     }
+
 }

@@ -20,6 +20,7 @@ import java.io.IOException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+// FIXME
 @Disabled("Refactoring of target is needed")
 @ExtendWith(MockitoExtension.class)
 public class KosmosDirectoryRepoTest {

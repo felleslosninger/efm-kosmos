@@ -71,7 +71,6 @@ public class GpgServiceImplTest {
         doNothing().when(keyVerifier).verify(any(PGPPublicKey.class));
         List<Resource> bothMatchingAndNotMatchingKeys = Lists.newArrayList(matchingPublicKeyFilePath, notMatchingPublicKeyFilePath);
         when(verificationProperties.getPublicKeyPaths()).thenReturn(bothMatchingAndNotMatchingKeys);
-
         assertTrue(target.verify(signedDataFilePath, downloadedSignature));
     }
 
@@ -103,4 +102,5 @@ public class GpgServiceImplTest {
         doThrow(new KosmosActionException("Expired key")).when(keyVerifier).verify(any(PGPPublicKey.class));
         assertThrows(KosmosActionException.class, () -> target.verify(signedDataFilePath, downloadedSignature));
     }
+
 }

@@ -10,9 +10,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
@@ -26,8 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ValidateActionTest {
@@ -49,6 +47,8 @@ public class ValidateActionTest {
 
     @BeforeAll
     public static void beforeAll() {
+        MockedStatic<MessageDigest> myClassMock = Mockito.mockStatic(MessageDigest.class);
+        myClassMock.when(() -> MessageDigest.isEqual(any(), any())).thenReturn(true);
     }
 
     @BeforeEach
@@ -59,7 +59,6 @@ public class ValidateActionTest {
                 .setFile(fileMock)
         );
         application.setMarkedForValidation(true);
-        given(MessageDigest.isEqual(any(), any())).willReturn(true);
     }
 
     @Test

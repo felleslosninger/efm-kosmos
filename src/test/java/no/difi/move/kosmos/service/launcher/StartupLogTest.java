@@ -22,4 +22,5 @@ public class StartupLogTest {
         startupLog.processLine("Hallo");
         assertThat(startupLog.getLog()).isEqualTo("bla bla\n");
     }
+
 }
