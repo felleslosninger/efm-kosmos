@@ -62,23 +62,13 @@
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>21</maven.compiler.release>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <dumbster.version>1.7.1</dumbster.version>
-        <zt-exec.version>1.12</zt-exec.version>
-        <commons-io.version>2.7</commons-io.version>
+        <spring-cloud.version>2024.0.0</spring-cloud.version>
+        <bouncycastle.version>1.80</bouncycastle.version>
+        <wiremock.version>3.11.0</wiremock.version>
+        <okhttp.version>5.0.0-alpha.14</okhttp.version>
+        <!-- FIXME do we actually need these when creating docker images ? -->
         <docker.skip>true</docker.skip>
         <docker.image.prefix>difimove2</docker.image.prefix>
-        <dockerfile.maven.plugin.version>1.4.3</dockerfile.maven.plugin.version>
-        <spring-cloud.version>2024.0.0</spring-cloud.version>
-        <guava.version>30.1-jre</guava.version>
-        <semver4j.version>3.1.0</semver4j.version>
-        <maven.gpg.plugin.version>3.0.1</maven.gpg.plugin.version>
-        <commons.lang3.version>3.14.0</commons.lang3.version>
-        <bouncycastle.version>1.80</bouncycastle.version>
-        <okhttp.version>5.0.0-alpha.14</okhttp.version>
-        <wiremock.version>3.11.0</wiremock.version>
     </properties>
 
     <dependencyManagement>
@@ -138,6 +128,12 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
@@ -149,24 +145,25 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
-            <type>jar</type>
+            <version>2.18.0</version>
         </dependency>
         <dependency>
+            <!-- FIXME org.zeroturnaround:zt-exec:1.12   02 Sep 2020 at 09:18 (CEST) -->
             <groupId>org.zeroturnaround</groupId>
             <artifactId>zt-exec</artifactId>
-            <version>${zt-exec.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
+            <version>1.12</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
+            <version>33.4.0-jre</version>
         </dependency>
-
+        <dependency>
+            <!-- FIXME com.vdurmont:semver4j:3.1.0   13 Sep 2019 at 17:46 (CEST) -->
+            <groupId>com.vdurmont</groupId>
+            <artifactId>semver4j</artifactId>
+            <version>3.1.0</version>
+        </dependency>
 
         <!-- Bouncycastle -->
 
@@ -178,6 +175,11 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpg-jdk18on</artifactId>
+            <version>${bouncycastle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcutil-jdk18on</artifactId>
             <version>${bouncycastle.version}</version>
         </dependency>
 
@@ -214,12 +216,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>5.15.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite</artifactId>
             <scope>test</scope>
@@ -227,15 +223,9 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+            <version>3.17.0</version>
             <scope>test</scope>
         </dependency>
-        <!-- org.junit.jupiter:junit-jupiter is a required workaround, cf. https://github.com/junit-team/junit5/issues/3714
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        -->
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
@@ -264,21 +254,23 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.15.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.wiremock</groupId>
             <artifactId>wiremock-standalone</artifactId>
             <version>3.10.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
+            <!-- FIXME com.github.kirviq:dumbster:1.7.1   17 Jul 2016 at 13:19 (CEST) -->
             <groupId>com.github.kirviq</groupId>
             <artifactId>dumbster</artifactId>
-            <version>${dumbster.version}</version>
+            <version>1.7.1</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.vdurmont</groupId>
-            <artifactId>semver4j</artifactId>
-            <version>${semver4j.version}</version>
         </dependency>
     </dependencies>
 
@@ -296,6 +288,14 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <release>${java.version}</release>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <executions>
@@ -309,7 +309,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>1.4</version>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <phase>validate</phase>
@@ -322,17 +322,21 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
                 <configuration>
+                <!--
                     <properties>
                         <configurationParameters>
                             cucumber.junit-platform.naming-strategy=long
                         </configurationParameters>
                     </properties>
+                -->
                     <includes>
                         <include>**/*Test.java</include>
+                        <!--
                         <include>**/*IT.java</include>
+                        -->
                     </includes>
-                    <!-- FIXME Ekskludert inntil me oppgraderar Spring Boot/Maven/Java/Surefire -->
                     <excludes>
                         <exclude>**/PublicKeyVerifierImplTest.java</exclude>
                     </excludes>
@@ -340,6 +344,7 @@
             </plugin>
         </plugins>
     </build>
+
     <profiles>
         <profile>
             <id>ossrh</id>
@@ -348,7 +353,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>${maven.gpg.plugin.version}</version>
+                        <version>3.2.7</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -367,7 +372,7 @@
                     <plugin>
                         <groupId>org.jetbrains.dokka</groupId>
                         <artifactId>dokka-maven-plugin</artifactId>
-                        <version>1.4.32</version>
+                        <version>2.0.0</version>
                         <executions>
                             <execution>
                                 <phase>prepare-package</phase>
@@ -386,10 +391,10 @@
                             <skipEmptyPackages>true</skipEmptyPackages>
                         </configuration>
                     </plugin>
-
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
+                        <version>3.3.1</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>

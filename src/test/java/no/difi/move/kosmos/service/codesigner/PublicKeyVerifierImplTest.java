@@ -49,4 +49,5 @@ public class PublicKeyVerifierImplTest {
         when(keyMock.getValidSeconds()).thenReturn(2000L);
         assertDoesNotThrow(() -> target.verify(keyMock));
     }
+
 }
