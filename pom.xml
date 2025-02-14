@@ -324,22 +324,23 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.2</version>
                 <configuration>
-                <!--
+                    <excludes>
+                        <!-- FIXME kjører alle *Test klasser, men denne ekskluderes da
+                             den feil fra Maven (men virker kjørt manuelt i IntelliJ) -->
+                        <exclude>**/PublicKeyVerifierImplTest.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.5.2</version>
+                <configuration>
                     <properties>
                         <configurationParameters>
                             cucumber.junit-platform.naming-strategy=long
                         </configurationParameters>
                     </properties>
-                -->
-                    <includes>
-                        <include>**/*Test.java</include>
-                        <!--
-                        <include>**/*IT.java</include>
-                        -->
-                    </includes>
-                    <excludes>
-                        <exclude>**/PublicKeyVerifierImplTest.java</exclude>
-                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
