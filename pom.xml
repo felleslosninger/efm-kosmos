@@ -74,11 +74,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-inline</artifactId>
-                <version>5.2.0</version>
-            </dependency>
-            <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
@@ -258,7 +253,31 @@
             <artifactId>mockito-core</artifactId>
             <version>5.15.2</version>
             <scope>test</scope>
+            <!--
+            <exclusions>
+                <exclusion>
+                    <groupId>net.bytebuddy</groupId>
+                    <artifactId>byte-buddy</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.bytebuddy</groupId>
+                    <artifactId>byte-buddy-agent</artifactId>
+                </exclusion>
+            </exclusions>
+            -->
         </dependency>
+        <!--
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>1.17.0</version>
+        </dependency>
+        -->
         <dependency>
             <groupId>org.wiremock</groupId>
             <artifactId>wiremock-standalone</artifactId>
@@ -287,6 +306,20 @@
 
     <build>
         <plugins>
+            <!-- needed for inline mocking in the future
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.8.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -325,11 +358,14 @@
                 <version>3.5.2</version>
                 <configuration>
                     <excludes>
-                        <!-- FIXME kjører alle *Test klasser, men denne ekskluderes da
-                             den feil fra Maven (men virker kjørt manuelt i IntelliJ) -->
-                        <exclude>**/PublicKeyVerifierImplTest.java</exclude>
+                        <exclude>no.difi.move.kosmos.service.codesigner.PublicKeyVerifierImplTest</exclude>
                     </excludes>
                 </configuration>
+                <!-- needed for inline mocking in the future
+                <configuration>
+                    <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar}</argLine>
+                </configuration>
+                -->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
