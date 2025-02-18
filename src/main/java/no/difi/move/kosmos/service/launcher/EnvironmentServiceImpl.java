@@ -3,7 +3,6 @@ package no.difi.move.kosmos.service.launcher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.kosmos.config.KosmosProperties;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -18,12 +17,8 @@ public class EnvironmentServiceImpl implements EnvironmentService {
 
     private final KosmosProperties properties;
 
-    @Value("${integrasjonspunkt.versions.dev.latest}")
-    private String latest;
-
     @Override
     public Map<String, String> getChildProcessEnvironment() {
-        debugDumpAllProperties();
         log.info("Preparing application environment");
         Map<String, String> environment = new HashMap<>(System.getenv());
         List<String> exclusions = environment.keySet().stream()
@@ -33,10 +28,6 @@ public class EnvironmentServiceImpl implements EnvironmentService {
         log.debug("Excluding the following variables from child process environment: {}", exclusions);
         exclusions.forEach(e -> environment.put(e, null));
         return environment;
-    }
-
-    private void debugDumpAllProperties() {
-        System.out.println("Latest version : " + latest);
     }
 
 }
