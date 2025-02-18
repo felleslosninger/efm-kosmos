@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootContextLoader;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -27,7 +26,6 @@ import java.nio.file.Path;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 @CucumberContextConfiguration
 @ContextConfiguration(classes = {
@@ -73,10 +71,6 @@ public class CucumberStepsConfiguration {
             return kosmosProperties.getIntegrasjonspunkt();
         }
 
-        @Bean
-        public ContextRefresher contextRefresher() {
-            return mock(ContextRefresher.class);
-        }
     }
 
     @Autowired
@@ -99,4 +93,5 @@ public class CucumberStepsConfiguration {
     public void after() {
         FileSystemUtils.deleteRecursively(temporaryPath.toFile());
     }
+
 }
