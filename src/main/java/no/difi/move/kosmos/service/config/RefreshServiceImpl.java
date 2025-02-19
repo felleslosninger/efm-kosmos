@@ -8,18 +8,15 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@ConditionalOnProperty(value = "spring.cloud.config.enabled", havingValue = "true")
+@ConditionalOnProperty(value = "kosmos.integrasjonspunkt.autoRefresh", havingValue = "true")
 public class RefreshServiceImpl implements RefreshService {
 
     // FIXME denne må erstattes med noe som frisker opp siste versjoner fra github filen
     // https://raw.githubusercontent.com/felleslosninger/efm-integrasjonspunkt/refs/heads/feature-MOVE-3684-integrasjonspunkt-v3/latest-versions.yml
 
-    // private final ConfigDataContextRefresher contextRefresher;
-
     @Override
     public void refreshConfig() {
-        log.info("Refreshing configuration");
-        // contextRefresher.refresh();
+        log.info("Refreshing latest versjons of Integrasjonspunktet");
     }
 
 }

@@ -11,7 +11,7 @@ public class NoOpRefreshServiceImpl implements RefreshService {
 
     @Override
     public void refreshConfig() {
-        log.info("Spring Cloud Config is disabled, no configuration to refresh");
+        log.warn("Refreshing latest versjons of Integrasjonspunktet is disabled ('kosmos.integrasjonspunkt.autoRefresh=false')");
     }
 
 }
