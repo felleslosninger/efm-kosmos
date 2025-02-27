@@ -23,8 +23,6 @@ public class IntegrasjonspunktProperties {
     private URL shutdownURL;
 
     private boolean earlyBird;
-
-    // FIXME hvordan benyttes denne nå og bør den settes den sentralt eller lokalt der den kjører?
     private String supportedMajorVersion;
 
     @NotNull
