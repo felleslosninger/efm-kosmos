@@ -7,6 +7,5 @@ import org.junit.platform.suite.api.Suite;
 @Suite
 @IncludeEngines("cucumber")
 @SelectClasspathResource("cucumber")
-//@UtilityClass
 public class RunCucumberIT {
 }

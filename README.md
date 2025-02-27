@@ -16,7 +16,7 @@ KOSMOS er [eFormidling](https://docs.digdir.no/docs/eFormidling/Introduksjon/) s
 Testet og bygget med OpenJDK 21.0.5 og Maven 3.9.9.
 
 ```bash
-# bygge og kjøre unit-tester (i praksis uten Cucumber)
+# bygge og kjøre unit-tester (surefire only, i praksis uten Cucumber)
 mvn clean package
 
 # bygge og kjøre alt av unit- & integrasjons-tester (surefire + failsafe)

@@ -9,10 +9,12 @@ import lombok.SneakyThrows;
 import no.difi.move.kosmos.KosmosMain;
 import no.difi.move.kosmos.config.IntegrasjonspunktProperties;
 import no.difi.move.kosmos.config.KosmosProperties;
+import no.difi.move.kosmos.service.config.RefreshService;
 import no.difi.move.kosmos.service.launcher.LauncherServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootContextLoader;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,6 +45,7 @@ public class CucumberStepsConfiguration {
     @SpyBean(KosmosProperties.class)
     @SpyBean(IntegrasjonspunktProperties.class)
     @SpyBean(LauncherServiceImpl.class)
+    @MockBean(RefreshService.class)
     public static class SpringConfiguration {
 
         @Bean

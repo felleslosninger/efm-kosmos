@@ -1,9 +1,9 @@
 package no.difi.move.kosmos.config;
 
-import lombok.Data;
-
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import lombok.Data;
+
 import java.net.URL;
 
 @Data
@@ -22,13 +22,12 @@ public class IntegrasjonspunktProperties {
     private URL infoURL;
     private URL shutdownURL;
 
-    private String latestVersion;
-
-    private String supportedMajorVersion;
-
     private boolean earlyBird;
-    private String earlyBirdVersion;
+
+    // FIXME hvordan benyttes denne nå og bør den settes den sentralt eller lokalt der den kjører?
+    private String supportedMajorVersion;
 
     @NotNull
     private boolean includeLog;
+
 }

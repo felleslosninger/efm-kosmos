@@ -10,8 +10,9 @@ import org.springframework.stereotype.Service;
 public class NoOpRefreshServiceImpl implements RefreshService {
 
     @Override
-    public void refreshConfig() {
-        log.warn("Refreshing latest versjons of Integrasjonspunktet is disabled ('kosmos.integrasjonspunkt.autoRefresh=false')");
+    public VersionsConfig refreshConfig() {
+        log.warn("Refreshing latest versions of Integrasjonspunktet is disabled ('kosmos.integrasjonspunkt.autoRefresh=false')");
+        return null;
     }
 
 }
