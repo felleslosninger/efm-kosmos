@@ -21,6 +21,10 @@ public class EnvironmentServiceImpl implements EnvironmentService {
     public Map<String, String> getChildProcessEnvironment() {
         log.info("Preparing application environment");
         Map<String, String> environment = new HashMap<>(System.getenv());
+        return calculateFilteredChildProcessEnvironment(environment);
+    }
+
+    Map<String, String> calculateFilteredChildProcessEnvironment(Map<String, String> environment) {
         List<String> exclusions = environment.keySet().stream()
                 .filter(k -> properties.getEnvironment().getPrefixesRemovedFromChildProcess().stream()
                         .anyMatch(k::startsWith))
