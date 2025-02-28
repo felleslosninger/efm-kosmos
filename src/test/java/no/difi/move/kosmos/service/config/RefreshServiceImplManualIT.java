@@ -7,11 +7,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.Assert.*;
 
-@Disabled("This is for manual debugging, it does a live download and parses the result")
+@Disabled("This test is for manual debugging, it does a live download and parses the result")
 @SpringBootTest(properties = {
         "kosmos.integrasjonspunkt.autoRefresh=true",
         "kosmos.integrasjonspunkt.versionsURL=https://raw.githubusercontent.com/felleslosninger/efm-integrasjonspunkt/refs/heads/feature-MOVE-3684-integrasjonspunkt-v3/latest-versions.yml" })
-public class RefreshServiceImplIT {
+public class RefreshServiceImplManualIT {
 
     @Autowired
     private RefreshService target;

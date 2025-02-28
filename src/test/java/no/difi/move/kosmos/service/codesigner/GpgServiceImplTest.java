@@ -28,14 +28,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+// FIXME Test works when run manually separately with with : mvn -Dtest=GpgServiceImplTest clean test
 @Disabled("Caused by: java.lang.SecurityException: digest missing for org/bouncycastle/openpgp/PGPPublicKey.class")
 @ExtendWith(MockitoExtension.class)
 public class GpgServiceImplTest {
 
     @Mock
     private KosmosProperties properties;
+
     @Mock
     private VerificationProperties verificationProperties;
+
     @Mock
     private PublicKeyVerifier keyVerifier;
 
