@@ -4,6 +4,7 @@ package no.difi.move.kosmos.service.config;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class LatestVersionParserTest {
 
@@ -15,6 +16,9 @@ public class LatestVersionParserTest {
                 .readAllBytes());
 
         var environments = RefreshServiceImpl.parseLatestVersions(yamlAsString).integrasjonspunkt().environments();
+
+        var unknown = environments.get("nonexisting");
+        assertNull("Expected unknown environment to return null", unknown);
 
         var itest = environments.get("itest");
         assertEquals("2.0.0", itest.latest());
