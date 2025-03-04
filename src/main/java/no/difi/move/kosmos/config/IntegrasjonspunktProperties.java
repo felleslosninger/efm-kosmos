@@ -1,9 +1,9 @@
 package no.difi.move.kosmos.config;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.net.URL;
 
 @Data
@@ -22,13 +22,10 @@ public class IntegrasjonspunktProperties {
     private URL infoURL;
     private URL shutdownURL;
 
-    private String latestVersion;
-
-    private String supportedMajorVersion;
-
     private boolean earlyBird;
-    private String earlyBirdVersion;
+    private String supportedMajorVersion;
 
     @NotNull
     private boolean includeLog;
+
 }

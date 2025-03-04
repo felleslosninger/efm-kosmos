@@ -40,7 +40,7 @@ public class GpgServiceImpl implements GpgService {
         log.info("Verifying signed data");
         PGPSignature signature = Optional.ofNullable(readSignature(downloadedSignature))
                 .orElseThrow(() -> new KosmosActionException(
-                        String.format("Unable to read GPG signature from %s", downloadedSignature)));
+                "Unable to read GPG signature from %s".formatted(downloadedSignature)));
         PGPPublicKey signerKey = publicKeyPaths.stream()
                 .map(this::readPublicKey)
                 .filter(Objects::nonNull)
@@ -77,7 +77,7 @@ public class GpgServiceImpl implements GpgService {
         log.trace("Looking for signer key {} in file {}", keyID, file);
         try {
             return file.getPublicKey(keyID);
-        } catch (PGPException e) {
+        } catch (Exception e) {
             log.warn("Could not get signer public key from file {}", file);
         }
         return null;
@@ -107,4 +107,5 @@ public class GpgServiceImpl implements GpgService {
         }
         return null;
     }
+
 }

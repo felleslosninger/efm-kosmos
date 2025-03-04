@@ -15,7 +15,6 @@ import org.zeroturnaround.exec.ProcessResult;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.concurrent.Future;
 
 @Service
@@ -27,6 +26,8 @@ public class LauncherServiceImpl implements LauncherService {
     private final ActuatorService actuatorService;
     private final EnvironmentService environmentService;
 
+    private Future<ProcessResult> future;
+
     @Override
     public LaunchResult launchIntegrasjonspunkt(String jarPath) {
         log.info("Starting application: {}", jarPath);
@@ -35,13 +36,18 @@ public class LauncherServiceImpl implements LauncherService {
 
     @SneakyThrows(InterruptedException.class)
     private LaunchResult launch(String jarPath) {
+
+        if ((future != null) && (!future.isDone())) {
+            log.warn("Previous application had not completely shut down yet, this might prevent new version to start when using H2 database.");
+        }
+
         LaunchResult launchResult = new LaunchResult()
                 .setJarPath(jarPath);
 
         try (StartupLog startupLog = new StartupLog(properties.getIntegrasjonspunkt().isIncludeLog())) {
             log.debug("Starting application in {}", jarPath);
 
-            Future<ProcessResult> future = new ProcessExecutor(Arrays.asList(
+            future = new ProcessExecutor(Arrays.asList(
                     "java", "-jar", jarPath,
                     "--management.endpoint.shutdown.enabled=true",
                     "--app.logger.enableSSL=false",

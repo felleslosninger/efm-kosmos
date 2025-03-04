@@ -16,21 +16,21 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Disabled("C.f. maven-surefire-plugin configuration in pom.xml: Caused by: java.lang.SecurityException: digest missing for org/bouncycastle/openpgp/PGPPublicKey.class")
+// FIXME Test works when run manually separately with with : mvn -Dtest=PublicKeyVerifierImplTest clean test
+@Disabled("Caused by: java.lang.SecurityException: digest missing for org/bouncycastle/openpgp/PGPPublicKey.class")
 @ExtendWith(MockitoExtension.class)
 public class PublicKeyVerifierImplTest {
 
-    private PGPPublicKey keyMock;
     private PublicKeyVerifierImpl target;
 
     @BeforeEach
     public void setUp() {
         target = new PublicKeyVerifierImpl();
-        keyMock = mock(PGPPublicKey.class);
     }
 
     @Test
     public void verify_KeyIsExpired_ShouldThrow() {
+        PGPPublicKey keyMock = mock(PGPPublicKey.class);
         when(keyMock.getValidSeconds()).thenReturn(2L);
         when(keyMock.getCreationTime()).thenReturn(Date.from(Instant.parse("2007-12-03T10:15:30.00Z")));
         assertThrows(KosmosActionException.class, () -> target.verify(keyMock));
@@ -38,14 +38,17 @@ public class PublicKeyVerifierImplTest {
 
     @Test
     public void verify_KeyHasNoExpiry_ShouldPass() {
+        PGPPublicKey keyMock = mock(PGPPublicKey.class);
         when(keyMock.getValidSeconds()).thenReturn(0L);
         assertDoesNotThrow(() -> target.verify(keyMock));
     }
 
     @Test
     public void verify_KeyIsNotExpired_ShouldPass() {
+        PGPPublicKey keyMock = mock(PGPPublicKey.class);
         when(keyMock.getCreationTime()).thenReturn(Date.from(Instant.now()));
         when(keyMock.getValidSeconds()).thenReturn(2000L);
         assertDoesNotThrow(() -> target.verify(keyMock));
     }
+
 }

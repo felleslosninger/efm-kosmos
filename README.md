@@ -8,13 +8,28 @@ KOSMOS er [eFormidling](https://docs.digdir.no/docs/eFormidling/Introduksjon/) s
 ## Teknologiar i bruk
 - Spring Boot
 
-## Oppstart
-### Føresetnadar
-- Java 8
+## Føresetnadar
+- Java 21
 - Maven 3
 
-### Bygging
-```mvn clean install```
+## Breaking changes fra Kosmos v1.x til v2.x
+-  Fjernet bruk av Spring Cloud Config (properties) for styring av latest/earlybird versjoner :
+    - Property `kosmos.integrasjonspunkt.latest-version` er ikke lenger i bruk (kan fjernes lokalt)
+    - Property `kosmos.integrasjonspunkt.earlybird-version` er ikke lenger i bruk (kan fjernes lokalt)
+    - Property `kosmos.integrasjonspunkt.versionsURL` peker på URL hvor siste versjoner lastes ned (default er [latest-version.yml](https://raw.githubusercontent.com/felleslosninger/efm-integrasjonspunkt/refs/heads/main/latest-versions.yml))
 
-### Dokumentasjon
+Eksempel på hvordan en [latest-versions.yml](src/test/resources/versions/latest-versions.yml) ser ut. 
+
+## Bygging og testing
+Testet og bygget med OpenJDK 21.0.5 og Maven 3.9.9.
+
+```bash
+# bygge og kjøre unit-tester (surefire only, i praksis uten Cucumber)
+mvn clean package
+
+# bygge og kjøre alt av unit- & integrasjons-tester (surefire + failsafe)
+mvn clean verify
+```
+
+## Dokumentasjon
 - Sjå [Digdir Docs](https://docs.digdir.no/docs/eFormidling/installasjon/automatisk_oppgradering)

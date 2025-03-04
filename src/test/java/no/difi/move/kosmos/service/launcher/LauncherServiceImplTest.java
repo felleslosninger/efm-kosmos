@@ -33,6 +33,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class LauncherServiceImplTest {
+
     @Mock
     private KosmosProperties properties;
     @Mock
@@ -142,4 +143,5 @@ public class LauncherServiceImplTest {
                     .hasFieldOrPropertyWithValue("startupLog", "test exception");
         }
     }
+
 }

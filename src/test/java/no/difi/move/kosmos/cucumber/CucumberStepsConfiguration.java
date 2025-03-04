@@ -9,12 +9,13 @@ import lombok.SneakyThrows;
 import no.difi.move.kosmos.KosmosMain;
 import no.difi.move.kosmos.config.IntegrasjonspunktProperties;
 import no.difi.move.kosmos.config.KosmosProperties;
+import no.difi.move.kosmos.service.config.RefreshService;
 import no.difi.move.kosmos.service.launcher.LauncherServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootContextLoader;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -27,7 +28,6 @@ import java.nio.file.Path;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 @CucumberContextConfiguration
 @ContextConfiguration(classes = {
@@ -45,6 +45,7 @@ public class CucumberStepsConfiguration {
     @SpyBean(KosmosProperties.class)
     @SpyBean(IntegrasjonspunktProperties.class)
     @SpyBean(LauncherServiceImpl.class)
+    @MockBean(RefreshService.class)
     public static class SpringConfiguration {
 
         @Bean
@@ -73,10 +74,6 @@ public class CucumberStepsConfiguration {
             return kosmosProperties.getIntegrasjonspunkt();
         }
 
-        @Bean
-        public ContextRefresher contextRefresher() {
-            return mock(ContextRefresher.class);
-        }
     }
 
     @Autowired
@@ -99,4 +96,5 @@ public class CucumberStepsConfiguration {
     public void after() {
         FileSystemUtils.deleteRecursively(temporaryPath.toFile());
     }
+
 }

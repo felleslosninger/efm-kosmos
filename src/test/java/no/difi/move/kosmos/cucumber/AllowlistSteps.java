@@ -11,7 +11,6 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -23,7 +22,7 @@ public class AllowlistSteps {
     @SneakyThrows
     @Given("^the distribution \"([^\"]*)\" is allowlisted$")
     public void theVersionIsAllowlisted(String version) {
-        final Path path = Paths.get(propertiesSpy.getIntegrasjonspunkt().getHome(), version + ".allowlisted");
+        final Path path = Path.of(propertiesSpy.getIntegrasjonspunkt().getHome(), version + ".allowlisted");
         if (!new File(path.toString()).createNewFile()) {
             log.error("Allowlist file already exists");
         }

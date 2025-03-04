@@ -8,8 +8,8 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import javax.mail.Message;
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.Message;
+import jakarta.mail.internet.InternetAddress;
 import java.util.Objects;
 import java.util.Optional;
 
