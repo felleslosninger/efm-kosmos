@@ -7,3 +7,8 @@ target/
 *.ipr
 
 testing
+
+release.properties
+
+### Maven ###
+pom.xml.releaseBackup
