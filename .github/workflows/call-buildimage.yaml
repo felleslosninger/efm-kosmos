@@ -8,8 +8,8 @@ on:
 
 jobs:
   build-and-deploy-libs:
-    uses: felleslosninger/github-workflows/.github/workflows/ci-maven-install-deploy-lib.yml@efm-tilpasninger-3
+    uses: felleslosninger/github-workflows/.github/workflows/ci-efm-integrasjonspunkt-publish-ossrh.yml@main
     with:
-      java-version: 11
+      java-version: 21
     secrets: inherit
     
