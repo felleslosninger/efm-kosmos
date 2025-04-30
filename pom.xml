@@ -258,10 +258,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <!-- FIXME com.github.kirviq:dumbster:1.7.1   17 Jul 2016 at 13:19 (CEST) -->
-            <groupId>com.github.kirviq</groupId>
-            <artifactId>dumbster</artifactId>
-            <version>1.7.1</version>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail</artifactId>
+            <version>2.1.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

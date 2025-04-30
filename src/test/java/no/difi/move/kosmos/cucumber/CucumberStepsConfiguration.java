@@ -1,7 +1,8 @@
 package no.difi.move.kosmos.cucumber;
 
-import com.dumbster.smtp.SimpleSmtpServer;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.icegreen.greenmail.util.GreenMail;
+import com.icegreen.greenmail.util.ServerSetupTest;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.spring.CucumberContextConfiguration;
@@ -65,8 +66,10 @@ public class CucumberStepsConfiguration {
 
         @Bean
         @SneakyThrows
-        public SimpleSmtpServer simpleSmtpServer() {
-            return SimpleSmtpServer.start(SimpleSmtpServer.AUTO_SMTP_PORT);
+        public GreenMail testSmtpServer() {
+            var smtpServer = new GreenMail(ServerSetupTest.SMTP.dynamicPort());
+            smtpServer.start();
+            return smtpServer;
         }
 
         @Bean
