@@ -268,12 +268,12 @@
     <distributionManagement>
         <snapshotRepository>
             <id>github</id>
-            <url>https://maven.pkg.github.com/felleslosninger/efm-integrasjonspunkt</url>
+            <url>https://maven.pkg.github.com/felleslosninger/efm-kosmos</url>
         </snapshotRepository>
         <repository>
             <id>github</id>
             <name>GitHub felleslosninger Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/felleslosninger/efm-integrasjonspunkt</url>
+            <url>https://maven.pkg.github.com/felleslosninger/efm-kosmos</url>
         </repository>
     </distributionManagement>
 
