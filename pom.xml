@@ -65,7 +65,7 @@
         <spring-cloud.version>2024.0.0</spring-cloud.version>
         <bouncycastle.version>1.80</bouncycastle.version>
         <wiremock.version>3.11.0</wiremock.version>
-        <okhttp.version>5.0.0-alpha.14</okhttp.version>
+        <okhttp.version>5.0.0-alpha.16</okhttp.version>
         <!-- FIXME do we actually need these when creating docker images ? -->
         <docker.skip>true</docker.skip>
         <docker.image.prefix>difimove2</docker.image.prefix>
