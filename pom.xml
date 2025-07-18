@@ -130,7 +130,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.18.0</version>
+            <version>2.20.0</version>
         </dependency>
         <dependency>
             <!-- FIXME org.zeroturnaround:zt-exec:1.12   02 Sep 2020 at 09:18 (CEST) -->
