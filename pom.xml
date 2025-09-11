@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.2</version>
+        <version>3.5.5</version>
         <relativePath/>
     </parent>
 
@@ -63,9 +63,9 @@
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-cloud.version>2024.0.0</spring-cloud.version>
-        <bouncycastle.version>1.80</bouncycastle.version>
-        <wiremock.version>3.11.0</wiremock.version>
-        <okhttp.version>5.0.0-alpha.14</okhttp.version>
+        <bouncycastle.version>1.81</bouncycastle.version>
+        <wiremock.version>3.13.1</wiremock.version>
+        <okhttp.version>5.0.0-alpha.16</okhttp.version>
         <!-- FIXME do we actually need these when creating docker images ? -->
         <docker.skip>true</docker.skip>
         <docker.image.prefix>difimove2</docker.image.prefix>
@@ -130,7 +130,7 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.18.0</version>
+            <version>2.20.0</version>
         </dependency>
         <dependency>
             <!-- FIXME org.zeroturnaround:zt-exec:1.12   02 Sep 2020 at 09:18 (CEST) -->
@@ -142,7 +142,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>33.4.0-jre</version>
+            <version>33.4.8-jre</version>
         </dependency>
         <dependency>
             <!-- FIXME com.vdurmont:semver4j:3.1.0   13 Sep 2019 at 17:46 (CEST) -->
@@ -172,10 +172,10 @@
         <!-- start of logging/monitoring dependencies -->
 
         <dependency>
-            <groupId>net.logstash.logback</groupId>
             <!-- needed for ELK stack -->
+            <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
-            <version>4.9</version>
+            <version>8.1</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -215,7 +215,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.17.0</version>
+            <version>3.18.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -248,13 +248,13 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.15.2</version>
+            <version>5.19.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.wiremock</groupId>
             <artifactId>wiremock-standalone</artifactId>
-            <version>3.10.0</version>
+            <version>3.13.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -314,12 +314,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.2</version>
+                <version>3.5.3</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.5.2</version>
+                <version>3.5.3  </version>
                 <configuration>
                     <properties>
                         <configurationParameters>
