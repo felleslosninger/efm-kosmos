@@ -1,4 +1,4 @@
-name: Run PR Tests,
+name: Run PR Tests, verify pr name, maven build test, trivy fs scan
 
 on:
   pull_request:
