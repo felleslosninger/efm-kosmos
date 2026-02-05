@@ -1,0 +1,29 @@
+name: Run PR Tests,
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+    branches: [main]
+
+permissions:
+  pull-requests: write
+  contents: write
+  issues: write
+  repository-projects: read
+
+jobs:
+  run-pr-checks:
+    uses: felleslosninger/github-workflows/.github/workflows/ci-pr-checks.yml@main
+    with:
+      application-type: spring-boot
+      java-version: 21
+      pull-request-title: ${{ github.event.pull_request.title }}
+      pull-request-allowed-prefixes: "MOVE-,Bump"
+      enable-auto-merge-dependabot: true
+      enable-trivy-image-scan: true
+      auto-merge-types: "semver-patch"
+    secrets: inherit
