@@ -1,4 +1,4 @@
-name: Release
+name: Release jars and docker image to github releases
 
 on:
   release:
@@ -14,4 +14,15 @@ jobs:
       java-version: 21
       sbom-path: ./
     secrets: inherit
+
+    build-and-deploy-image:
+      #builds and deploys docker image to Github Packages Container Registry
+      needs: call-workflow-maven-install-deploy
+      uses: felleslosninger/github-workflows/.github/workflows/ci-build-publish-image.yml@main
+      with:
+        image-tag: ${{ github.event.release.tag_name }}
+        cr-type: ghcr
+        slack-channel-id: C05NLQCFR41
+        java-version: 21
+      secrets: inherit
 
