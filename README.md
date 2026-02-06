@@ -34,18 +34,10 @@ mvn clean verify
 ## Dokumentasjon
 - Sjå [Digdir Docs](https://docs.digdir.no/docs/eFormidling/installasjon/automatisk_oppgradering)
 
-## Release
-See documentation for the [maven-release-plugin](https://maven.apache.org/maven-release/maven-release-plugin/) and [guide for maven-release-plugin](https://maven.apache.org/guides/mini/guide-releasing.html).
-
-```bash
-# local repo must be in sync with origin/GitHub
-git push
-
-mvn release:prepare
-# answer three questions (set the tag equal to the release version)
-# What is the release version for "Kosmos"? (no.difi.move:kosmos) 1.0: : 1.0.0
-# What is SCM release tag or label for "Kosmos"? (no.difi.move:kosmos) 1.0.0: :
-# What is the new development version for "Kosmos"? (no.difi.move:kosmos) 1.0.1-SNAPSHOT: :
-
-mvn release:perform
-```
+## Release (for interne)
+Release av ny versjon gjerast via GitHub GUI
+- Gå til "Releases" i GitHub repo
+- Klikk på "Draft a new release"
+- Velg tag (ny eller eksisterande)
+- Fyll inn tittel og beskrivelse
+- Klikk på "Publish release"
