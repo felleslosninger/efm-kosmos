@@ -65,10 +65,6 @@
         <bouncycastle.version>1.82</bouncycastle.version>
         <wiremock.version>3.13.1</wiremock.version>
         <okhttp.version>5.1.0</okhttp.version>
-        <!-- FIXME did we actually need these when creating docker images ?
-        <docker.skip>true</docker.skip>
-        <docker.image.prefix>difimove2</docker.image.prefix>
-        -->
     </properties>
 
     <dependencyManagement>
