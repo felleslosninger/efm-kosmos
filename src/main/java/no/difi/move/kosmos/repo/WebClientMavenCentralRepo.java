@@ -13,7 +13,6 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
@@ -36,10 +35,15 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
     public WebClientMavenCentralRepo(KosmosProperties properties) {
         this.properties = properties;
         this.webClient = WebClient.builder()
-                .clientConnector(new ReactorClientHttpConnector(HttpClient.create()
-                        .tcpConfiguration(client -> client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, properties.getMavenCentralConnectTimeoutInMs()))
-                        .responseTimeout(Duration.ofMillis(properties.getMavenCentralReadTimeoutInMs()))))
-                .build();
+                .clientConnector(
+                    new ReactorClientHttpConnector(
+                        HttpClient.create()
+                            .followRedirect(true)
+                            .tcpConfiguration(client -> client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, properties.getMavenCentralConnectTimeoutInMs()))
+                            .responseTimeout(Duration.ofMillis(properties.getMavenCentralReadTimeoutInMs())
+                        )
+                    )
+                ).build();
     }
 
     @Override
@@ -80,15 +84,27 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
 
     @SneakyThrows(URISyntaxException.class)
     private URI getDownloadURI(String version, String classifier) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(properties.getMavenCentral().toURI())
-                .path(properties.getGroupId() + properties.getArtifactId() + version + "/" + "integrasjonspunkt-" + version + ".jar");
 
+        var tag = version;
+        var suffix = classifier == null ? "" : classifier;
 
-        if (classifier != null) {
-            builder.path(classifier);
-        }
-        log.trace("Built Maven central download URI: {}", builder.build().toUri());
-        return builder.build().toUri();
+        return new URI("https://github.com/felleslosninger/efm-integrasjonspunkt/releases/download/%s/integrasjonspunkt-%s.jar%s".formatted(tag, tag, suffix));
+
+        // FIXME clean up the configuration and use the maven central url (consider rename)
+
+        // https://github.com/felleslosninger/efm-integrasjonspunkt/releases/download/v3.0.1/integrasjonspunkt-v3.0.1.jar
+        // https://github.com/felleslosninger/efm-integrasjonspunkt/releases/download/v3.0.1/integrasjonspunkt-v3.0.1.jar.sha1
+        // https://github.com/felleslosninger/efm-integrasjonspunkt/releases/download/v3.0.1/integrasjonspunkt-v3.0.1.jar.asc
+
+//        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(properties.getMavenCentral().toURI())
+//                .path(properties.getGroupId() + properties.getArtifactId() + version + "/" + "integrasjonspunkt-" + version + ".jar");
+//
+//
+//        if (classifier != null) {
+//            builder.path(classifier);
+//        }
+//        log.trace("Built Maven central download URI: {}", builder.build().toUri());
+//        return builder.build().toUri();
     }
 
     @Override

@@ -40,7 +40,7 @@ public class ValidateAction implements ApplicationAction {
         log.trace("Calling ValidateAction.apply on application {}", application);
         try {
             assertChecksumIsCorrect(application, ALGORITHM.SHA1);
-            assertChecksumIsCorrect(application, ALGORITHM.MD5);
+            //assertChecksumIsCorrect(application, ALGORITHM.MD5);
             String signature = downloadSignature(application.getLatest().getVersion());
             boolean verify = gpgService.verify(application.getLatest().getFile().getAbsolutePath(), signature);
             if (verify) {

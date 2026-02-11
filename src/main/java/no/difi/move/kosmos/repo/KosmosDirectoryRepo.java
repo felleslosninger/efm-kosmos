@@ -27,7 +27,7 @@ public class KosmosDirectoryRepo {
 
     private final KosmosProperties properties;
     private static String ALLOWLISTEDFILENAME = "integrasjonspunkt-%s.allowlisted";
-    private static Pattern PATTERN = Pattern.compile("-(\\d+.\\d+.\\d+[^.]*)");
+    private static Pattern PATTERN = Pattern.compile("-[vV]?(\\d+.\\d+.\\d+[^.]*)");
 
     public File getFile(String version, String name) {
         File root = getOrCreateHomeFolder();
@@ -160,8 +160,9 @@ public class KosmosDirectoryRepo {
         }
     }
 
-    private String getSemanticVersion(String filename) {
+    String getSemanticVersion(String filename) {
         Matcher matcher = PATTERN.matcher(filename);
         return matcher.find() ? matcher.group(1) : null;
     }
+
 }
