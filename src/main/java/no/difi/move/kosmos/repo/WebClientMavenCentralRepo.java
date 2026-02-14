@@ -13,6 +13,7 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
@@ -85,26 +86,21 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
     @SneakyThrows(URISyntaxException.class)
     private URI getDownloadURI(String version, String classifier) {
 
-        var tag = version;
-        var suffix = classifier == null ? "" : classifier;
+        // FIXME consider rename - this is no longer Maven Central specific web client
 
-        return new URI("https://github.com/felleslosninger/efm-integrasjonspunkt/releases/download/%s/integrasjonspunkt-%s.jar%s".formatted(tag, tag, suffix));
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(properties.getMavenCentral().toURI())
+        .path(properties.getGroupId())
+         .path(properties.getArtifactId())
+         .path("/releases/download/")
+         .path(version).path("/integrasjonspunkt-" + version + ".jar");
 
-        // FIXME clean up the configuration and use the maven central url (consider rename)
+        if (classifier != null) {
+            builder.path(classifier);
+        }
 
-        // https://github.com/felleslosninger/efm-integrasjonspunkt/releases/download/v3.0.1/integrasjonspunkt-v3.0.1.jar
-        // https://github.com/felleslosninger/efm-integrasjonspunkt/releases/download/v3.0.1/integrasjonspunkt-v3.0.1.jar.sha1
-        // https://github.com/felleslosninger/efm-integrasjonspunkt/releases/download/v3.0.1/integrasjonspunkt-v3.0.1.jar.asc
-
-//        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(properties.getMavenCentral().toURI())
-//                .path(properties.getGroupId() + properties.getArtifactId() + version + "/" + "integrasjonspunkt-" + version + ".jar");
-//
-//
-//        if (classifier != null) {
-//            builder.path(classifier);
-//        }
-//        log.trace("Built Maven central download URI: {}", builder.build().toUri());
-//        return builder.build().toUri();
+        var uri = builder.build().toUri();
+        log.trace("Built Maven central download URI: {}", uri);
+        return uri;
     }
 
     @Override
@@ -122,4 +118,5 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
             throw new KosmosActionException("Signature fetch failed", e);
         }
     }
+
 }
