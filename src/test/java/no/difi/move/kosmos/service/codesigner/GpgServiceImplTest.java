@@ -8,7 +8,6 @@ import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,8 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-// FIXME Test works when run manually separately with with : mvn -Dtest=GpgServiceImplTest clean test
-@Disabled("Caused by: java.lang.SecurityException: digest missing for org/bouncycastle/openpgp/PGPPublicKey.class")
 @ExtendWith(MockitoExtension.class)
 public class GpgServiceImplTest {
 

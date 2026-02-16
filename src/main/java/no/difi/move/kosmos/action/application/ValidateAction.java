@@ -39,6 +39,8 @@ public class ValidateAction implements ApplicationAction {
         log.info("Validating application");
         log.trace("Calling ValidateAction.apply on application {}", application);
         try {
+            // FIXME there is no need to verify SHA1 and MD5 checksums in code (both algos are obsolete as well)
+            // FIXME since we verify the signature, we have indirect verification of the checksums
             assertChecksumIsCorrect(application, ALGORITHM.SHA1);
             //assertChecksumIsCorrect(application, ALGORITHM.MD5);
             String signature = downloadSignature(application.getLatest().getVersion());
