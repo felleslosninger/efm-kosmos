@@ -9,6 +9,6 @@ jobs:
     uses: felleslosninger/github-workflows/.github/workflows/ci-maven-build.yml@main
     with:
       java-version: 21
+      maven-lifecycle: verify
     secrets: inherit
-    maven-lifecycle: verify
 
