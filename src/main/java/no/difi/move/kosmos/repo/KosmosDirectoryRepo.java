@@ -14,6 +14,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -26,8 +27,9 @@ import java.util.regex.Pattern;
 public class KosmosDirectoryRepo {
 
     private final KosmosProperties properties;
-    private static String ALLOWLISTEDFILENAME = "integrasjonspunkt-%s.allowlisted";
-    private static Pattern PATTERN = Pattern.compile("-(\\d+.\\d+.\\d+[^.]*)");
+    private final Clock clock;
+    private static final String ALLOWLISTEDFILENAME = "integrasjonspunkt-%s.allowlisted";
+    private static final Pattern PATTERN = Pattern.compile("-[vV]?(\\d+.\\d+.\\d+[^.]*)");
 
     public File getFile(String version, String name) {
         File root = getOrCreateHomeFolder();
@@ -36,7 +38,6 @@ public class KosmosDirectoryRepo {
 
     private File getOrCreateHomeFolder() {
         File home = new File(properties.getIntegrasjonspunkt().getHome());
-
         if (home.mkdir()) {
             log.info("Created home folder: {}", home.getAbsolutePath());
         }
@@ -60,7 +61,7 @@ public class KosmosDirectoryRepo {
             try {
                 LocalDateTime expires = LocalDateTime.parse(FileUtils.readFileToString(blocklistFile, StandardCharsets.UTF_8));
                 log.debug("Blocklist expires at {}", expires);
-                final boolean expired = expires.isBefore(LocalDateTime.now());
+                final boolean expired = expires.isBefore(LocalDateTime.now(clock));
                 if (expired) {
                     removeBlocklist(blocklistFile);
                 }
@@ -91,7 +92,7 @@ public class KosmosDirectoryRepo {
         try (BufferedWriter writer = Files.newBufferedWriter(blocklistFile.toPath(), StandardCharsets.UTF_8)) {
             int durationInHours = properties.getBlocklist().getDurationInHours();
             log.debug("Blocklist duration is {} hours", durationInHours);
-            LocalDateTime expires = LocalDateTime.now().plusHours(durationInHours);
+            LocalDateTime expires = LocalDateTime.now(clock).plusHours(durationInHours);
             log.debug("Blocklisting {} until {}", file.getName(), expires);
             writer.write(expires.toString());
         } catch (IOException e) {
@@ -116,7 +117,7 @@ public class KosmosDirectoryRepo {
         File allowlistFile = new File(properties.getIntegrasjonspunkt().getHome() + "/" + fileName);
         log.debug("Allowlist file pathname is {}", allowlistFile.getAbsolutePath());
         try (BufferedWriter writer = Files.newBufferedWriter(allowlistFile.toPath(), StandardCharsets.UTF_8)) {
-            LocalDateTime created = LocalDateTime.now();
+            LocalDateTime created = LocalDateTime.now(clock);
             log.debug("Allowlist file: {} created: {}", file.getName(), created);
             writer.write(created.toString());
         } catch (IOException e) {
@@ -160,8 +161,9 @@ public class KosmosDirectoryRepo {
         }
     }
 
-    private String getSemanticVersion(String filename) {
+    String getSemanticVersion(String filename) {
         Matcher matcher = PATTERN.matcher(filename);
         return matcher.find() ? matcher.group(1) : null;
     }
+
 }

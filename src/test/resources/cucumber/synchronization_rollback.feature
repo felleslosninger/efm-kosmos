@@ -17,16 +17,16 @@ Feature: Synchronization - Rollback
     And the latest integrasjonspunkt version is "2.2.1"
     And the early bird setting is not activated
     And the supported major version is unset
-    And a "GET" request to "/maven2/no/difi/meldingsutveksling/integrasjonspunkt/2.2.1/integrasjonspunkt-2.2.1.jar" will respond with status "200" and the following "application/java-archive" in "/cucumber/failure.jar"
-    And a "GET" request to "/maven2/no/difi/meldingsutveksling/integrasjonspunkt/2.2.1/integrasjonspunkt-2.2.1.jar.sha1" will respond with status "200" and the following "application/octet-stream"
+    And a "GET" request to "/felleslosninger/efm-integrasjonspunkt/releases/download/2.2.1/integrasjonspunkt-2.2.1.jar" will respond with status "200" and the following "application/java-archive" in "/cucumber/failure.jar"
+    And a "GET" request to "/felleslosninger/efm-integrasjonspunkt/releases/download/2.2.1/integrasjonspunkt-2.2.1.jar.sha1" will respond with status "200" and the following "application/octet-stream"
     """
     06d4cfb40c1bfeb3ef8d4ccfd222defe7225d425
     """
-    And a "GET" request to "/maven2/no/difi/meldingsutveksling/integrasjonspunkt/2.2.1/integrasjonspunkt-2.2.1.jar.md5" will respond with status "200" and the following "application/octet-stream"
+    And a "GET" request to "/felleslosninger/efm-integrasjonspunkt/releases/download/2.2.1/integrasjonspunkt-2.2.1.jar.md5" will respond with status "200" and the following "application/octet-stream"
     """
     d45f066d54edf0c99ead70d3305865a5
     """
-    And a "GET" request to "/maven2/no/difi/meldingsutveksling/integrasjonspunkt/2.2.1/integrasjonspunkt-2.2.1.jar.asc" will respond with status "200" and the following "text/plain" in "/cucumber/failure.jar.asc"
+    And a "GET" request to "/felleslosninger/efm-integrasjonspunkt/releases/download/2.2.1/integrasjonspunkt-2.2.1.jar.asc" will respond with status "200" and the following "text/plain" in "/cucumber/failure.jar.asc"
     And state is "Started" then a "GET" request to "/manage/health" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
     """
     {
