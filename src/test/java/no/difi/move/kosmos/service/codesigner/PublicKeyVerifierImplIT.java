@@ -16,7 +16,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class PublicKeyVerifierImplTest {
+public class PublicKeyVerifierImplIT {
+
+    // There have been trouble with this test as a regular unit test running
+    // in parallel / concurrent with other tests with surefire (got what was
+    // probably classpath and/or security provider "pollution").
+    // Instead of creating multiple surefire targets, with unique settings
+    // around forking, I classified it as an IT test to be run by "failsafe".
 
     private PublicKeyVerifierImpl target;
 
