@@ -1,4 +1,4 @@
-name: Run maven build and test (unit & integration) and trivy fs scan
+name: Verify PR name, Maven build and test (unit & integration) and trivy fs scan
 
 on:
   pull_request:
@@ -17,7 +17,6 @@ permissions:
 
 jobs:
 
-  # TODO - ci-pr-checks.yml gjorde sjekk av PR navnet, ny versjon av ci-maven-build.yml vil gjøre trivy fs scan
   call-workflow-maven-build:
     uses: felleslosninger/github-workflows/.github/workflows/ci-maven-build.yml@main
     with:
