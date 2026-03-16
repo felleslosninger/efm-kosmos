@@ -1,4 +1,4 @@
-name: Run PR Tests, verify pr name, maven build test, trivy fs scan
+name: Run maven build and test (unit & integration) and trivy fs scan
 
 on:
   pull_request:
@@ -16,14 +16,11 @@ permissions:
   repository-projects: read
 
 jobs:
-  run-pr-checks:
-    uses: felleslosninger/github-workflows/.github/workflows/ci-pr-checks.yml@main
+
+  # TODO - ci-pr-checks.yml gjorde sjekk av PR navnet, ny versjon av ci-maven-build.yml vil gjøre trivy fs scan
+  call-workflow-maven-build:
+    uses: felleslosninger/github-workflows/.github/workflows/ci-maven-build.yml@main
     with:
-      application-type: spring-boot
       java-version: 21
-      pull-request-title: ${{ github.event.pull_request.title }}
-      pull-request-allowed-prefixes: "MOVE-,Bump"
-      enable-auto-merge-dependabot: true
-      enable-trivy-image-scan: true
-      auto-merge-types: "semver-patch"
+      maven-lifecycle: verify
     secrets: inherit

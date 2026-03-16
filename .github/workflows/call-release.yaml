@@ -1,4 +1,4 @@
-name: Release jars and docker image to github releases
+name: Build jars, trivy fs check and release jars github releases
 
 on:
   release:
@@ -6,7 +6,6 @@ on:
 
 jobs:
 
-  #builds and deploys libs to github packages
   call-workflow-maven-install-deploy:
     uses: felleslosninger/github-workflows/.github/workflows/ci-maven-install-deploy-lib.yml@main
     with:
@@ -15,15 +14,3 @@ jobs:
       java-version: 21
       sbom-path: ./
     secrets: inherit
-
-  #builds and deploys docker image to Github Packages Container Registry
-  build-and-deploy-image:
-    needs: call-workflow-maven-install-deploy
-    uses: felleslosninger/github-workflows/.github/workflows/ci-build-publish-image.yml@main
-    with:
-      image-tag: ${{ github.event.release.tag_name }}
-      cr-type: ghcr
-      slack-channel-id: C05NLQCFR41
-      java-version: 21
-    secrets: inherit
-

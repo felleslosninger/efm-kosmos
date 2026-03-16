@@ -1,6 +1,19 @@
-# Test tweaking og klassifisering
+# Teststrategi
 
-Benyttet dette oppsettet på med MacBook M3 Pro og kjørt fra terminalen.
+Som eit ledd i oppfølgingsoppgåver i kjølvatnet av Testing Spring Boot Applications Demystified-workshop 
+skal det gjennomføres noen testendringar (ref JIRA oppgåver MOVE-4904, MOVE-4910, MOVE-4917).
+
+- Målet bør vera å halda test-fasen rask.
+- Innføra maven-failsafe-plugin for integrasjonstestar
+- Parallellisera unit-testar
+- Slice testar som er raske går som unit-testar
+- Dersom noko kjem i konflikt med parallellisering skal dei testane redirigerast til Failsafe
+- Surefire som tommelfingerregel, men dersom profilering (t.d. vha. Spring Test Profiler) tilseier noko anna, kan dei omdøypast til ...IT, og dermed handsamast av Failsafe
+- For hybridtestar som @WebMvcTest og @DataJpaTest, bruk fornuft og se på tidsbruken (maven `test` fasen skal være rask)
+
+## Oppsett for tweaking
+
+Benyttet følgande oppsettet på med MacBook M3 Pro og kjørte alle testar fra terminalen.
 ```bash
 > java --version
 openjdk 21.0.9 2025-10-21 LTS
