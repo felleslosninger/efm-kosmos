@@ -13,6 +13,8 @@ jobs:
   call-workflow-maven-build:
     uses: felleslosninger/github-workflows/.github/workflows/ci-pr-checks.yml@main
     with:
+      pull-request-title: ${{ github.event.pull_request.title }}
+      pull-request-allowed-prefixes: "Bump,MOVE-"
       application-type: spring-boot
       java-version: 21
       maven-lifecycle: verify
