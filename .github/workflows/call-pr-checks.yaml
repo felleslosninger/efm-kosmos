@@ -9,6 +9,10 @@ on:
       - edited
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   call-workflow-maven-build:
     uses: felleslosninger/github-workflows/.github/workflows/ci-pr-checks.yml@main
