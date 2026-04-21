@@ -1,11 +1,10 @@
-name: Build jars, trivy fs check and release jars github releases
+name: Call Release
 
 on:
   release:
     types: [created]
 
 jobs:
-
   call-workflow-maven-install-deploy:
     uses: felleslosninger/github-workflows/.github/workflows/ci-maven-install-deploy-lib.yml@main
     with:

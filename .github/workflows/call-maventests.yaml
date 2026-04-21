@@ -1,8 +1,8 @@
-name: Maven build and test (unit & integration)
+name: Run maven tests
 
 on:
   push:
-    branches-ignore: [main]
+    branches: [main]
 
 jobs:
 

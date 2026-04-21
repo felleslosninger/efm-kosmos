@@ -1,4 +1,4 @@
-name: Verify PR name, Maven build and test (unit & integration) and trivy fs scan
+name: Call CI pr checks
 
 on:
   pull_request:
@@ -9,17 +9,9 @@ on:
       - edited
     branches: [main]
 
-permissions:
-  pull-requests: write
-  contents: write
-  issues: write
-  repository-projects: read
-
 jobs:
-
   call-workflow-maven-build:
-    uses: felleslosninger/github-workflows/.github/workflows/ci-maven-build.yml@main
+    uses: felleslosninger/github-workflows/.github/workflows/ci-pr-checks.yml@main
     with:
-      java-version: 21
       maven-lifecycle: verify
     secrets: inherit
