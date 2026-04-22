@@ -30,8 +30,6 @@ import java.util.Optional;
 @Component
 public class WebClientMavenCentralRepo implements MavenCentralRepo {
 
-    // FIXME consider rename - this is no longer a Maven Central specific web client (works with other repositories)
-
     private final KosmosProperties properties;
     private final WebClient webClient;
 
