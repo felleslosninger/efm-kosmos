@@ -21,7 +21,7 @@ KOSMOS er [eFormidling](https://docs.digdir.no/docs/eFormidling/Introduksjon/) s
 Eksempel på hvordan en [latest-versions.yml](src/test/resources/versions/latest-versions.yml) ser ut. 
 
 ## Bygging og testing
-Testet og bygget med OpenJDK 21.0.9 og Maven 3.9.12.
+Testet og bygget med OpenJDK 21.0.9 og Maven 3.9.15.
 
 ```bash
 # bygge og kjøre unit-tester (surefire only, i praksis uten Cucumber)
