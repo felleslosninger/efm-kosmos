@@ -36,15 +36,20 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
     public WebClientMavenCentralRepo(KosmosProperties properties) {
         this.properties = properties;
         this.webClient = WebClient.builder()
-                .clientConnector(new ReactorClientHttpConnector(HttpClient.create()
-                        .tcpConfiguration(client -> client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, properties.getMavenCentralConnectTimeoutInMs()))
-                        .responseTimeout(Duration.ofMillis(properties.getMavenCentralReadTimeoutInMs()))))
-                .build();
+                .clientConnector(
+                    new ReactorClientHttpConnector(
+                        HttpClient.create()
+                            .followRedirect(true)
+                            .tcpConfiguration(client -> client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, properties.getMavenCentralConnectTimeoutInMs()))
+                            .responseTimeout(Duration.ofMillis(properties.getMavenCentralReadTimeoutInMs())
+                        )
+                    )
+                ).build();
     }
 
     @Override
     public void downloadJAR(String version, Path destination) {
-        log.trace("Entering WebClientMavenCentralRepo.downloadJAR() with arguments: version: {}, path: {}", version, destination);
+        log.trace("Entering downloadJAR() with arguments: version: {}, path: {}", version, destination);
         if (Strings.isNullOrEmpty(version)) {
             throw new KosmosActionException("Empty version selected for download");
         }
@@ -64,7 +69,7 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
 
     @Override
     public byte[] getChecksum(String version, String classifier) {
-        log.trace("Entering WebClientMavenCentralRepo.getChecksum() with args: version: {}, classifier: {}", version, classifier);
+        log.trace("Entering getChecksum() with args: version: {}, classifier: {}", version, classifier);
         URI uri = getDownloadURI(version, classifier);
         log.trace("Fetching checksum from URL {}", uri);
         try {
@@ -80,21 +85,26 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
 
     @SneakyThrows(URISyntaxException.class)
     private URI getDownloadURI(String version, String classifier) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(properties.getMavenCentral().toURI())
-                .path(properties.getGroupId() + properties.getArtifactId() + version + "/" + "integrasjonspunkt-" + version + ".jar");
 
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(properties.getMavenCentral().toURI())
+        .path(properties.getGroupId())
+         .path(properties.getArtifactId())
+         .path("/releases/download/")
+         .path(version).path("/integrasjonspunkt-" + version + ".jar");
 
         if (classifier != null) {
             builder.path(classifier);
         }
-        log.trace("Built Maven central download URI: {}", builder.build().toUri());
-        return builder.build().toUri();
+
+        var uri = builder.build().toUri();
+        log.trace("Built download URI: {}", uri);
+        return uri;
     }
 
     @Override
     public String downloadSignature(String version) {
         String classifier = ".asc";
-        log.trace("Calling MavenCentralRepo.getChecksum() with args: version: {}, classifier: {}", version, classifier);
+        log.trace("Calling downloadSignature() with args: version: {}, classifier: {}", version, classifier);
         URI uri = getDownloadURI(version, classifier);
         log.trace("Downloading signature from {} ", uri);
         try {
@@ -106,4 +116,5 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
             throw new KosmosActionException("Signature fetch failed", e);
         }
     }
+
 }
