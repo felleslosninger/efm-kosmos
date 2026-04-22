@@ -30,6 +30,8 @@ import java.util.Optional;
 @Component
 public class WebClientMavenCentralRepo implements MavenCentralRepo {
 
+    // FIXME consider rename - this is no longer a Maven Central specific web client (works with other repositories)
+
     private final KosmosProperties properties;
     private final WebClient webClient;
 
@@ -49,7 +51,7 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
 
     @Override
     public void downloadJAR(String version, Path destination) {
-        log.trace("Entering WebClientMavenCentralRepo.downloadJAR() with arguments: version: {}, path: {}", version, destination);
+        log.trace("Entering downloadJAR() with arguments: version: {}, path: {}", version, destination);
         if (Strings.isNullOrEmpty(version)) {
             throw new KosmosActionException("Empty version selected for download");
         }
@@ -69,7 +71,7 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
 
     @Override
     public byte[] getChecksum(String version, String classifier) {
-        log.trace("Entering WebClientMavenCentralRepo.getChecksum() with args: version: {}, classifier: {}", version, classifier);
+        log.trace("Entering getChecksum() with args: version: {}, classifier: {}", version, classifier);
         URI uri = getDownloadURI(version, classifier);
         log.trace("Fetching checksum from URL {}", uri);
         try {
@@ -86,8 +88,6 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
     @SneakyThrows(URISyntaxException.class)
     private URI getDownloadURI(String version, String classifier) {
 
-        // FIXME consider rename - this is no longer Maven Central specific web client
-
         UriComponentsBuilder builder = UriComponentsBuilder.fromUri(properties.getMavenCentral().toURI())
         .path(properties.getGroupId())
          .path(properties.getArtifactId())
@@ -99,14 +99,14 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
         }
 
         var uri = builder.build().toUri();
-        log.trace("Built Maven central download URI: {}", uri);
+        log.trace("Built download URI: {}", uri);
         return uri;
     }
 
     @Override
     public String downloadSignature(String version) {
         String classifier = ".asc";
-        log.trace("Calling MavenCentralRepo.getChecksum() with args: version: {}, classifier: {}", version, classifier);
+        log.trace("Calling downloadSignature() with args: version: {}, classifier: {}", version, classifier);
         URI uri = getDownloadURI(version, classifier);
         log.trace("Downloading signature from {} ", uri);
         try {
