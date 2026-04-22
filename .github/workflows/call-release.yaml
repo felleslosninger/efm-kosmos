@@ -5,8 +5,9 @@ on:
     types: [created]
 
 permissions:
-  contents: read
+  contents: write
   packages: write
+  id-token: write
 
 jobs:
   call-workflow-maven-install-deploy:
