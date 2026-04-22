@@ -4,10 +4,11 @@ on:
   release:
     types: [created]
 
-permissions:
-  contents: write
-  packages: write
-  id-token: write
+# we reverted this for debugging purposes, packages: write should be enough
+#permissions:
+#  contents: write
+#  packages: write
+#  id-token: write
 
 jobs:
   call-workflow-maven-install-deploy:
