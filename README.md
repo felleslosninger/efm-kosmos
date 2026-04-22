@@ -38,6 +38,6 @@ mvn clean verify
 Release av ny versjon gjerast via GitHub GUI
 - Gå til "Releases" i GitHub repo
 - Klikk på "Draft a new release"
-- Velg tag (ny eller eksisterande) `Bruk semantisk versjonering, ingen bokstaver kun tall "4.5.6"`
+- Velg tag (ny eller eksisterande) `Bruk semantisk versjonering, Github best practice anbefaler v-prefix, slik "v4.0.0"`
 - Fyll inn tittel og beskrivelse
 - Klikk på "Publish release"
