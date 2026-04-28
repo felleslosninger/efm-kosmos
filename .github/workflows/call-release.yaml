@@ -4,15 +4,13 @@ on:
   release:
     types: [created]
 
-# we reverted this for debugging purposes, packages: write should be enough
-#permissions:
-#  contents: write
-#  packages: write
-#  id-token: write
-
 jobs:
   call-workflow-maven-install-deploy:
     uses: felleslosninger/github-workflows/.github/workflows/ci-maven-install-deploy-lib.yml@main
+    permissions:
+      contents: write
+      packages: write
+      actions: read
     with:
       package-version: ${{ github.event.release.tag_name }}
       deployment-repository: ${{ github.repository }}
