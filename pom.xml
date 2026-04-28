@@ -53,9 +53,6 @@
         <repository>
             <id>github</id>
             <url>https://maven.pkg.github.com/felleslosninger/*</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
         </repository>
     </repositories>
 
@@ -270,10 +267,6 @@
     </dependencies>
 
     <distributionManagement>
-        <snapshotRepository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/felleslosninger/efm-kosmos</url>
-        </snapshotRepository>
         <repository>
             <id>github</id>
             <name>GitHub felleslosninger Apache Maven Packages</name>
