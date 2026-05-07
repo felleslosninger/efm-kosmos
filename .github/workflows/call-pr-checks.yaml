@@ -2,11 +2,7 @@ name: Call CI pr checks
 
 on:
   pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - edited
+    types: [ opened, edited, synchronize, reopened ]
     branches: [main]
 
 concurrency:
