@@ -29,7 +29,7 @@ public class KosmosProperties {
     private String orgnumber;
 
     @NotNull
-    private URL mavenCentral;
+    private URL javaArchiveRepositoryUrl;
 
     @NotNull
     private String groupId;
@@ -63,11 +63,11 @@ public class KosmosProperties {
 
     @NotNull
     @Positive
-    private Integer mavenCentralConnectTimeoutInMs;
+    private Integer javaArchiveRepositoryConnectTimeoutInMs;
 
     @NotNull
     @Positive
-    private Integer mavenCentralReadTimeoutInMs;
+    private Integer javaArchiveRepositoryReadTimeoutInMs;
 
     @NotNull
     @NotEmpty

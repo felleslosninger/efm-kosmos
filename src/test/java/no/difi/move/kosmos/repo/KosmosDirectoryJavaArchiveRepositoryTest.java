@@ -20,12 +20,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class KosmosDirectoryRepoTest {
+class KosmosDirectoryJavaArchiveRepositoryTest {
 
     @TempDir
     Path tempDir;
 
-    private KosmosDirectoryRepo repo;
+    private KosmosDirectoryJavaArchiveRepository repo;
     private KosmosProperties properties;
     private Clock clock;
 
@@ -42,7 +42,7 @@ class KosmosDirectoryRepoTest {
 
         // all tests start at 10:00
         clock = Clock.fixed(Instant.parse("2026-02-17T10:00:00Z"), ZoneId.of("UTC"));
-        repo = new KosmosDirectoryRepo(properties, clock);
+        repo = new KosmosDirectoryJavaArchiveRepository(properties, clock);
     }
 
     @Test

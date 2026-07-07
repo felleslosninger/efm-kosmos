@@ -28,20 +28,20 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-public class WebClientMavenCentralRepo implements MavenCentralRepo {
+public class WebClientJavaArchiveRepository implements JavaArchiveRepository {
 
     private final KosmosProperties properties;
     private final WebClient webClient;
 
-    public WebClientMavenCentralRepo(KosmosProperties properties) {
+    public WebClientJavaArchiveRepository(KosmosProperties properties) {
         this.properties = properties;
         this.webClient = WebClient.builder()
                 .clientConnector(
                     new ReactorClientHttpConnector(
                         HttpClient.create()
                             .followRedirect(true)
-                            .tcpConfiguration(client -> client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, properties.getMavenCentralConnectTimeoutInMs()))
-                            .responseTimeout(Duration.ofMillis(properties.getMavenCentralReadTimeoutInMs())
+                            .tcpConfiguration(client -> client.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, properties.getJavaArchiveRepositoryConnectTimeoutInMs()))
+                            .responseTimeout(Duration.ofMillis(properties.getJavaArchiveRepositoryReadTimeoutInMs())
                         )
                     )
                 ).build();
@@ -86,7 +86,7 @@ public class WebClientMavenCentralRepo implements MavenCentralRepo {
     @SneakyThrows(URISyntaxException.class)
     private URI getDownloadURI(String version, String classifier) {
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(properties.getMavenCentral().toURI())
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUri(properties.getJavaArchiveRepositoryUrl().toURI())
         .path(properties.getGroupId())
          .path(properties.getArtifactId())
          .path("/releases/download/")
