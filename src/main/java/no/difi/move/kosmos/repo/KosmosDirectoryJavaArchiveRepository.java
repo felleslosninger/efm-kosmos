@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class KosmosDirectoryRepo {
+public class KosmosDirectoryJavaArchiveRepository {
 
     private final KosmosProperties properties;
     private final Clock clock;

@@ -3,7 +3,7 @@ package no.difi.move.kosmos.action.application;
 import no.difi.move.kosmos.domain.VersionInfo;
 import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.domain.application.ApplicationMetadata;
-import no.difi.move.kosmos.repo.KosmosDirectoryRepo;
+import no.difi.move.kosmos.repo.KosmosDirectoryJavaArchiveRepository;
 import no.difi.move.kosmos.service.actuator.ActuatorService;
 import no.difi.move.kosmos.util.KosmosUtils;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ public class GetCurrentVersionActionTest {
     private GetCurrentVersionAction target;
 
     @Mock
-    private KosmosDirectoryRepo repoMock;
+    private KosmosDirectoryJavaArchiveRepository repoMock;
     @Mock
     private Application applicationMock;
     @Mock

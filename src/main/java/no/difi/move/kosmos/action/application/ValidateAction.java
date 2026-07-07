@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import no.difi.move.kosmos.action.KosmosActionException;
 import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.domain.application.Application;
-import no.difi.move.kosmos.repo.KosmosDirectoryRepo;
-import no.difi.move.kosmos.repo.MavenCentralRepo;
+import no.difi.move.kosmos.repo.KosmosDirectoryJavaArchiveRepository;
+import no.difi.move.kosmos.repo.JavaArchiveRepository;
 import no.difi.move.kosmos.service.codesigner.GpgService;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
@@ -25,9 +25,9 @@ import java.security.NoSuchAlgorithmException;
 @Validated
 public class ValidateAction implements ApplicationAction {
 
-    private final MavenCentralRepo mavenCentralRepo;
+    private final JavaArchiveRepository javaArchiveRepository;
     private final GpgService gpgService;
-    private final KosmosDirectoryRepo deployDirectoryRepo;
+    private final KosmosDirectoryJavaArchiveRepository deployDirectoryRepo;
     private final KosmosProperties properties;
 
     @Override
@@ -81,7 +81,7 @@ public class ValidateAction implements ApplicationAction {
     }
 
     private byte[] getHashFromRepo(String applicationVersion, ALGORITHM algorithm) {
-        return mavenCentralRepo.getChecksum(applicationVersion, "." + algorithm.getFileNameSuffix());
+        return javaArchiveRepository.getChecksum(applicationVersion, "." + algorithm.getFileNameSuffix());
     }
 
     @RequiredArgsConstructor
@@ -95,7 +95,7 @@ public class ValidateAction implements ApplicationAction {
     }
 
     private String downloadSignature(String version) {
-        String signature = mavenCentralRepo.downloadSignature(version);
+        String signature = javaArchiveRepository.downloadSignature(version);
         log.trace("Downloaded signature {} ", signature);
         return signature;
     }

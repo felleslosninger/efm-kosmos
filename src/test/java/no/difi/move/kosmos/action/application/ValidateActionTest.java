@@ -4,13 +4,12 @@ import lombok.SneakyThrows;
 import no.difi.move.kosmos.action.KosmosActionException;
 import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.domain.application.ApplicationMetadata;
-import no.difi.move.kosmos.repo.MavenCentralRepo;
+import no.difi.move.kosmos.repo.JavaArchiveRepository;
 import no.difi.move.kosmos.service.codesigner.GpgService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.ExtensionContext;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
@@ -36,7 +35,7 @@ public class ValidateActionTest {
     private ValidateAction target;
 
     @Mock
-    private MavenCentralRepo mavenCentralRepoMock;
+    private JavaArchiveRepository javaArchiveRepositoryMock;
     @Mock
     private GpgService gpgService;
     @Mock
@@ -64,14 +63,14 @@ public class ValidateActionTest {
     @Test
     public void apply_verificationFails_shouldThrow() {
         given(MessageDigest.isEqual(any(), any())).willReturn(false);
-        given(mavenCentralRepoMock.getChecksum(anyString(), anyString())).willReturn(CHECKSUM);
+        given(javaArchiveRepositoryMock.getChecksum(anyString(), anyString())).willReturn(CHECKSUM);
         assertThrows(KosmosActionException.class, () -> target.apply(application));
     }
 
     @Test
     public void apply_ExceptionCaught_shouldThrow() {
         HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.BAD_GATEWAY, "Bad gateway");
-        given(mavenCentralRepoMock.getChecksum(anyString(), anyString())).willThrow(exception);
+        given(javaArchiveRepositoryMock.getChecksum(anyString(), anyString())).willThrow(exception);
         assertThatThrownBy(() -> target.apply(application))
                 .isInstanceOf(KosmosActionException.class)
                 .hasMessage("Error validating jar")
@@ -86,7 +85,7 @@ public class ValidateActionTest {
 
     @Test
     public void apply_gpgSigningVerificationFails_shouldThrow() {
-        given(mavenCentralRepoMock.getChecksum(anyString(), anyString())).willReturn(CHECKSUM);
+        given(javaArchiveRepositoryMock.getChecksum(anyString(), anyString())).willReturn(CHECKSUM);
         assertThrows(KosmosActionException.class, () -> target.apply(application));
     }
 
@@ -96,7 +95,7 @@ public class ValidateActionTest {
 
         target.apply(application);
 
-        verify(mavenCentralRepoMock, never()).downloadSignature(anyString());
+        verify(javaArchiveRepositoryMock, never()).downloadSignature(anyString());
         verify(gpgService, never()).verify(anyString(), anyString());
     }
 }

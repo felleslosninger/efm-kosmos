@@ -5,7 +5,7 @@ import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.domain.HealthStatus;
 import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.domain.application.ApplicationMetadata;
-import no.difi.move.kosmos.repo.KosmosDirectoryRepo;
+import no.difi.move.kosmos.repo.KosmosDirectoryJavaArchiveRepository;
 import no.difi.move.kosmos.service.actuator.ActuatorService;
 import no.difi.move.kosmos.service.launcher.LauncherService;
 import no.difi.move.kosmos.service.launcher.dto.LaunchResult;
@@ -43,7 +43,7 @@ public class StartActionTest {
     @Mock
     private LauncherService launcherServiceMock;
     @Mock
-    private KosmosDirectoryRepo kosmosDirectoryRepoMock;
+    private KosmosDirectoryJavaArchiveRepository kosmosDirectoryJavaArchiveRepositoryMock;
     @Mock
     private MailService mailService;
     @Mock
@@ -93,7 +93,7 @@ public class StartActionTest {
 
             verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
             verify(mailService).sendMail("Upgrade FAILED test.jar", "theStartupLog");
-            verify(kosmosDirectoryRepoMock, never()).blockList(fileMock);
+            verify(kosmosDirectoryJavaArchiveRepositoryMock, never()).blockList(fileMock);
             verify(actuatorServiceMock, never()).shutdown();
         }
 
@@ -116,7 +116,7 @@ public class StartActionTest {
 
             verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
             verify(mailService).sendMail("Upgrade FAILED test.jar", "theStartupLog");
-            verify(kosmosDirectoryRepoMock).blockList(fileMock);
+            verify(kosmosDirectoryJavaArchiveRepositoryMock).blockList(fileMock);
             verify(actuatorServiceMock).shutdown();
         }
 
@@ -137,7 +137,7 @@ public class StartActionTest {
             assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
             verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
             verify(mailService).sendMail("Upgrade FAILED test.jar", "theStartupLog");
-            verify(kosmosDirectoryRepoMock).blockList(fileMock);
+            verify(kosmosDirectoryJavaArchiveRepositoryMock).blockList(fileMock);
         }
 
         @Test
@@ -160,7 +160,7 @@ public class StartActionTest {
 
             verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
             verify(mailService).sendMail("Upgrade FAILED test.jar", "theStartupLog");
-            verify(kosmosDirectoryRepoMock, never()).blockList(fileMock);
+            verify(kosmosDirectoryJavaArchiveRepositoryMock, never()).blockList(fileMock);
         }
     }
 

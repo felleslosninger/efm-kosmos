@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.difi.move.kosmos.domain.VersionInfo;
 import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.domain.application.ApplicationMetadata;
-import no.difi.move.kosmos.repo.KosmosDirectoryRepo;
+import no.difi.move.kosmos.repo.KosmosDirectoryJavaArchiveRepository;
 import no.difi.move.kosmos.service.actuator.ActuatorService;
 import no.difi.move.kosmos.util.KosmosUtils;
 import org.springframework.stereotype.Component;
@@ -16,9 +16,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class GetCurrentVersionAction implements ApplicationAction {
 
-    private final KosmosDirectoryRepo directoryRepo;
+    private final KosmosDirectoryJavaArchiveRepository directoryRepo;
     private final ActuatorService actuatorService;
-    private final KosmosDirectoryRepo kosmosDirectoryRepo;
+    private final KosmosDirectoryJavaArchiveRepository javaArchiveRepository;
 
     @SneakyThrows
     @Override
@@ -28,27 +28,25 @@ public class GetCurrentVersionAction implements ApplicationAction {
         VersionInfo versionInfo = actuatorService.getVersionInfo();
         log.debug("Version info received: {}", versionInfo);
         String version = versionInfo.getVersion();
-        String currentVersion = kosmosDirectoryRepo.getAllowlistVersion();
+        String currentVersion = javaArchiveRepository.getAllowlistVersion();
         if (null != version) {
             log.info("The client currently runs integrasjonspunkt version {}", version);
             setCurrentVersion(application, version);
-        }
-        else if (currentVersion != null) {
+        } else if (currentVersion != null) {
             log.info("No running integrasjonspunkt found, but starting previously used version {}", currentVersion);
             setCurrentVersion(application, currentVersion);
-        }
-        else {
+        } else {
             log.info("No running integrasjonspunkt found");
         }
 
-         return application;
+        return application;
     }
 
     public void setCurrentVersion(Application application, String version) {
         application.setCurrent(
-                new ApplicationMetadata()
-                        .setVersion(version)
-                        .setFile(directoryRepo.getFile(version, KosmosUtils.DOWNLOAD_JAR_FILE_NAME))
+            new ApplicationMetadata()
+                .setVersion(version)
+                .setFile(directoryRepo.getFile(version, KosmosUtils.DOWNLOAD_JAR_FILE_NAME))
         );
     }
 }

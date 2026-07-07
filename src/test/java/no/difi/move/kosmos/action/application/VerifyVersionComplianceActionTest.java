@@ -5,7 +5,7 @@ import no.difi.move.kosmos.config.IntegrasjonspunktProperties;
 import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.domain.application.ApplicationMetadata;
-import no.difi.move.kosmos.repo.KosmosDirectoryRepo;
+import no.difi.move.kosmos.repo.KosmosDirectoryJavaArchiveRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ public class VerifyVersionComplianceActionTest {
     final static ApplicationMetadata METADATA_MOCK = mock(ApplicationMetadata.class);
     final static Application APPLICATION_SPY = spy(new Application());
     final static KosmosProperties PROPERTIES = mock(KosmosProperties.class);
-    final static KosmosDirectoryRepo REPO = mock(KosmosDirectoryRepo.class);
+    final static KosmosDirectoryJavaArchiveRepository REPO = mock(KosmosDirectoryJavaArchiveRepository.class);
 
     final static VerifyVersionComplianceAction TARGET = new VerifyVersionComplianceAction(PROPERTIES, REPO);
 
