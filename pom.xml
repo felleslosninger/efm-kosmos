@@ -138,7 +138,7 @@
             <!-- FIXME consider rewrite to new and improved ProcessBuilder in Java 21+ -->
             <groupId>org.zeroturnaround</groupId>
             <artifactId>zt-exec</artifactId>
-            <version>1.12</version>
+            <version>1.13.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
