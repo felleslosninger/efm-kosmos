@@ -5,8 +5,8 @@ on:
     types: [created]
 
 jobs:
-  call-workflow-maven-install-deploy:
-    uses: felleslosninger/github-workflows/.github/workflows/ci-maven-install-deploy-lib.yml@main
+  call-workflow-ci-build-deploy-lib:
+    uses: felleslosninger/github-workflows/.github/workflows/ci-build-publish-lib.yml@main
     permissions:
       contents: write
       packages: write

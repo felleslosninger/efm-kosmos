@@ -21,11 +21,10 @@ permissions:
 
 jobs:
   run-pr-checks:
-    uses: felleslosninger/github-workflows/.github/workflows/ci-pr-checks.yml@main
+    uses: felleslosninger/github-workflows/.github/workflows/ci-pr-checks-lib.yml@main
     with:
       pull-request-title: ${{ github.event.pull_request.title }}
-      pull-request-allowed-prefixes: "Bump,MOVE-"
-      application-type: spring-boot
+      pull-request-allowed-prefixes: "Bump,MOVE-,PF-"
       java-version: 21
       maven-lifecycle: verify
     secrets: inherit
