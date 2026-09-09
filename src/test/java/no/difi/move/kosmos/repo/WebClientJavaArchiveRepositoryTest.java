@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class WebClientMavenCentralRepoTest {
+public class WebClientJavaArchiveRepositoryTest {
 
     @TempDir
     File tempFolder;
@@ -33,13 +33,13 @@ public class WebClientMavenCentralRepoTest {
     private KosmosProperties properties;
 
     @InjectMocks
-    private WebClientMavenCentralRepo target;
+    private WebClientJavaArchiveRepository target;
 
     @BeforeEach
     public void setUp() throws Exception {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
-        when(properties.getMavenCentral()).thenReturn(mockWebServer.url("/download").url());
+        when(properties.getJavaArchiveRepositoryUrl()).thenReturn(mockWebServer.url("/download").url());
     }
 
     @AfterEach

@@ -6,8 +6,8 @@ import no.difi.move.kosmos.config.BlocklistProperties;
 import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.domain.application.ApplicationMetadata;
-import no.difi.move.kosmos.repo.KosmosDirectoryRepo;
-import no.difi.move.kosmos.repo.MavenCentralRepo;
+import no.difi.move.kosmos.repo.KosmosDirectoryJavaArchiveRepository;
+import no.difi.move.kosmos.repo.JavaArchiveRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,9 +39,9 @@ public class PrepareApplicationActionTest {
     @Mock
     private KosmosProperties propertiesMock;
     @Mock
-    private MavenCentralRepo mavenCentralRepoMock;
+    private JavaArchiveRepository javaArchiveRepositoryMock;
     @Mock
-    private KosmosDirectoryRepo kosmosDirectoryRepoMock;
+    private KosmosDirectoryJavaArchiveRepository kosmosDirectoryJavaArchiveRepositoryMock;
 
     @Mock
     private File fileMock;
@@ -72,7 +72,7 @@ public class PrepareApplicationActionTest {
         given(propertiesMock.getBlocklist()).willReturn(blocklistPropertiesMock);
         given(fileMock.exists()).willReturn(false);
         given(fileMock.toPath()).willReturn(pathMock);
-        given(kosmosDirectoryRepoMock.getFile(anyString(), anyString())).willReturn(fileMock);
+        given(kosmosDirectoryJavaArchiveRepositoryMock.getFile(anyString(), anyString())).willReturn(fileMock);
 
         final Application result = target.apply(application);
 
@@ -80,17 +80,17 @@ public class PrepareApplicationActionTest {
         assertThat(result).isSameAs(application);
         File resultFile = application.getLatest().getFile();
         assertThat(resultFile).isSameAs(fileMock);
-        verify(mavenCentralRepoMock).downloadJAR(eq(NEW_APPLICATION_VERSION), same(pathMock));
+        verify(javaArchiveRepositoryMock).downloadJAR(eq(NEW_APPLICATION_VERSION), same(pathMock));
     }
 
     @Test
     public void apply_NewVersionIsBlockListed_ShouldThrow() {
         given(blocklistPropertiesMock.isEnabled()).willReturn(true);
         given(propertiesMock.getBlocklist()).willReturn(blocklistPropertiesMock);
-        given(kosmosDirectoryRepoMock.isBlockListed(any())).willReturn(true);
-        given(kosmosDirectoryRepoMock.getBlocklistPath(any())).willReturn(blockListedFileMock);
-        given(kosmosDirectoryRepoMock.getFile(anyString(), anyString())).willReturn(fileMock);
-        given(kosmosDirectoryRepoMock.isBlockListed(any(File.class))).willReturn(true);
+        given(kosmosDirectoryJavaArchiveRepositoryMock.isBlockListed(any())).willReturn(true);
+        given(kosmosDirectoryJavaArchiveRepositoryMock.getBlocklistPath(any())).willReturn(blockListedFileMock);
+        given(kosmosDirectoryJavaArchiveRepositoryMock.getFile(anyString(), anyString())).willReturn(fileMock);
+        given(kosmosDirectoryJavaArchiveRepositoryMock.isBlockListed(any(File.class))).willReturn(true);
         given(blockListedFileMock.getAbsolutePath()).willReturn("/tmp/test.jar.blocklisted");
 
         assertThatThrownBy(() -> target.apply(application))
@@ -103,7 +103,7 @@ public class PrepareApplicationActionTest {
     public void apply_NewVersionIsBlockListedAndBlocklistIsDisabled_ShouldNotThrow() {
         given(blocklistPropertiesMock.isEnabled()).willReturn(false);
         given(propertiesMock.getBlocklist()).willReturn(blocklistPropertiesMock);
-        given(kosmosDirectoryRepoMock.getFile(anyString(), anyString())).willReturn(fileMock);
+        given(kosmosDirectoryJavaArchiveRepositoryMock.getFile(anyString(), anyString())).willReturn(fileMock);
 
         assertDoesNotThrow(() -> target.apply(application));
     }
@@ -113,16 +113,16 @@ public class PrepareApplicationActionTest {
         given(propertiesMock.getBlocklist()).willReturn(blocklistPropertiesMock);
         given(fileMock.exists()).willReturn(false);
         given(fileMock.toPath()).willReturn(pathMock);
-        given(kosmosDirectoryRepoMock.getFile(anyString(), anyString())).willReturn(fileMock);
+        given(kosmosDirectoryJavaArchiveRepositoryMock.getFile(anyString(), anyString())).willReturn(fileMock);
         HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Download failed!");
-        doThrow(exception).when(mavenCentralRepoMock).downloadJAR(any(), any());
+        doThrow(exception).when(javaArchiveRepositoryMock).downloadJAR(any(), any());
 
         assertThatThrownBy(() -> target.apply(application))
                 .isInstanceOf(KosmosActionException.class)
                 .hasMessage("Error occurred when downloading latest version")
                 .hasCause(exception);
 
-        verify(mavenCentralRepoMock).downloadJAR(eq(NEW_APPLICATION_VERSION), same(pathMock));
+        verify(javaArchiveRepositoryMock).downloadJAR(eq(NEW_APPLICATION_VERSION), same(pathMock));
     }
 
     @Test
@@ -130,13 +130,13 @@ public class PrepareApplicationActionTest {
         given(blocklistPropertiesMock.isEnabled()).willReturn(true);
         given(propertiesMock.getBlocklist()).willReturn(blocklistPropertiesMock);
         given(fileMock.exists()).willReturn(true);
-        given(kosmosDirectoryRepoMock.getFile(anyString(), anyString())).willReturn(fileMock);
+        given(kosmosDirectoryJavaArchiveRepositoryMock.getFile(anyString(), anyString())).willReturn(fileMock);
 
         assertThat(target.apply(application)).isSameAs(application);
 
         File resultFile = application.getLatest().getFile();
 
         assertThat(resultFile).isSameAs(fileMock);
-        verify(mavenCentralRepoMock, never()).downloadJAR(anyString(), any());
+        verify(javaArchiveRepositoryMock, never()).downloadJAR(anyString(), any());
     }
 }

@@ -1,4 +1,4 @@
-name: Run PR Tests, verify pr name, maven build test, trivy fs scan
+name: Call CI pr checks
 
 on:
   pull_request:
@@ -9,21 +9,22 @@ on:
       - edited
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
-  pull-requests: write
   contents: write
+  pull-requests: write
   issues: write
   repository-projects: read
 
 jobs:
   run-pr-checks:
-    uses: felleslosninger/github-workflows/.github/workflows/ci-pr-checks.yml@main
+    uses: felleslosninger/github-workflows/.github/workflows/ci-pr-checks-lib.yml@main
     with:
-      application-type: spring-boot
-      java-version: 21
       pull-request-title: ${{ github.event.pull_request.title }}
-      pull-request-allowed-prefixes: "MOVE-,Bump"
-      enable-auto-merge-dependabot: true
-      enable-trivy-image-scan: true
-      auto-merge-types: "semver-patch"
+      pull-request-allowed-prefixes: "Bump,MOVE-,PF-"
+      java-version: 21
+      maven-lifecycle: verify
     secrets: inherit

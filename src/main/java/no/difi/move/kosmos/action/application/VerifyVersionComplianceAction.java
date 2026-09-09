@@ -7,7 +7,7 @@ import no.difi.move.kosmos.action.KosmosActionException;
 import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.domain.application.ApplicationMetadata;
-import no.difi.move.kosmos.repo.KosmosDirectoryRepo;
+import no.difi.move.kosmos.repo.KosmosDirectoryJavaArchiveRepository;
 import no.difi.move.kosmos.util.KosmosUtils;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 public class VerifyVersionComplianceAction implements ApplicationAction {
 
     private final KosmosProperties properties;
-    private final KosmosDirectoryRepo deployDirectoryRepo;
+    private final KosmosDirectoryJavaArchiveRepository deployDirectoryRepo;
 
     @Override
     public Application apply(Application application) {

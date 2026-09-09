@@ -2,7 +2,7 @@ package no.difi.move.kosmos.repo;
 
 import java.nio.file.Path;
 
-public interface MavenCentralRepo {
+public interface JavaArchiveRepository {
 
     void downloadJAR(String version, Path destination);
 

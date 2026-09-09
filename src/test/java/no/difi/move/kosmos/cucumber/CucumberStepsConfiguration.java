@@ -12,16 +12,15 @@ import no.difi.move.kosmos.config.IntegrasjonspunktProperties;
 import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.service.config.RefreshService;
 import no.difi.move.kosmos.service.launcher.LauncherServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootContextLoader;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.util.FileSystemUtils;
 
 import java.nio.file.Files;
@@ -32,21 +31,17 @@ import static org.mockito.BDDMockito.given;
 
 @CucumberContextConfiguration
 @ContextConfiguration(classes = {
-        KosmosMain.class,
-        CucumberStepsConfiguration.SpringConfiguration.class
+    KosmosMain.class,
+    CucumberStepsConfiguration.SpringConfiguration.class
 }, loader = SpringBootContextLoader.class)
 @SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @ActiveProfiles("cucumber")
 public class CucumberStepsConfiguration {
 
     @Configuration
     @Profile("cucumber")
-    @SpyBean(KosmosProperties.class)
-    @SpyBean(IntegrasjonspunktProperties.class)
-    @SpyBean(LauncherServiceImpl.class)
-    @MockBean(RefreshService.class)
     public static class SpringConfiguration {
 
         @Bean
@@ -79,10 +74,16 @@ public class CucumberStepsConfiguration {
 
     }
 
-    @Autowired
+    @MockitoBean
+    private RefreshService refreshService;
+
+    @MockitoSpyBean
+    private LauncherServiceImpl launcherServiceImpl;
+
+    @MockitoSpyBean
     private KosmosProperties kosmosProperties;
 
-    @Autowired
+    @MockitoSpyBean
     private IntegrasjonspunktProperties integrasjonspunktProperties;
 
     private Path temporaryPath;
