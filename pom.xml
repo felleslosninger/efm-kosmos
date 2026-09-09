@@ -60,7 +60,6 @@
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <bouncycastle.version>1.85.2</bouncycastle.version>
         <okhttp.version>5.5.0</okhttp.version>
         <mockito.version>5.23.0</mockito.version>
         <netty.version>4.1.137.Final</netty.version>
@@ -68,7 +67,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- should be from from spring-boot-starter-test -->
+            <!-- should be from spring-boot-starter-test -->
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
@@ -159,17 +158,17 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
-            <version>${bouncycastle.version}</version>
+            <version>1.85.2</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpg-jdk18on</artifactId>
-            <version>${bouncycastle.version}</version>
+            <version>1.85</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcutil-jdk18on</artifactId>
-            <version>${bouncycastle.version}</version>
+            <version>1.85</version>
         </dependency>
 
         <!-- start of logging/monitoring dependencies -->
