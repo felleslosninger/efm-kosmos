@@ -41,3 +41,7 @@ Release av ny versjon gjerast via GitHub GUI
 - Velg tag (ny eller eksisterande) `Bruk semantisk versjonering, Github best practice anbefaler v-prefix, slik "v4.0.0"`
 - Fyll inn tittel og beskrivelse
 - Klikk på "Publish release"
+
+## License
+
+This project is licensed under the BSD 3-Clause License. See the [LICENSE](LICENSE) file for details.
