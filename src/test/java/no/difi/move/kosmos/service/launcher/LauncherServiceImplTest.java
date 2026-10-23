@@ -21,6 +21,7 @@ import org.zeroturnaround.exec.StartedProcess;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.concurrent.Future;
@@ -81,7 +82,7 @@ public class LauncherServiceImplTest {
                      (mock, context) -> {
                          when(mock.directory(any())).thenReturn(mock);
                          when(mock.environment(any())).thenReturn(mock);
-                         when(mock.redirectOutput(any())).thenReturn(mock);
+                         when(mock.redirectOutput(any(OutputStream.class))).thenReturn(mock);
                          when(mock.start()).thenReturn(startedProcessMock);
                      })) {
 
@@ -111,7 +112,7 @@ public class LauncherServiceImplTest {
                      (mock, context) -> {
                          when(mock.directory(any())).thenReturn(mock);
                          when(mock.environment(any())).thenReturn(mock);
-                         when(mock.redirectOutput(any())).thenReturn(mock);
+                         when(mock.redirectOutput(any(OutputStream.class))).thenReturn(mock);
                          when(mock.start()).thenReturn(startedProcessMock);
                      })) {
 
@@ -134,7 +135,7 @@ public class LauncherServiceImplTest {
                      (mock, context) -> {
                          when(mock.directory(any())).thenReturn(mock);
                          when(mock.environment(any())).thenReturn(mock);
-                         when(mock.redirectOutput(any())).thenReturn(mock);
+                         when(mock.redirectOutput(any(OutputStream.class))).thenReturn(mock);
                          when(mock.start()).thenThrow(new IOException("test exception"));
                      })) {
             assertThat(launcherService.launchIntegrasjonspunkt("test.jar"))
