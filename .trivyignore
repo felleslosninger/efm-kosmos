@@ -1,10 +1,10 @@
-CVE-2026-89407
-CVE-2026-89425 
-CVE-2026-68497 
-CVE-2026-91776 
-CVE-2026-91777 
-CVE-2026-89407 
-CVE-2026-89425 
-CVE-2026-68497 
-CVE-2026-91776 
-CVE-2026-91777 
+# Trivy-suppressions for KOSMOS. Gjeld både PR-sjekken og release-skanninga.
+#
+# Kvar oppføring skal ha pakke, grunngjeving og utløpsdato (exp:), slik at
+# Trivy rapporterer CVE-en igjen når datoen er passert:
+#
+#   # <groupId:artifactId> <versjon> - <kvifor KOSMOS ikkje er råka / kva vi ventar på> (<Jira>)
+#   CVE-ÅÅÅÅ-NNNNN exp:ÅÅÅÅ-MM-DD
+#
+# Fjern oppføringa så snart Trivy ikkje lenger rapporterer CVE-en.
+
