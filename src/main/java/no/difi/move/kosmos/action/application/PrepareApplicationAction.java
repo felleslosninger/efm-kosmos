@@ -8,6 +8,7 @@ import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.repo.JavaArchiveRepository;
 import no.difi.move.kosmos.repo.KosmosDirectoryJavaArchiveRepository;
 import no.difi.move.kosmos.util.KosmosUtils;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -27,17 +28,21 @@ public class PrepareApplicationAction implements ApplicationAction {
         log.debug("The latest version is in file {}", downloadJarFile);
         checkBlocklist(downloadJarFile);
 
-        if (!downloadJarFile.exists()) {
-            log.info("Latest version is different from current, and will be downloaded");
-            try {
-                doDownload(application, downloadJarFile);
-                application.setMarkedForValidation(true);
-            } catch (Exception ex) {
-                throw new KosmosActionException("Error occurred when downloading latest version", ex);
-            }
+        if (downloadJarFile.exists()) {
+            application.getLatest().setFile(downloadJarFile);
+            return application;
         }
 
-        application.getLatest().setFile(downloadJarFile);
+        log.info("Latest version is different from current, and will be downloaded");
+        File unvalidatedJarFile = kosmosDirectoryJavaArchiveRepository.getFile(application.getLatest().getVersion(), KosmosUtils.UNVALIDATED_JAR_FILE_NAME);
+        try {
+            doDownload(application, unvalidatedJarFile);
+        } catch (Exception ex) {
+            FileUtils.deleteQuietly(unvalidatedJarFile);
+            throw new KosmosActionException("Error occurred when downloading latest version", ex);
+        }
+        application.setMarkedForValidation(true);
+        application.getLatest().setFile(unvalidatedJarFile);
         return application;
     }
 

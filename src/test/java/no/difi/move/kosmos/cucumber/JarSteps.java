@@ -1,6 +1,7 @@
 package no.difi.move.kosmos.cucumber;
 
 import io.cucumber.java.en.And;
+import io.cucumber.java.en.Then;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,8 @@ import no.difi.move.kosmos.config.KosmosProperties;
 
 import java.io.File;
 import java.nio.file.Files;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,5 +33,10 @@ public class JarSteps {
         if (!new File(propertiesSpy.getIntegrasjonspunkt().getHome(), path).createNewFile()) {
             log.error("File already exists!");
         }
+    }
+
+    @Then("^the \"([^\"]*)\" does not exist$")
+    public void theDoesNotExist(String path) {
+        assertThat(new File(propertiesSpy.getIntegrasjonspunkt().getHome(), path)).doesNotExist();
     }
 }

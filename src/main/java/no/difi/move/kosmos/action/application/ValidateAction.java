@@ -9,12 +9,16 @@ import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.repo.KosmosDirectoryJavaArchiveRepository;
 import no.difi.move.kosmos.repo.JavaArchiveRepository;
 import no.difi.move.kosmos.service.codesigner.GpgService;
+import no.difi.move.kosmos.util.KosmosUtils;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -38,24 +42,39 @@ public class ValidateAction implements ApplicationAction {
         }
         log.info("Validating application");
         log.trace("Calling ValidateAction.apply on application {}", application);
+        File unvalidatedJarFile = application.getLatest().getFile();
+        File jarFile = deployDirectoryRepo.getFile(application.getLatest().getVersion(), KosmosUtils.DOWNLOAD_JAR_FILE_NAME);
         try {
             // there is no need to verify SHA1 and MD5 checksums in code (both algos are obsolete as well)
             // since we verify the signature, we have indirect verification of the checksums
             assertChecksumIsCorrect(application, ALGORITHM.SHA1);
             //assertChecksumIsCorrect(application, ALGORITHM.MD5);
             String signature = downloadSignature(application.getLatest().getVersion());
-            boolean verify = gpgService.verify(application.getLatest().getFile().getAbsolutePath(), signature);
-            if (verify) {
-                log.trace("Signature has been successfully verified.");
-                return application;
+            boolean verify = gpgService.verify(unvalidatedJarFile.getAbsolutePath(), signature);
+            if (!verify) {
+                if (properties.getBlocklist().isEnabled()) {
+                    log.trace("Signature could not be verified.. Blocklisting version.");
+                    deployDirectoryRepo.blockList(jarFile);
+                }
+                throw new KosmosActionException("Invalid artifact signature");
             }
-            if (properties.getBlocklist().isEnabled()) {
-                log.trace("Signature could not be verified.. Blocklisting version.");
-                deployDirectoryRepo.blockList(application.getLatest().getFile());
-            }
-            throw new KosmosActionException("Invalid artifact signature");
+            log.trace("Signature has been successfully verified.");
+            // the jar file name is only ever used for validated jars, so that a later run never starts an unvalidated one
+            Files.move(unvalidatedJarFile.toPath(), jarFile.toPath(), StandardCopyOption.ATOMIC_MOVE);
         } catch (Exception ex) {
+            deleteUnvalidatedJar(unvalidatedJarFile);
             throw new KosmosActionException("Error validating jar", ex);
+        }
+        log.debug("Validated jar moved to {}", jarFile);
+        application.getLatest().setFile(jarFile);
+        return application;
+    }
+
+    private void deleteUnvalidatedJar(File unvalidatedJarFile) {
+        if (FileUtils.deleteQuietly(unvalidatedJarFile)) {
+            log.info("Deleted unvalidated jar {}", unvalidatedJarFile);
+        } else if (unvalidatedJarFile.exists()) {
+            log.warn("Could not delete unvalidated jar {}", unvalidatedJarFile);
         }
     }
 

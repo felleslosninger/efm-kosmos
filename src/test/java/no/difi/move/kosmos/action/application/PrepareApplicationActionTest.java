@@ -8,9 +8,11 @@ import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.domain.application.ApplicationMetadata;
 import no.difi.move.kosmos.repo.KosmosDirectoryJavaArchiveRepository;
 import no.difi.move.kosmos.repo.JavaArchiveRepository;
+import no.difi.move.kosmos.util.KosmosUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,6 +49,8 @@ public class PrepareApplicationActionTest {
     @Mock
     private File fileMock;
     @Mock
+    private File unvalidatedFileMock;
+    @Mock
     private File blockListedFileMock;
     private Path pathMock;
     @Mock
@@ -68,18 +73,19 @@ public class PrepareApplicationActionTest {
     }
 
     @Test
-    public void apply_NewVersionFound_ShouldDownload() {
+    public void apply_NewVersionFound_ShouldDownloadToUnvalidatedJarFile() {
         given(propertiesMock.getBlocklist()).willReturn(blocklistPropertiesMock);
         given(fileMock.exists()).willReturn(false);
-        given(fileMock.toPath()).willReturn(pathMock);
-        given(kosmosDirectoryJavaArchiveRepositoryMock.getFile(anyString(), anyString())).willReturn(fileMock);
+        given(unvalidatedFileMock.toPath()).willReturn(pathMock);
+        given(kosmosDirectoryJavaArchiveRepositoryMock.getFile(NEW_APPLICATION_VERSION, KosmosUtils.DOWNLOAD_JAR_FILE_NAME)).willReturn(fileMock);
+        given(kosmosDirectoryJavaArchiveRepositoryMock.getFile(NEW_APPLICATION_VERSION, KosmosUtils.UNVALIDATED_JAR_FILE_NAME)).willReturn(unvalidatedFileMock);
 
         final Application result = target.apply(application);
 
         assertThat(result.isMarkedForValidation()).isTrue();
         assertThat(result).isSameAs(application);
         File resultFile = application.getLatest().getFile();
-        assertThat(resultFile).isSameAs(fileMock);
+        assertThat(resultFile).isSameAs(unvalidatedFileMock);
         verify(javaArchiveRepositoryMock).downloadJAR(eq(NEW_APPLICATION_VERSION), same(pathMock));
     }
 
@@ -109,20 +115,27 @@ public class PrepareApplicationActionTest {
     }
 
     @Test
-    public void apply_DownLoadFails_ShouldThrow() {
+    @SneakyThrows
+    public void apply_DownLoadFails_ShouldDeletePartialDownloadAndThrow(@TempDir Path home) {
+        File unvalidatedFile = home.resolve("integrasjonspunkt-newVersion.jar.download").toFile();
         given(propertiesMock.getBlocklist()).willReturn(blocklistPropertiesMock);
         given(fileMock.exists()).willReturn(false);
-        given(fileMock.toPath()).willReturn(pathMock);
-        given(kosmosDirectoryJavaArchiveRepositoryMock.getFile(anyString(), anyString())).willReturn(fileMock);
+        given(kosmosDirectoryJavaArchiveRepositoryMock.getFile(NEW_APPLICATION_VERSION, KosmosUtils.DOWNLOAD_JAR_FILE_NAME)).willReturn(fileMock);
+        given(kosmosDirectoryJavaArchiveRepositoryMock.getFile(NEW_APPLICATION_VERSION, KosmosUtils.UNVALIDATED_JAR_FILE_NAME)).willReturn(unvalidatedFile);
         HttpClientErrorException exception = new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Download failed!");
-        doThrow(exception).when(javaArchiveRepositoryMock).downloadJAR(any(), any());
+        doAnswer(invocation -> {
+            Files.writeString(invocation.getArgument(1), "partial");
+            throw exception;
+        }).when(javaArchiveRepositoryMock).downloadJAR(any(), any());
 
         assertThatThrownBy(() -> target.apply(application))
                 .isInstanceOf(KosmosActionException.class)
                 .hasMessage("Error occurred when downloading latest version")
                 .hasCause(exception);
 
-        verify(javaArchiveRepositoryMock).downloadJAR(eq(NEW_APPLICATION_VERSION), same(pathMock));
+        verify(javaArchiveRepositoryMock).downloadJAR(eq(NEW_APPLICATION_VERSION), eq(unvalidatedFile.toPath()));
+        assertThat(unvalidatedFile).doesNotExist();
+        assertThat(application.isMarkedForValidation()).isFalse();
     }
 
     @Test
