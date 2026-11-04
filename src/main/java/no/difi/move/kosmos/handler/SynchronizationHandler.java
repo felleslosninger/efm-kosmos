@@ -37,7 +37,8 @@ public class SynchronizationHandler {
         }
     }
 
-    public void run() {
+    // initialRun() and scheduledRun() run on different threads, and overlapping runs would share the downloaded files
+    public synchronized void run() {
         log.info("Starting synchronization");
         currentVersionAction
                 .andThen(latestVersionAction)
