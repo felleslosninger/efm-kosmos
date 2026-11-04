@@ -60,7 +60,8 @@ public class WebClientJavaArchiveRepository implements JavaArchiveRepository {
         try {
             Flux<DataBuffer> dataBufferFlux = webClient.get().uri(downloadUri)
                     .retrieve().bodyToFlux(DataBuffer.class);
-            DataBufferUtils.write(dataBufferFlux, destination, StandardOpenOption.CREATE).block();
+            DataBufferUtils.write(dataBufferFlux, destination,
+                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE).block();
             log.debug("File downloaded to {}", destination);
         } catch (WebClientResponseException e) {
             throw new KosmosActionException("File download failed", e);
