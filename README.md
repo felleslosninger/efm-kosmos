@@ -66,7 +66,11 @@ Signeringsjobben brukar desse secrets (org- eller repo-secrets):
 
 Workflowen treng i tillegg `GH_PACKAGES_READ_USER` / `GH_PACKAGES_READ_PAT` (via `secrets: inherit`) for å lese interne Maven-avhengigheiter.
 
-Signaturen kan verifiserast lokalt med:
+Skript for manuell signering, verifisering og forlenging av kodesigneringsnøkkelen finst i
+[efm-integrasjonspunkt/signering](https://github.com/felleslosninger/efm-integrasjonspunkt/tree/main/signering).
+Når nøkkelen blir forlenga med `extend.sh`, må `EFM_GPG_PUBLIC_KEY` oppdaterast med den nye offentlege nøkkelen.
+
+Signaturen kan verifiserast lokalt med `verify.sh` derifrå, eller direkte med gpg:
 ```bash
 gpg --import kodesignering-eformidling-public.key
 gpg --verify kosmos-v4.0.0.jar.asc kosmos-v4.0.0.jar
