@@ -12,3 +12,7 @@ release.properties
 
 ### Maven ###
 pom.xml.releaseBackup
+
+### Signering ###
+signering/
+*private.key

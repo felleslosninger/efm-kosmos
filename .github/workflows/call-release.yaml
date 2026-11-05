@@ -17,3 +17,68 @@ jobs:
       java-version: 21
       sbom-path: ./
     secrets: inherit
+
+  sign-and-attach-jar:
+    needs: call-workflow-ci-build-deploy-lib
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+    env:
+      VERSION: ${{ github.event.release.tag_name }}
+      JAR: kosmos-${{ github.event.release.tag_name }}.jar
+      SIGNING_KEY_FINGERPRINT: ${{ secrets.EFM_GPG_FINGERPRINT }}
+    steps:
+      - name: Check signing secrets
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.EFM_GPG_PRIVATE_KEY }}
+          GPG_PUBLIC_KEY: ${{ secrets.EFM_GPG_PUBLIC_KEY }}
+        run: |
+          for v in SIGNING_KEY_FINGERPRINT GPG_PRIVATE_KEY GPG_PUBLIC_KEY; do
+            [ -n "${!v}" ] || { echo "::error::$v is empty"; exit 1; }
+          done
+
+      # Hent nøyaktig den JAR-fila som vart publisert til GitHub Packages
+      - name: Download published JAR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl --fail --silent --show-error --location \
+            -u "${{ github.actor }}:${GH_TOKEN}" \
+            -o "$JAR" \
+            "https://maven.pkg.github.com/${{ github.repository }}/no/difi/move/kosmos/${VERSION}/${JAR}"
+          ls -l "$JAR"
+
+      - name: Sign JAR
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.EFM_GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.EFM_GPG_PASSPHRASE }}
+        run: |
+          export GNUPGHOME=$(mktemp -d)
+          chmod 700 "$GNUPGHOME"
+          trap 'rm -rf "$GNUPGHOME"' EXIT
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          gpg --batch --yes \
+            --pinentry-mode loopback \
+            --passphrase "$GPG_PASSPHRASE" \
+            --local-user "$SIGNING_KEY_FINGERPRINT" \
+            --detach-sign --armor \
+            "$JAR"
+
+      # Verifiser kun mot den offentlege kodesigneringsnøkkelen
+      - name: Verify signature
+        env:
+          GPG_PUBLIC_KEY: ${{ secrets.EFM_GPG_PUBLIC_KEY }}
+        run: |
+          export GNUPGHOME=$(mktemp -d)
+          chmod 700 "$GNUPGHOME"
+          trap 'rm -rf "$GNUPGHOME"' EXIT
+          echo "$GPG_PUBLIC_KEY" | gpg --batch --import
+          gpg --batch --status-fd 1 --verify "$JAR.asc" "$JAR" | tee verify.out
+          grep -q "VALIDSIG $SIGNING_KEY_FINGERPRINT" verify.out
+
+      - name: Attach JAR and signature to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release upload "$VERSION" "$JAR" "$JAR.asc" --clobber
