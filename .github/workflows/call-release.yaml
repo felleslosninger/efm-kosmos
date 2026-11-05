@@ -36,8 +36,9 @@ jobs:
       - name: Check signing secrets
         env:
           GPG_PRIVATE_KEY: ${{ secrets.EFM_GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.EFM_GPG_PASSPHRASE }}
         run: |
-          for v in GPG_PRIVATE_KEY; do
+          for v in GPG_PRIVATE_KEY GPG_PASSPHRASE; do
             [ -n "${!v}" ] || { echo "::error::$v is empty"; exit 1; }
           done
 
@@ -76,6 +77,8 @@ jobs:
         env:
           PUBLIC_KEY_URL: https://docs.digdir.no/resources/eformidling/public_keys/eformidling-key.asc
         run: |
+          # Utan pipefail ville exit-koden til gpg bli skjult av tee
+          set -o pipefail
           export GNUPGHOME=$(mktemp -d)
           chmod 700 "$GNUPGHOME"
           trap 'rm -rf "$GNUPGHOME"' EXIT
