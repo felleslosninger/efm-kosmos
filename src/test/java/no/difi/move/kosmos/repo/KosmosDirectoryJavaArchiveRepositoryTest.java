@@ -3,9 +3,12 @@ package no.difi.move.kosmos.repo;
 import no.difi.move.kosmos.config.BlocklistProperties;
 import no.difi.move.kosmos.config.IntegrasjonspunktProperties;
 import no.difi.move.kosmos.config.KosmosProperties;
+import no.difi.move.kosmos.util.KosmosUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -104,6 +107,21 @@ class KosmosDirectoryJavaArchiveRepositoryTest {
         assertEquals("4.1.0", repo.getSemanticVersion("filename-V4.1.0"));
         assertEquals("4.2.1-beta", repo.getSemanticVersion("filename-v4.2.1-beta"));
         assertEquals("4.3.0-rc", repo.getSemanticVersion("filename-V4.3.0-rc"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"2.31.0", "v4.2.0", "4.1.0-beta"})
+    void getFile_validVersion_isInHomeFolder(String version) {
+        File file = repo.getFile(version, KosmosUtils.DOWNLOAD_JAR_FILE_NAME);
+        assertEquals(tempDir.toAbsolutePath().normalize(), file.toPath().toAbsolutePath().normalize().getParent());
+        assertEquals("integrasjonspunkt-" + version + ".jar", file.getName());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"x/../../tmp/test", "../../../evil", "sub/4.2.0"})
+    void getFile_versionOutsideHomeFolder_throws(String version) {
+        assertThrows(IllegalArgumentException.class, () -> repo.getFile(version, KosmosUtils.DOWNLOAD_JAR_FILE_NAME));
+        assertThrows(IllegalArgumentException.class, () -> repo.getFile(version, KosmosUtils.UNVALIDATED_JAR_FILE_NAME));
     }
 
 }

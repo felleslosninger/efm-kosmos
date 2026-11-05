@@ -14,6 +14,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -33,7 +34,14 @@ public class KosmosDirectoryJavaArchiveRepository {
 
     public File getFile(String version, String name) {
         File root = getOrCreateHomeFolder();
-        return new File(root, name.formatted(version));
+        File file = new File(root, name.formatted(version));
+        // the version may come from external sources, never let it place files outside the home folder
+        Path rootPath = root.toPath().toAbsolutePath().normalize();
+        Path filePath = file.toPath().toAbsolutePath().normalize();
+        if (!rootPath.equals(filePath.getParent())) {
+            throw new IllegalArgumentException("Version '%s' gives a file outside the home folder %s".formatted(version, rootPath));
+        }
+        return file;
     }
 
     private File getOrCreateHomeFolder() {
@@ -113,8 +121,7 @@ public class KosmosDirectoryJavaArchiveRepository {
     }
 
     private File doAllowlist(File file, String version) {
-        String fileName = ALLOWLISTEDFILENAME.formatted(version);
-        File allowlistFile = new File(properties.getIntegrasjonspunkt().getHome() + "/" + fileName);
+        File allowlistFile = getFile(version, ALLOWLISTEDFILENAME);
         log.debug("Allowlist file pathname is {}", allowlistFile.getAbsolutePath());
         try (BufferedWriter writer = Files.newBufferedWriter(allowlistFile.toPath(), StandardCharsets.UTF_8)) {
             LocalDateTime created = LocalDateTime.now(clock);

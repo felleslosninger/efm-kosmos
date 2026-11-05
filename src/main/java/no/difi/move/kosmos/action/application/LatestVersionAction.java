@@ -8,6 +8,7 @@ import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.domain.application.ApplicationMetadata;
 import no.difi.move.kosmos.service.config.RefreshService;
+import no.difi.move.kosmos.util.KosmosUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +38,8 @@ public class LatestVersionAction implements ApplicationAction {
                 log.info("Early bird setting is activated but no version is selected, will default to latest version");
                 version = config.latest();
             }
+            // the version comes from an external file and ends up in file paths and download URLs
+            KosmosUtils.requireValidVersion(version);
             log.info("The latest version is {}", version);
             application.setLatest(new ApplicationMetadata().setVersion(version));
             return application;
