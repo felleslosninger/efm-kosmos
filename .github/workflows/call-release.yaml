@@ -27,14 +27,17 @@ jobs:
     env:
       VERSION: ${{ github.event.release.tag_name }}
       JAR: kosmos-${{ github.event.release.tag_name }}.jar
-      SIGNING_KEY_FINGERPRINT: ${{ secrets.EFM_GPG_FINGERPRINT }}
+      # Fingeravtrykket til kodesigneringsnøkkelen for eFormidling.
+      # Det er hardkoda her sidan det ikkje er hemmeleg (det står i kvar signaturverifisering),
+      # og som GitHub secret ville det blitt maskert (***) i loggar, noko som gjer feilsøking vanskelegare.
+      # Fingeravtrykket endrar seg ikkje når utløpsdatoen blir forlenga, berre om nøkkelen blir bytt ut.
+      SIGNING_KEY_FINGERPRINT: AEF27AA6948A3856932AF98ECA5643393753ECE3
     steps:
       - name: Check signing secrets
         env:
           GPG_PRIVATE_KEY: ${{ secrets.EFM_GPG_PRIVATE_KEY }}
-          GPG_PUBLIC_KEY: ${{ secrets.EFM_GPG_PUBLIC_KEY }}
         run: |
-          for v in SIGNING_KEY_FINGERPRINT GPG_PRIVATE_KEY GPG_PUBLIC_KEY; do
+          for v in GPG_PRIVATE_KEY; do
             [ -n "${!v}" ] || { echo "::error::$v is empty"; exit 1; }
           done
 
@@ -65,17 +68,30 @@ jobs:
             --detach-sign --armor \
             "$JAR"
 
-      # Verifiser kun mot den offentlege kodesigneringsnøkkelen
-      - name: Verify signature
+      # Vi lastar ned den offentlege nøkkelen frå docs.digdir.no og verifiserer
+      # signaturen mot han, for å vere sikre på at brukarane (og Kosmos-installasjonar)
+      # opplever det same når dei verifiserer JAR-fila med den publiserte nøkkelen.
+      # Feilar dersom publisert nøkkel manglar, er utgått eller ikkje har rett fingeravtrykk.
+      - name: Verify signature against published public key
         env:
-          GPG_PUBLIC_KEY: ${{ secrets.EFM_GPG_PUBLIC_KEY }}
+          PUBLIC_KEY_URL: https://docs.digdir.no/resources/eformidling/public_keys/eformidling-key.asc
         run: |
           export GNUPGHOME=$(mktemp -d)
           chmod 700 "$GNUPGHOME"
           trap 'rm -rf "$GNUPGHOME"' EXIT
-          echo "$GPG_PUBLIC_KEY" | gpg --batch --import
+          curl --fail --silent --show-error --location -o eformidling-key.asc "$PUBLIC_KEY_URL"
+          gpg --batch --import eformidling-key.asc
           gpg --batch --status-fd 1 --verify "$JAR.asc" "$JAR" | tee verify.out
-          grep -q "VALIDSIG $SIGNING_KEY_FINGERPRINT" verify.out
+          if ! grep -q "^\[GNUPG:\] GOODSIG " verify.out; then
+            echo "::error::Signaturen er ikkje gyldig mot publisert nøkkel (manglar, er utgått eller ugyldig signatur)"
+            exit 1
+          fi
+          ACTUAL_FINGERPRINT=$(awk '$2 == "VALIDSIG" {print $3}' verify.out)
+          if [ "$ACTUAL_FINGERPRINT" != "$SIGNING_KEY_FINGERPRINT" ]; then
+            echo "::error::Feil fingeravtrykk: forventa $SIGNING_KEY_FINGERPRINT, men signaturen er laga med '${ACTUAL_FINGERPRINT}'"
+            exit 1
+          fi
+          echo "Signaturen er gyldig og laga med nøkkelen $ACTUAL_FINGERPRINT"
 
       - name: Attach JAR and signature to release
         env:

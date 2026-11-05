@@ -51,7 +51,8 @@ Når releasen er oppretta, køyrer [call-release.yaml](.github/workflows/call-re
    - Sjekkar at signerings-secrets er sette (jobben feilar viss nokon av dei er tomme)
    - Lastar ned nøyaktig den JAR-fila som vart publisert til GitHub Packages (`kosmos-<tag>.jar`)
    - Signerer ho med kodesigneringsnøkkelen for eFormidling, som gjev ein frittståande ASCII-armert signatur (`kosmos-<tag>.jar.asc`)
-   - Verifiserer signaturen mot den offentlege nøkkelen, og krev at han er laga av nøkkelen med rett fingeravtrykk
+   - Lastar ned den publiserte offentlege nøkkelen frå [docs.digdir.no](https://docs.digdir.no/resources/eformidling/public_keys/eformidling-key.asc)
+     og verifiserer signaturen mot han, slik at brukarane får same resultat. Krev gyldig (ikkje utgått) nøkkel med rett fingeravtrykk
    - Lastar opp `kosmos-<tag>.jar` og `kosmos-<tag>.jar.asc` til GitHub-releasen
 
 ### Secrets som trengst
@@ -61,14 +62,14 @@ Signeringsjobben brukar desse secrets (org- eller repo-secrets):
 |---|---|
 | `EFM_GPG_PRIVATE_KEY` | Privat kodesigneringsnøkkel, ASCII-armert (innhaldet i `kodesignering-eformidling-private.key`) |
 | `EFM_GPG_PASSPHRASE` | Passordet til den private nøkkelen |
-| `EFM_GPG_PUBLIC_KEY` | Offentleg kodesigneringsnøkkel, ASCII-armert (innhaldet i `kodesignering-eformidling-public.key`) |
-| `EFM_GPG_FINGERPRINT` | Fingeravtrykket til nøkkelen, no `AEF27AA6948A3856932AF98ECA5643393753ECE3` |
+
+Fingeravtrykket til nøkkelen (`AEF27AA6948A3856932AF98ECA5643393753ECE3`) er hardkoda i workflowen, sidan det ikkje er hemmeleg.
 
 Workflowen treng i tillegg `GH_PACKAGES_READ_USER` / `GH_PACKAGES_READ_PAT` (via `secrets: inherit`) for å lese interne Maven-avhengigheiter.
 
 Skript for manuell signering, verifisering og forlenging av kodesigneringsnøkkelen finst i
 [efm-integrasjonspunkt/signering](https://github.com/felleslosninger/efm-integrasjonspunkt/tree/main/signering).
-Når nøkkelen blir forlenga med `extend.sh`, må `EFM_GPG_PUBLIC_KEY` oppdaterast med den nye offentlege nøkkelen.
+Når nøkkelen blir forlenga med `extend.sh`, må både `EFM_GPG_PRIVATE_KEY` og den publiserte offentlege nøkkelen oppdaterast.
 
 Signaturen kan verifiserast lokalt med `verify.sh` derifrå, eller direkte med gpg:
 ```bash
