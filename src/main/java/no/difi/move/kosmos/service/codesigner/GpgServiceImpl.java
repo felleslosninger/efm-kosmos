@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.kosmos.action.KosmosActionException;
 import no.difi.move.kosmos.config.KosmosProperties;
+import org.bouncycastle.bcpg.HashAlgorithmTags;
 import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
 import org.bouncycastle.openpgp.jcajce.JcaPGPPublicKeyRingCollection;
@@ -15,6 +16,7 @@ import java.io.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -22,6 +24,16 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 @Component
 @RequiredArgsConstructor
 public class GpgServiceImpl implements GpgService {
+
+    /**
+     * SHA-1, MD5, RIPEMD-160 and SHA-224 are not accepted. Integrasjonspunkt releases are signed with SHA-256.
+     */
+    private static final Set<Integer> ACCEPTED_HASH_ALGORITHMS = Set.of(
+            HashAlgorithmTags.SHA256,
+            HashAlgorithmTags.SHA384,
+            HashAlgorithmTags.SHA512,
+            HashAlgorithmTags.SHA3_256,
+            HashAlgorithmTags.SHA3_512);
 
     private final KosmosProperties properties;
     private final PublicKeyVerifier keyVerifier;
@@ -41,15 +53,36 @@ public class GpgServiceImpl implements GpgService {
         PGPSignature signature = Optional.ofNullable(readSignature(downloadedSignature))
                 .orElseThrow(() -> new KosmosActionException(
                 "Unable to read GPG signature from %s".formatted(downloadedSignature)));
-        PGPPublicKey signerKey = publicKeyPaths.stream()
+        assertSignatureIsAcceptable(signature);
+        PGPPublicKeyRing signerKeyRing = publicKeyPaths.stream()
                 .map(this::readPublicKey)
                 .filter(Objects::nonNull)
-                .map(file -> getSignerKey(signature, file))
+                .map(file -> getSignerKeyRing(signature, file))
                 .filter(Objects::nonNull)
                 .findAny()
                 .orElseThrow(() -> new KosmosActionException("Signer public key not found in keyring"));
-        keyVerifier.verify(signerKey);
+        PGPPublicKey signerKey = signerKeyRing.getPublicKey(signature.getKeyID());
+        keyVerifier.verify(signerKeyRing, signerKey);
         return doVerify(signedData, signature, signerKey);
+    }
+
+    private static void assertSignatureIsAcceptable(PGPSignature signature) {
+        if (signature.getSignatureType() != PGPSignature.BINARY_DOCUMENT) {
+            throw new KosmosActionException("Unexpected GPG signature type %d, expected a binary document signature"
+                    .formatted(signature.getSignatureType()));
+        }
+        if (!ACCEPTED_HASH_ALGORITHMS.contains(signature.getHashAlgorithm())) {
+            throw new KosmosActionException("GPG signature uses hash algorithm %s, which is not accepted"
+                    .formatted(hashAlgorithmName(signature.getHashAlgorithm())));
+        }
+    }
+
+    private static String hashAlgorithmName(int hashAlgorithm) {
+        try {
+            return PGPUtil.getDigestName(hashAlgorithm);
+        } catch (PGPException e) {
+            return String.valueOf(hashAlgorithm);
+        }
     }
 
     private boolean doVerify(String signedData, PGPSignature signature, PGPPublicKey publicKey) {
@@ -71,12 +104,12 @@ public class GpgServiceImpl implements GpgService {
         return false;
     }
 
-    private PGPPublicKey getSignerKey(PGPSignature signature, PGPPublicKeyRingCollection file) {
+    private PGPPublicKeyRing getSignerKeyRing(PGPSignature signature, PGPPublicKeyRingCollection file) {
         log.info("Looking for signer key");
         final long keyID = signature.getKeyID();
         log.trace("Looking for signer key {} in file {}", keyID, file);
         try {
-            return file.getPublicKey(keyID);
+            return file.getPublicKeyRing(keyID);
         } catch (Exception e) {
             log.warn("Could not get signer public key from file {}", file);
         }
@@ -99,9 +132,12 @@ public class GpgServiceImpl implements GpgService {
         log.info("Reading PGP signature");
         try (InputStream signatureStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(signature.getBytes()))) {
             JcaPGPObjectFactory decoder = new JcaPGPObjectFactory(signatureStream);
-            PGPSignatureList pgpSignatures = Optional.ofNullable((PGPSignatureList) decoder.nextObject())
-                    .orElseThrow(() -> new KosmosActionException("Unable to read signature"));
-            return pgpSignatures.get(0);
+            Object pgpObject = decoder.nextObject();
+            if (pgpObject instanceof PGPSignatureList pgpSignatures && !pgpSignatures.isEmpty()) {
+                return pgpSignatures.get(0);
+            }
+            throw new KosmosActionException("Expected a detached GPG signature, but found %s"
+                    .formatted(pgpObject == null ? "nothing" : pgpObject.getClass().getSimpleName()));
         } catch (IOException e) {
             log.warn("Could not read signature from {}", signature);
         }
