@@ -1,11 +1,11 @@
 package no.difi.move.kosmos.repo;
 
-import com.vdurmont.semver4j.Semver;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.kosmos.config.KosmosProperties;
 import org.apache.commons.io.FileUtils;
+import org.semver4j.Semver;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedWriter;
@@ -142,7 +142,7 @@ public class KosmosDirectoryJavaArchiveRepository {
                 .map(s -> new Semver(getSemanticVersion(s)))
                 .sorted(Comparator.reverseOrder())
                 .findFirst()
-                .map(p -> new File(ALLOWLISTEDFILENAME.formatted(p.getValue())))
+                .map(p -> new File(ALLOWLISTEDFILENAME.formatted(p.getVersion())))
                 .orElse(null);
     }
 
