@@ -9,24 +9,25 @@ import no.difi.move.kosmos.service.actuator.ActuatorService;
 import no.difi.move.kosmos.service.launcher.dto.LaunchResult;
 import no.difi.move.kosmos.service.launcher.dto.LaunchStatus;
 import org.springframework.stereotype.Service;
-import org.zeroturnaround.exec.ProcessExecutor;
-import org.zeroturnaround.exec.ProcessResult;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.concurrent.Future;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class LauncherServiceImpl implements LauncherService {
 
+    private static final Duration OUTPUT_DRAIN_TIMEOUT = Duration.ofSeconds(1);
+
     private final KosmosProperties properties;
     private final ActuatorService actuatorService;
     private final EnvironmentService environmentService;
 
-    private Future<ProcessResult> future;
+    private Process process;
 
     @Override
     public LaunchResult launchIntegrasjonspunkt(String jarPath) {
@@ -37,28 +38,37 @@ public class LauncherServiceImpl implements LauncherService {
     @SneakyThrows(InterruptedException.class)
     private LaunchResult launch(String jarPath) {
 
-        if ((future != null) && (!future.isDone())) {
+        if ((process != null) && process.isAlive()) {
             log.warn("Previous application had not completely shut down yet, this might prevent new version to start when using H2 database.");
         }
 
         LaunchResult launchResult = new LaunchResult()
                 .setJarPath(jarPath);
 
-        try (StartupLog startupLog = new StartupLog(properties.getIntegrasjonspunkt().isIncludeLog())) {
+        StartupLog startupLog = new StartupLog(properties.getIntegrasjonspunkt().isIncludeLog());
+        try {
             log.debug("Starting application in {}", jarPath);
 
-            future = new ProcessExecutor(Arrays.asList(
+            ProcessBuilder processBuilder = new ProcessBuilder(List.of(
                     "java", "-jar", jarPath,
                     "--management.endpoint.shutdown.enabled=true",
                     "--app.logger.enableSSL=false",
                     "--spring.profiles.active=" + properties.getIntegrasjonspunkt().getProfile()))
                     .directory(new File(properties.getIntegrasjonspunkt().getHome()))
-                    .environment(environmentService.getChildProcessEnvironment())
-                    .redirectOutput(startupLog)
-                    .start()
-                    .getFuture();
+                    .redirectErrorStream(true);
+            applyEnvironment(processBuilder.environment(), environmentService.getChildProcessEnvironment());
 
-            LaunchStatus launchStatus = waitForStartup(future);
+            process = processBuilder.start();
+            Thread outputReader = Thread.ofPlatform()
+                    .name("integrasjonspunkt-output")
+                    .daemon(true)
+                    .start(readOutput(process, startupLog));
+
+            LaunchStatus launchStatus = waitForStartup(process);
+            if (!process.isAlive()) {
+                // the process has ended, make sure the startup log contains all of its output
+                outputReader.join(OUTPUT_DRAIN_TIMEOUT);
+            }
             startupLog.stopRecording();
             launchResult
                     .setStatus(launchStatus)
@@ -73,7 +83,24 @@ public class LauncherServiceImpl implements LauncherService {
         return launchResult;
     }
 
-    private LaunchStatus waitForStartup(Future<ProcessResult> futureProcessResult) throws InterruptedException {
+    private static Runnable readOutput(Process process, StartupLog startupLog) {
+        return () -> startupLog.consume(process.getInputStream());
+    }
+
+    /**
+     * Applies the given variables to the child process environment. A {@code null} value removes the variable.
+     */
+    static void applyEnvironment(Map<String, String> target, Map<String, String> variables) {
+        variables.forEach((name, value) -> {
+            if (value == null) {
+                target.remove(name);
+            } else {
+                target.put(name, value);
+            }
+        });
+    }
+
+    private LaunchStatus waitForStartup(Process startedProcess) throws InterruptedException {
         int pollIntervalInMs = properties.getLaunchPollIntervalInMs();
         int timeoutInMs = properties.getLaunchTimeoutInMs();
         log.debug("Waiting {} ms for startup with timeout after {}", pollIntervalInMs, timeoutInMs);
@@ -86,17 +113,16 @@ public class LauncherServiceImpl implements LauncherService {
                 log.info("Application started successfully!");
                 return LaunchStatus.SUCCESS;
             }
-            if (futureProcessResult.isDone() || futureProcessResult.isCancelled()) {
+            if (!startedProcess.isAlive()) {
                 log.error("Application failed during startup!");
                 return LaunchStatus.FAILED;
             }
             if (System.currentTimeMillis() - start >= timeoutInMs) {
                 log.error("Application failed to start in " + timeoutInMs + "ms!");
-                futureProcessResult.cancel(true);
+                startedProcess.destroy();
                 return LaunchStatus.FAILED;
             }
         }
     }
 
 }
-
