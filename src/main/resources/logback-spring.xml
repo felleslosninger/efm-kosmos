@@ -6,6 +6,10 @@
     <springProperty name="profiles" source="spring.profiles.active"/>
     <springProperty name="enableLogstash" source="app.logger.enableLogstash" defaultValue="false"/>
     <springProperty scope="context" name="serverName" source="HOSTNAME" />
+    <springProperty name="artifactId" source="project.artifactId"/>
+    <springProperty name="version" source="project.version"/>
+    <springProperty name="buildNumber" source="project.buildNumber"/>
+    <springProperty name="orgnr" source="kosmos.orgnumber"/>
 
     <!--
         Logstash-appenderen blir berre lasta når app.logger.enableLogstash=true, sidan det berre finst

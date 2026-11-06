@@ -4,9 +4,13 @@
     <appender name="stash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
         <droppedWarnFrequency>5</droppedWarnFrequency>
         <destination>${destination}</destination>
+        <!--
+            Felta i customFields kjem frå <springProperty> i logback-spring.xml. server fell tilbake på
+            logback sitt eige HOSTNAME når miljøvariabelen HOSTNAME ikkje er sett (til dømes på Windows).
+        -->
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <customFields>
-                {"appname":"${artifactId}","buildinfo.version":"${version}","buildinfo.lastcommit":"${buildNumber}","orgnr":"${orgnr}","server":"${serverName}"}
+                {"appname":"${artifactId}","buildinfo.version":"${version}","buildinfo.lastcommit":"${buildNumber}","orgnr":"${orgnr}","server":"${serverName:-${HOSTNAME}}"}
             </customFields>
             <fieldNames>
                 <!-- Ignore message and stackTrace field here due to possible sensitive data (personal identity number), replaced in pattern below. -->
