@@ -1,42 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration scan="true">
+<configuration>
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
     <springProperty name="stdoutAppender" source="app.logger.stdoutAppender"/>
     <springProperty name="destination" source="app.logger.destination"/>
     <springProperty name="profiles" source="spring.profiles.active"/>
-    <springProperty name="enableLogstash" source="app.logger.enableLogstash"/>
+    <springProperty name="enableLogstash" source="app.logger.enableLogstash" defaultValue="false"/>
     <springProperty scope="context" name="serverName" source="HOSTNAME" />
 
-    <if condition='property("enableLogstash").contains("true")'>
-        <then>
-            <appender name="stash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-                <droppedWarnFrequency>5</droppedWarnFrequency>
-                <destination>${destination}</destination>
-                <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-                    <customFields>
-                        {"appname":"${artifactId}","buildinfo.version":"${version}","buildinfo.lastcommit":"${buildNumber}","orgnr":"${orgnr}","server":"${serverName}"}
-                    </customFields>
-                    <fieldNames>
-                        <!-- Ignore message and stackTrace field here due to possible sensitive data (personal identity number), replaced in pattern below. -->
-                        <message>[ignore]</message>
-                        <stackTrace>[ignore]</stackTrace>
-                    </fieldNames>
-                    <provider class="net.logstash.logback.composite.loggingevent.LoggingEventPatternJsonProvider">
-                        <pattern>
-                            {
-                            "message": "%replace(%msg){'[0-9]{11}','**********'}",
-                            "stack_trace": "%replace(%ex{full}){'[0-9]{11}','**********'}"
-                            }
-                        </pattern>
-                    </provider>
-                </encoder>
-            </appender>
-
-            <root level="INFO">
-                <appender-ref ref="stash"/>
-            </root>
-        </then>
-    </if>
+    <!--
+        Logstash-appenderen blir berre lasta når app.logger.enableLogstash=true, sidan det berre finst
+        ei logback-logstash-true.xml. Vi brukar ikkje <if>: condition-attributtet krev janino, og logback 1.5.38
+        evaluerer det ikkje lenger, så Logstash vart aldri slått på.
+    -->
+    <include resource="logback-logstash-${enableLogstash}.xml" optional="true"/>
 
     <root level="INFO">
         <appender-ref ref="${stdoutAppender:-CONSOLE}"/>
