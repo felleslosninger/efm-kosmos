@@ -5,6 +5,7 @@ import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.config.VerificationProperties;
 import org.assertj.core.util.Lists;
 import org.bouncycastle.openpgp.PGPPublicKey;
+import org.bouncycastle.openpgp.PGPPublicKeyRing;
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,7 +69,7 @@ public class GpgServiceImplIT {
 
     @Test
     public void verify_Success_ShouldVerifyAndReturnTrue() {
-        doNothing().when(keyVerifier).verify(any(PGPPublicKey.class));
+        doNothing().when(keyVerifier).verify(any(PGPPublicKeyRing.class), any(PGPPublicKey.class));
         List<Resource> bothMatchingAndNotMatchingKeys = Lists.newArrayList(matchingPublicKeyFilePath, notMatchingPublicKeyFilePath);
         when(verificationProperties.getPublicKeyPaths()).thenReturn(bothMatchingAndNotMatchingKeys);
         assertTrue(target.verify(signedDataFilePath, downloadedSignature));
@@ -99,7 +100,7 @@ public class GpgServiceImplIT {
     @Test
     public void verify_ExpiredPublicKey_ShouldThrow() {
         when(verificationProperties.getPublicKeyPaths()).thenReturn(downloadedPublicKeys);
-        doThrow(new KosmosActionException("Expired key")).when(keyVerifier).verify(any(PGPPublicKey.class));
+        doThrow(new KosmosActionException("Expired key")).when(keyVerifier).verify(any(PGPPublicKeyRing.class), any(PGPPublicKey.class));
         assertThrows(KosmosActionException.class, () -> target.verify(signedDataFilePath, downloadedSignature));
     }
 
