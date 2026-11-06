@@ -34,14 +34,14 @@ public class KosmosDirectoryJavaArchiveRepository {
 
     public File getFile(String version, String name) {
         File root = getOrCreateHomeFolder();
-        File file = new File(root, name.formatted(version));
         // the version may come from external sources, never let it place files outside the home folder
         Path rootPath = root.toPath().toAbsolutePath().normalize();
-        Path filePath = file.toPath().toAbsolutePath().normalize();
+        Path filePath = rootPath.resolve(name.formatted(version)).normalize();
         if (!rootPath.equals(filePath.getParent())) {
             throw new IllegalArgumentException("Version '%s' gives a file outside the home folder %s".formatted(version, rootPath));
         }
-        return file;
+        // return the checked path, the original could resolve elsewhere through a symlink followed by ".."
+        return filePath.toFile();
     }
 
     private File getOrCreateHomeFolder() {
