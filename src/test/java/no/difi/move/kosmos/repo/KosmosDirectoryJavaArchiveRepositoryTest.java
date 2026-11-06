@@ -95,6 +95,27 @@ class KosmosDirectoryJavaArchiveRepositoryTest {
     }
 
     @Test
+    void getAllowlistVersion_noAllowlistFiles_returnsNull() {
+        assertNull(repo.getAllowlistVersion());
+    }
+
+    @Test
+    void getAllowlistVersion_returnsHighestSemanticVersion() throws IOException {
+        for (String version : new String[]{"2.9.0", "2.10.0-SNAPSHOT", "2.10.0", "2.2.1", "2.10.0-beta"}) {
+            Files.createFile(tempDir.resolve("integrasjonspunkt-%s.allowlisted".formatted(version)));
+        }
+        // compared numerically, not as text, and a pre-release is lower than the release
+        assertEquals("2.10.0", repo.getAllowlistVersion());
+    }
+
+    @Test
+    void getAllowlistVersion_preReleaseIsHigherThanPreviousRelease() throws IOException {
+        Files.createFile(tempDir.resolve("integrasjonspunkt-4.0.0.allowlisted"));
+        Files.createFile(tempDir.resolve("integrasjonspunkt-4.0.1-beta.allowlisted"));
+        assertEquals("4.0.1-beta", repo.getAllowlistVersion());
+    }
+
+    @Test
     void getSemanticVersion() {
         assertNull(repo.getSemanticVersion("filename-1"));
         assertNull(repo.getSemanticVersion("filename-1.2"));
