@@ -7,6 +7,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.kosmos.action.KosmosActionException;
 import no.difi.move.kosmos.config.KosmosProperties;
+import no.difi.move.kosmos.util.KosmosUtils;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -86,7 +87,7 @@ public class WebClientJavaArchiveRepository implements JavaArchiveRepository {
 
     @SneakyThrows(URISyntaxException.class)
     private URI getDownloadURI(String version, String classifier) {
-
+        KosmosUtils.requireValidVersion(version);
         UriComponentsBuilder builder = UriComponentsBuilder.fromUri(properties.getJavaArchiveRepositoryUrl().toURI())
         .path(properties.getGroupId())
          .path(properties.getArtifactId())
