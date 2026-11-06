@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -22,7 +23,7 @@ public class KosmosProperties {
     /**
      * Organization number to run as.
      */
-    @NotNull(message = "kosmos.orgnumber is not set. This property is required.")
+    @NotBlank(message = "kosmos.orgnumber is not set. This property is required.")
     @Digits(integer = 9, fraction = 0, message = "kosmos.orgnumber must be exactly 9 digits")
     @Length(min = 9, max = 9, message = "kosmos.orgnumber must be exactly 9 digits")
     @Mod11Check(threshold = 7, message = "kosmos.orgnumber has wrong control character")
