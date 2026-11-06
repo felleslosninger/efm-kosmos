@@ -6,6 +6,7 @@ import ch.qos.logback.classic.util.ContextInitializer;
 import net.logstash.logback.appender.LogstashTcpSocketAppender;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Isolated;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.logging.LoggingInitializationContext;
 import org.springframework.boot.logging.logback.LogbackLoggingSystem;
@@ -17,7 +18,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Lastar produksjonsoppsettet for logback (src/main/resources/logback-spring.xml) slik Spring Boot gjer det,
  * og sjekkar at Logstash-appenderen berre blir lagd til når app.logger.enableLogstash=true.
  * Spring Boot kastar unntak dersom logback rapporterer feil i oppsettet.
+ * Testen endrar den globale LoggerContext, og må derfor ikkje køyre samtidig med andre testar.
  */
+@Isolated
 class LogbackSpringConfigTest {
 
     private static final String MAIN_LOGBACK_CONFIG = "file:src/main/resources/logback-spring.xml";
