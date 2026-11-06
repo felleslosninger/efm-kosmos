@@ -92,6 +92,20 @@ public class PublicKeyVerifierImplIT {
     }
 
     @Test
+    public void verify_NewestPrimaryKeySelfSignatureHasNoKeyFlags_ShouldThrow() {
+        TestKeyRing keys = keyRing().newerSelfSignatureWithoutKeyFlags().build();
+        assertThat(keys.primaryPublicKey().getSignatures()).toIterable().hasSize(2);
+        assertRejected(keys.publicKeyRing(), keys, false, "not allowed to sign");
+    }
+
+    @Test
+    public void verify_NewestSubkeyBindingHasNoKeyFlags_ShouldThrow() {
+        TestKeyRing keys = keyRing().withSubkey(KeyFlags.SIGN_DATA).newerSelfSignatureWithoutKeyFlags().build();
+        assertThat(keys.subkeyPublicKey().getSignatures()).toIterable().hasSize(2);
+        assertRejected(keys.publicKeyRing(), keys, true, "not allowed to sign");
+    }
+
+    @Test
     public void verify_SubkeyIsRevoked_ShouldThrow() {
         TestKeyRing keys = keyRing().withSubkey(KeyFlags.SIGN_DATA).revokeSubkey().build();
         assertRejected(keys.publicKeyRing(), keys, true, "revoked");

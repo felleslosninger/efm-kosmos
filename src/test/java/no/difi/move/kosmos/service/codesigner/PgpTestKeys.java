@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 
@@ -33,6 +34,7 @@ import java.util.Date;
 final class PgpTestKeys {
 
     static final int CERTIFY_AND_SIGN = KeyFlags.CERTIFY_OTHER | KeyFlags.SIGN_DATA;
+    private static final String USER_ID = "KOSMOS test <kosmos-test@example.com>";
 
     // RSA key generation is slow, so all test key rings share the same two key pairs.
     private static final KeyPair PRIMARY_KEY_MATERIAL = generateRsaKeyPair();
@@ -54,6 +56,7 @@ final class PgpTestKeys {
         private long subkeyValidSeconds = 0;
         private boolean revokePrimary = false;
         private boolean revokeSubkey = false;
+        private boolean newerSelfSignatureWithoutKeyFlags = false;
 
         Builder createdAt(Instant createdAt) {
             this.createdAt = createdAt;
@@ -97,6 +100,15 @@ final class PgpTestKeys {
             return this;
         }
 
+        /**
+         * Adds a newer self-signature without key flags to the subkey, or to the primary key if there is no
+         * subkey: a subkey binding for the subkey, a user ID certification for the primary key.
+         */
+        Builder newerSelfSignatureWithoutKeyFlags() {
+            this.newerSelfSignatureWithoutKeyFlags = true;
+            return this;
+        }
+
         TestKeyRing build() {
             try {
                 Date created = Date.from(createdAt);
@@ -105,7 +117,7 @@ final class PgpTestKeys {
                 PGPDigestCalculator sha1 = new JcaPGPDigestCalculatorProviderBuilder().build()
                         .get(HashAlgorithmTags.SHA1);
                 PGPKeyRingGenerator generator = new PGPKeyRingGenerator(PGPSignature.POSITIVE_CERTIFICATION,
-                        primary, "KOSMOS test <kosmos-test@example.com>", sha1,
+                        primary, USER_ID, sha1,
                         selfSignatureSubpackets(primaryFlags, primaryValidSeconds), null,
                         signerBuilder(HashAlgorithmTags.SHA256), null);
                 PGPKeyPair sub = null;
@@ -115,6 +127,9 @@ final class PgpTestKeys {
                     generator.addSubKey(sub, selfSignatureSubpackets(subkeyFlags, subkeyValidSeconds), null);
                 }
                 PGPPublicKeyRing ring = generator.generatePublicKeyRing();
+                if (newerSelfSignatureWithoutKeyFlags) {
+                    ring = addNewerSelfSignatureWithoutKeyFlags(ring, primary, sub);
+                }
                 if (revokePrimary) {
                     ring = revoke(ring, primary, ring.getPublicKey(), PGPSignature.KEY_REVOCATION);
                 }
@@ -138,6 +153,27 @@ final class PgpTestKeys {
                 subpackets.setKeyExpirationTime(false, validSeconds);
             }
             return subpackets.generate();
+        }
+
+        private static PGPPublicKeyRing addNewerSelfSignatureWithoutKeyFlags(PGPPublicKeyRing ring, PGPKeyPair primary,
+                                                                             PGPKeyPair sub) throws PGPException {
+            PGPSignatureSubpacketGenerator subpackets = new PGPSignatureSubpacketGenerator();
+            subpackets.setSignatureCreationTime(false, Date.from(Instant.now().plus(Duration.ofHours(1))));
+            PGPSignatureGenerator generator = new PGPSignatureGenerator(
+                    signerBuilder(HashAlgorithmTags.SHA256), primary.getPublicKey());
+            PGPPublicKey primaryKey = ring.getPublicKey();
+            if (sub == null) {
+                generator.init(PGPSignature.POSITIVE_CERTIFICATION, primary.getPrivateKey());
+                generator.setHashedSubpackets(subpackets.generate());
+                PGPSignature certification = generator.generateCertification(USER_ID, primaryKey);
+                return PGPPublicKeyRing.insertPublicKey(ring,
+                        PGPPublicKey.addCertification(primaryKey, USER_ID, certification));
+            }
+            PGPPublicKey subKey = ring.getPublicKey(sub.getKeyID());
+            generator.init(PGPSignature.SUBKEY_BINDING, primary.getPrivateKey());
+            generator.setHashedSubpackets(subpackets.generate());
+            PGPSignature binding = generator.generateCertification(primaryKey, subKey);
+            return PGPPublicKeyRing.insertPublicKey(ring, PGPPublicKey.addCertification(subKey, binding));
         }
 
         private static PGPPublicKeyRing revoke(PGPPublicKeyRing ring, PGPKeyPair primary, PGPPublicKey key,

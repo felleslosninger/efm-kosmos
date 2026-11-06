@@ -73,8 +73,8 @@ public class PublicKeyVerifierImpl implements PublicKeyVerifier {
 
     /**
      * The key flags come from the newest self-signature on the key: a user ID certification or
-     * direct-key signature for a primary key, a subkey binding signature for a subkey. A key with
-     * no key flags at all is not accepted.
+     * direct-key signature for a primary key, a subkey binding signature for a subkey. If the newest
+     * self-signature has no key flags, the key is not accepted, even if an older one allowed signing.
      */
     private static void assertCanSignData(PGPPublicKey primaryKey, PGPPublicKey signerKey, boolean signerIsPrimary) {
         Optional<Integer> keyFlags = StreamSupport.stream(
@@ -83,9 +83,9 @@ public class PublicKeyVerifierImpl implements PublicKeyVerifier {
                 .filter(sig -> signerIsPrimary
                         ? PRIMARY_KEY_SELF_SIGNATURE_TYPES.contains(sig.getSignatureType())
                         : sig.getSignatureType() == PGPSignature.SUBKEY_BINDING)
+                .max(Comparator.comparing(PGPSignature::getCreationTime))
                 .filter(sig -> sig.hasSubpackets()
                         && sig.getHashedSubPackets().hasSubpacket(SignatureSubpacketTags.KEY_FLAGS))
-                .max(Comparator.comparing(PGPSignature::getCreationTime))
                 .map(sig -> sig.getHashedSubPackets().getKeyFlags());
         log.debug("Key {} has key flags {}", signerKey.getKeyID(), keyFlags.orElse(null));
         if (keyFlags.isEmpty() || (keyFlags.get() & KeyFlags.SIGN_DATA) == 0) {
