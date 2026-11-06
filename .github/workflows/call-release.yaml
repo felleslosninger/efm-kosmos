@@ -17,3 +17,87 @@ jobs:
       java-version: 21
       sbom-path: ./
     secrets: inherit
+
+  sign-and-attach-jar:
+    needs: call-workflow-ci-build-deploy-lib
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+    env:
+      VERSION: ${{ github.event.release.tag_name }}
+      JAR: kosmos-${{ github.event.release.tag_name }}.jar
+      # Fingeravtrykket til kodesigneringsnøkkelen for eFormidling.
+      # Det er hardkoda her sidan det ikkje er hemmeleg (det står i kvar signaturverifisering),
+      # og som GitHub secret ville det blitt maskert (***) i loggar, noko som gjer feilsøking vanskelegare.
+      # Fingeravtrykket endrar seg ikkje når utløpsdatoen blir forlenga, berre om nøkkelen blir bytt ut.
+      SIGNING_KEY_FINGERPRINT: AEF27AA6948A3856932AF98ECA5643393753ECE3
+    steps:
+      - name: Check signing secrets
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.EFM_GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.EFM_GPG_PASSPHRASE }}
+        run: |
+          for v in GPG_PRIVATE_KEY GPG_PASSPHRASE; do
+            [ -n "${!v}" ] || { echo "::error::$v is empty"; exit 1; }
+          done
+
+      # Hent nøyaktig den JAR-fila som vart publisert til GitHub Packages
+      - name: Download published JAR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl --fail --silent --show-error --location \
+            -u "${{ github.actor }}:${GH_TOKEN}" \
+            -o "$JAR" \
+            "https://maven.pkg.github.com/${{ github.repository }}/no/difi/move/kosmos/${VERSION}/${JAR}"
+          ls -l "$JAR"
+
+      - name: Sign JAR
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.EFM_GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.EFM_GPG_PASSPHRASE }}
+        run: |
+          export GNUPGHOME=$(mktemp -d)
+          chmod 700 "$GNUPGHOME"
+          trap 'rm -rf "$GNUPGHOME"' EXIT
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          gpg --batch --yes \
+            --pinentry-mode loopback \
+            --passphrase "$GPG_PASSPHRASE" \
+            --local-user "$SIGNING_KEY_FINGERPRINT" \
+            --detach-sign --armor \
+            "$JAR"
+
+      # Vi lastar ned den offentlege nøkkelen frå docs.digdir.no og verifiserer
+      # signaturen mot han, for å vere sikre på at brukarane (og Kosmos-installasjonar)
+      # opplever det same når dei verifiserer JAR-fila med den publiserte nøkkelen.
+      # Feilar dersom publisert nøkkel manglar, er utgått eller ikkje har rett fingeravtrykk.
+      - name: Verify signature against published public key
+        env:
+          PUBLIC_KEY_URL: https://docs.digdir.no/resources/eformidling/public_keys/eformidling-key.asc
+        run: |
+          # Utan pipefail ville exit-koden til gpg bli skjult av tee
+          set -o pipefail
+          export GNUPGHOME=$(mktemp -d)
+          chmod 700 "$GNUPGHOME"
+          trap 'rm -rf "$GNUPGHOME"' EXIT
+          curl --fail --silent --show-error --location -o eformidling-key.asc "$PUBLIC_KEY_URL"
+          gpg --batch --import eformidling-key.asc
+          gpg --batch --status-fd 1 --verify "$JAR.asc" "$JAR" | tee verify.out
+          if ! grep -q "^\[GNUPG:\] GOODSIG " verify.out; then
+            echo "::error::Signaturen er ikkje gyldig mot publisert nøkkel (manglar, er utgått eller ugyldig signatur)"
+            exit 1
+          fi
+          ACTUAL_FINGERPRINT=$(awk '$2 == "VALIDSIG" {print $3}' verify.out)
+          if [ "$ACTUAL_FINGERPRINT" != "$SIGNING_KEY_FINGERPRINT" ]; then
+            echo "::error::Feil fingeravtrykk: forventa $SIGNING_KEY_FINGERPRINT, men signaturen er laga med '${ACTUAL_FINGERPRINT}'"
+            exit 1
+          fi
+          echo "Signaturen er gyldig og laga med nøkkelen $ACTUAL_FINGERPRINT"
+
+      - name: Attach JAR and signature to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release upload "$VERSION" "$JAR" "$JAR.asc" --clobber
