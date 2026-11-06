@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -17,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -32,14 +35,16 @@ public class LatestVersionActionTest {
 
     private IntegrasjonspunktProperties integrasjonspunktProperties;
 
+    private HashMap<String, VersionsConfig.Versions> environments;
+
     @InjectMocks
     private LatestVersionAction target;
 
     @BeforeEach
     public void setUp() {
-        var environments = new HashMap<String, VersionsConfig.Versions>();
-        environments.put("profile_ok", new VersionsConfig.Versions("latest", "EarlyBird"));
-        environments.put("profile_earlybird_null", new VersionsConfig.Versions("Latest", null));
+        environments = new HashMap<>();
+        environments.put("profile_ok", new VersionsConfig.Versions("2.31.0", "v4.2.0"));
+        environments.put("profile_earlybird_null", new VersionsConfig.Versions("2.30.0", null));
         var versionsConfig = new VersionsConfig(new VersionsConfig.Environments(environments));
         integrasjonspunktProperties = mock(IntegrasjonspunktProperties.class);
         given(propertiesMock.getIntegrasjonspunkt()).willReturn(integrasjonspunktProperties);
@@ -51,7 +56,7 @@ public class LatestVersionActionTest {
         given(integrasjonspunktProperties.isEarlyBird()).willReturn(false);
         given(integrasjonspunktProperties.getProfile()).willReturn("profile_ok");
         Application result = target.apply(new Application());
-        assertThat(result.getLatest().getVersion()).isEqualTo("latest");
+        assertThat(result.getLatest().getVersion()).isEqualTo("2.31.0");
     }
 
     @Test
@@ -68,7 +73,7 @@ public class LatestVersionActionTest {
         given(integrasjonspunktProperties.isEarlyBird()).willReturn(true);
         given(integrasjonspunktProperties.getProfile()).willReturn("profile_earlybird_null");
         Application result = target.apply(new Application());
-        assertThat(StringUtils.equals("Latest", result.getLatest().getVersion())).isTrue();
+        assertThat(StringUtils.equals("2.30.0", result.getLatest().getVersion())).isTrue();
     }
 
     @Test
@@ -76,7 +81,7 @@ public class LatestVersionActionTest {
         given(integrasjonspunktProperties.isEarlyBird()).willReturn(false);
         given(integrasjonspunktProperties.getProfile()).willReturn("profile_ok");
         Application result = target.apply(new Application());
-        assertThat(StringUtils.equals("latest", result.getLatest().getVersion())).isTrue();
+        assertThat(StringUtils.equals("2.31.0", result.getLatest().getVersion())).isTrue();
     }
 
     @Test
@@ -84,7 +89,32 @@ public class LatestVersionActionTest {
         given(integrasjonspunktProperties.isEarlyBird()).willReturn(true);
         given(integrasjonspunktProperties.getProfile()).willReturn("profile_ok");
         Application result = target.apply(new Application());
-        assertThat(StringUtils.equals("EarlyBird", result.getLatest().getVersion())).isTrue();
+        assertThat(StringUtils.equals("v4.2.0", result.getLatest().getVersion())).isTrue();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"x/../../tmp/test", "../4.2.0", "4.2.0/evil", "4.2.0\\evil", "latest", "4.2", "4.2.0 "})
+    public void apply_InvalidLatestVersion_ShouldThrow(String version) {
+        given(integrasjonspunktProperties.isEarlyBird()).willReturn(false);
+        given(integrasjonspunktProperties.getProfile()).willReturn("profile_invalid");
+        environments.put("profile_invalid", new VersionsConfig.Versions(version, null));
+        Application application = new Application();
+        assertThatThrownBy(() -> target.apply(application))
+                .isInstanceOf(KosmosActionException.class)
+                .hasRootCauseInstanceOf(IllegalArgumentException.class);
+        assertThat(application.getLatest()).isNull();
+    }
+
+    @Test
+    public void apply_InvalidEarlyBirdVersion_ShouldThrow() {
+        given(integrasjonspunktProperties.isEarlyBird()).willReturn(true);
+        given(integrasjonspunktProperties.getProfile()).willReturn("profile_invalid");
+        environments.put("profile_invalid", new VersionsConfig.Versions("2.31.0", "x/../../tmp/test"));
+        Application application = new Application();
+        assertThatThrownBy(() -> target.apply(application))
+                .isInstanceOf(KosmosActionException.class)
+                .hasRootCauseInstanceOf(IllegalArgumentException.class);
+        assertThat(application.getLatest()).isNull();
     }
 
 }

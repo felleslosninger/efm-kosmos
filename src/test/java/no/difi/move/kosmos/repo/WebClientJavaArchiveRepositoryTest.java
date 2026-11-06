@@ -9,6 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,7 +21,7 @@ import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 public class WebClientJavaArchiveRepositoryTest {
@@ -39,7 +41,7 @@ public class WebClientJavaArchiveRepositoryTest {
     public void setUp() throws Exception {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
-        when(properties.getJavaArchiveRepositoryUrl()).thenReturn(mockWebServer.url("/download").url());
+        lenient().when(properties.getJavaArchiveRepositoryUrl()).thenReturn(mockWebServer.url("/download").url());
     }
 
     @AfterEach
@@ -51,7 +53,7 @@ public class WebClientJavaArchiveRepositoryTest {
     public void downloadJAR_BadRequest_ShouldThrow() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(400));
         final File download = new File(tempFolder, "test.jar");
-        assertThatThrownBy(() -> target.downloadJAR("version", download.toPath()))
+        assertThatThrownBy(() -> target.downloadJAR("2.0.0-SNAPSHOT", download.toPath()))
                 .isInstanceOf(KosmosActionException.class);
     }
 
@@ -59,7 +61,7 @@ public class WebClientJavaArchiveRepositoryTest {
     public void downloadJAR_InternalServerError_ShouldThrow() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(500));
         final File download = new File(tempFolder, "test.jar");
-        assertThatThrownBy(() -> target.downloadJAR("version", download.toPath()))
+        assertThatThrownBy(() -> target.downloadJAR("2.0.0-SNAPSHOT", download.toPath()))
                 .isInstanceOf(KosmosActionException.class);
     }
 
@@ -112,15 +114,38 @@ public class WebClientJavaArchiveRepositoryTest {
     @Test
     public void downloadSignature_BadRequest_ShouldThrow() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(400));
-        assertThatThrownBy(() -> target.downloadSignature("version"))
+        assertThatThrownBy(() -> target.downloadSignature("2.0.0-SNAPSHOT"))
                 .isInstanceOf(KosmosActionException.class);
     }
 
     @Test
     public void downloadSignature_InternalServerError_ShouldThrow() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(500));
-        assertThatThrownBy(() -> target.downloadSignature("version"))
+        assertThatThrownBy(() -> target.downloadSignature("2.0.0-SNAPSHOT"))
                 .isInstanceOf(KosmosActionException.class);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"x/../../tmp/test", "../4.2.0", "4.2.0/evil", "4.2.0-a/b", "latest"})
+    public void invalidVersion_ShouldThrowWithoutRequest(String version) {
+        final File download = new File(tempFolder, "test.jar");
+        assertThatThrownBy(() -> target.downloadJAR(version, download.toPath()))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> target.getChecksum(version, "sha1"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> target.downloadSignature(version))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThat(mockWebServer.getRequestCount()).isZero();
+    }
+
+    @Test
+    public void downloadSignature_TagVersion_ShouldUseTagInUrl() throws Exception {
+        mockWebServer.enqueue(new MockResponse()
+                .setBody("sigbody")
+                .setResponseCode(200));
+        target.downloadSignature("v4.2.0");
+        assertThat(mockWebServer.takeRequest().getPath())
+                .endsWith("/releases/download/v4.2.0/integrasjonspunkt-v4.2.0.jar.asc");
     }
 
 }
