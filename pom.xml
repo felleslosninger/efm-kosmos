@@ -320,6 +320,7 @@
                     <properties>
                         <configurationParameters>
                             cucumber.junit-platform.naming-strategy=long
+                            junit.jupiter.execution.parallel.enabled=false
                         </configurationParameters>
                     </properties>
                 </configuration>
