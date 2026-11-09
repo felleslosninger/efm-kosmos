@@ -5,11 +5,10 @@ import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.domain.application.ApplicationMetadata;
 import no.difi.move.kosmos.repo.KosmosDirectoryJavaArchiveRepository;
 import no.difi.move.kosmos.service.actuator.ActuatorService;
+import no.difi.move.kosmos.service.codesigner.JarVerifier;
 import no.difi.move.kosmos.util.KosmosUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -33,14 +32,11 @@ public class GetCurrentVersionActionTest {
     @Mock
     private KosmosDirectoryJavaArchiveRepository repoMock;
     @Mock
-    private Application applicationMock;
-    @Mock
     private File fileMock;
     @Mock
     private ActuatorService actuatorServiceMock;
-
-    @Captor
-    private ArgumentCaptor<ApplicationMetadata> applicationMetadataArgumentCaptor;
+    @Mock
+    private JarVerifier jarVerifierMock;
 
     @Test
     public void apply_ApplicationIsNull_ShouldThrow() {
@@ -62,12 +58,14 @@ public class GetCurrentVersionActionTest {
                         .version("1.0")
                         .build()
         );
-        given(repoMock.getFile(anyString(), anyString())).willReturn(fileMock);
+        given(repoMock.getFile("1.0", KosmosUtils.DOWNLOAD_JAR_FILE_NAME)).willReturn(fileMock);
+        Application application = new Application();
 
-        assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
+        assertThat(target.apply(application)).isSameAs(application);
 
-        verify(applicationMock).setCurrent(applicationMetadataArgumentCaptor.capture());
-        verify(repoMock).getFile("1.0", KosmosUtils.DOWNLOAD_JAR_FILE_NAME);
+        assertThat(application.getCurrent())
+                .isEqualTo(new ApplicationMetadata().setVersion("1.0").setFile(fileMock));
+        verify(repoMock, never()).getAllowlistVersion();
     }
 
     @Test
@@ -75,9 +73,58 @@ public class GetCurrentVersionActionTest {
         given(actuatorServiceMock.getVersionInfo())
                 .willReturn(VersionInfo.builder()
                         .resolved(false).build());
+        Application application = new Application();
 
-        assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
-        verify(applicationMock, never()).setCurrent(any());
+        assertThat(target.apply(application)).isSameAs(application);
+
+        assertThat(application.getCurrent()).isNull();
         verify(repoMock, never()).getFile(anyString(), anyString());
+    }
+
+    @Test
+    public void apply_NotRunningAndAllowlistedJarIsVerified_ShouldUseAllowlistedVersion() {
+        given(actuatorServiceMock.getVersionInfo())
+                .willReturn(VersionInfo.builder()
+                        .resolved(false).build());
+        given(repoMock.getAllowlistVersion()).willReturn("2.0.0");
+        given(repoMock.getFile("2.0.0", KosmosUtils.DOWNLOAD_JAR_FILE_NAME)).willReturn(fileMock);
+        given(jarVerifierMock.isVerified("2.0.0", fileMock)).willReturn(true);
+        Application application = new Application();
+
+        assertThat(target.apply(application)).isSameAs(application);
+
+        assertThat(application.getCurrent())
+                .isEqualTo(new ApplicationMetadata().setVersion("2.0.0").setFile(fileMock));
+    }
+
+    @Test
+    public void apply_NotRunningAndAllowlistedJarIsNotVerified_ShouldNotUseAllowlistedVersion() {
+        given(actuatorServiceMock.getVersionInfo())
+                .willReturn(VersionInfo.builder()
+                        .resolved(false).build());
+        given(repoMock.getAllowlistVersion()).willReturn("2.0.0");
+        given(repoMock.getFile("2.0.0", KosmosUtils.DOWNLOAD_JAR_FILE_NAME)).willReturn(fileMock);
+        given(jarVerifierMock.isVerified("2.0.0", fileMock)).willReturn(false);
+        Application application = new Application();
+
+        assertThat(target.apply(application)).isSameAs(application);
+
+        assertThat(application.getCurrent()).isNull();
+    }
+
+    @Test
+    public void apply_RunningVersion_ShouldNotVerifyJar() {
+        given(actuatorServiceMock.getVersionInfo()).willReturn(
+                VersionInfo.builder()
+                        .resolved(true)
+                        .version("1.0")
+                        .build()
+        );
+        given(repoMock.getFile("1.0", KosmosUtils.DOWNLOAD_JAR_FILE_NAME)).willReturn(fileMock);
+
+        target.apply(new Application());
+
+        // the jar is verified when it is started, e.g. on rollback
+        verify(jarVerifierMock, never()).isVerified(any(), any());
     }
 }

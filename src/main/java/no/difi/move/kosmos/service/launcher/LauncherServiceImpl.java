@@ -3,9 +3,11 @@ package no.difi.move.kosmos.service.launcher;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import no.difi.move.kosmos.action.KosmosActionException;
 import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.domain.HealthStatus;
 import no.difi.move.kosmos.service.actuator.ActuatorService;
+import no.difi.move.kosmos.service.codesigner.JarVerifier;
 import no.difi.move.kosmos.service.launcher.dto.LaunchResult;
 import no.difi.move.kosmos.service.launcher.dto.LaunchStatus;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -26,13 +29,42 @@ public class LauncherServiceImpl implements LauncherService {
     private final KosmosProperties properties;
     private final ActuatorService actuatorService;
     private final EnvironmentService environmentService;
+    private final JarVerifier jarVerifier;
 
     private Process process;
 
     @Override
-    public LaunchResult launchIntegrasjonspunkt(String jarPath) {
+    public LaunchResult launchIntegrasjonspunkt(String version, File jarFile) {
+        String jarPath = jarFile.getAbsolutePath();
         log.info("Starting application: {}", jarPath);
-        return launch(jarPath);
+        byte[] verifiedDigest;
+        try {
+            // verify right before starting, the file may have been replaced since it was downloaded and validated
+            verifiedDigest = jarVerifier.verify(version, jarFile);
+        } catch (KosmosActionException e) {
+            log.error("The application will not be started", e);
+            return new LaunchResult()
+                    .setJarPath(jarPath)
+                    .setStatus(LaunchStatus.FAILED)
+                    .setStartupLog("The application was not started. " + JarVerifier.describe(e));
+        }
+
+        Process previousProcess = process;
+        LaunchResult launchResult = launch(jarPath);
+
+        // the JVM reads the file while starting, so it must still have the verified content
+        if (!jarVerifier.isUnchanged(jarFile, verifiedDigest)) {
+            log.error("{} was changed after it was verified, the application will be stopped", jarPath);
+            // only stop the process started here, never one that was running before
+            if (process != previousProcess && process.isAlive()) {
+                process.destroy();
+            }
+            launchResult
+                    .setStatus(LaunchStatus.FAILED)
+                    .setStartupLog("%s was changed after it was verified, and the application has been stopped.%n%s"
+                            .formatted(jarPath, Objects.toString(launchResult.getStartupLog(), "")));
+        }
+        return launchResult;
     }
 
     @SneakyThrows(InterruptedException.class)

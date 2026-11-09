@@ -109,6 +109,20 @@ class KosmosDirectoryJavaArchiveRepositoryTest {
     }
 
     @Test
+    void getAllowlistVersion_namesWithoutValidVersionAreIgnored() throws IOException {
+        Files.createFile(tempDir.resolve("integrasjonspunkt-2.9.0.allowlisted"));
+        Files.createFile(tempDir.resolve("something.allowlisted"));
+        Files.createFile(tempDir.resolve("integrasjonspunkt-3.0.allowlisted"));
+        assertEquals("2.9.0", repo.getAllowlistVersion());
+    }
+
+    @Test
+    void getAllowlistVersion_homeFolderMissing_returnsNull() {
+        when(properties.getIntegrasjonspunkt().getHome()).thenReturn(tempDir.resolve("missing").toString());
+        assertNull(repo.getAllowlistVersion());
+    }
+
+    @Test
     void getAllowlistVersion_preReleaseIsHigherThanPreviousRelease() throws IOException {
         Files.createFile(tempDir.resolve("integrasjonspunkt-4.0.0.allowlisted"));
         Files.createFile(tempDir.resolve("integrasjonspunkt-4.0.1-beta.allowlisted"));

@@ -19,6 +19,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -138,8 +139,15 @@ public class KosmosDirectoryJavaArchiveRepository {
         File f = new File(properties.getIntegrasjonspunkt().getHome());
         FilenameFilter filter = (f1, name) -> name.endsWith(".allowlisted");
         filesNames = f.list(filter);
+        if (filesNames == null) {
+            return null;
+        }
+        // anyone who can write to the home folder can add files, so skip names without a valid version instead of failing
         return Arrays.stream(filesNames)
-                .map(s -> new Semver(getSemanticVersion(s)))
+                .map(this::getSemanticVersion)
+                .filter(Objects::nonNull)
+                .map(Semver::parse)
+                .filter(Objects::nonNull)
                 .sorted(Comparator.reverseOrder())
                 .findFirst()
                 .map(p -> new File(ALLOWLISTEDFILENAME.formatted(p.getVersion())))

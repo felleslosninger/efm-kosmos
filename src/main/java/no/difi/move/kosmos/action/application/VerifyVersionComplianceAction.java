@@ -8,8 +8,11 @@ import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.domain.application.ApplicationMetadata;
 import no.difi.move.kosmos.repo.KosmosDirectoryJavaArchiveRepository;
+import no.difi.move.kosmos.service.codesigner.JarVerifier;
 import no.difi.move.kosmos.util.KosmosUtils;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
 
 @Component
 @Slf4j
@@ -18,6 +21,7 @@ public class VerifyVersionComplianceAction implements ApplicationAction {
 
     private final KosmosProperties properties;
     private final KosmosDirectoryJavaArchiveRepository deployDirectoryRepo;
+    private final JarVerifier jarVerifier;
 
     @Override
     public Application apply(Application application) {
@@ -44,13 +48,17 @@ public class VerifyVersionComplianceAction implements ApplicationAction {
                             "Attempting to start integrasjonspunkt with previous version based on .allowlisted file if available.",
                     latestMajor, currentlySupported));
             String version = deployDirectoryRepo.getAllowlistVersion();
-            if(version != null) {
-                application.setLatest(
-                        new ApplicationMetadata()
-                                .setVersion(version)
-                                .setFile(deployDirectoryRepo.getFile(version, KosmosUtils.DOWNLOAD_JAR_FILE_NAME)));
-
-                return application;
+            if (version != null) {
+                File jarFile = deployDirectoryRepo.getFile(version, KosmosUtils.DOWNLOAD_JAR_FILE_NAME);
+                // the allowlist file only tells which version was used, anyone who can write to the home folder can create one
+                if (jarVerifier.isVerified(version, jarFile)) {
+                    application.setLatest(
+                            new ApplicationMetadata()
+                                    .setVersion(version)
+                                    .setFile(jarFile));
+                    return application;
+                }
+                log.warn("The previously used version {} could not be verified", version);
             }
             throw new KosmosActionException(
                     String.format("Latest version (%s) is not supported yet. The currently supported major version is %s. " +

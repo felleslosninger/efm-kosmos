@@ -36,6 +36,14 @@ public class MailSteps {
                 .contains(tuple(subject, content.trim()));
     }
 
+    @Then("^an email is sent with subject \"([^\"]*)\" and content containing:$")
+    public void anEmailIsSentWithSubjectAndContentContaining(String subject, String content) {
+        assertThat(testSmtpServer.getReceivedMessages())
+                .filteredOn(message -> subject.equals(getSubject(message)))
+                .extracting(GreenMailUtil::getBody)
+                .anySatisfy(body -> assertThat(body).contains(content.trim()));
+    }
+
     @SneakyThrows
     private String getSubject(MimeMessage p) {
         return p.getSubject();
