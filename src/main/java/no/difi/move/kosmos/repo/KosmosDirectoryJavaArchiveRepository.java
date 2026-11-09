@@ -48,7 +48,10 @@ public class KosmosDirectoryJavaArchiveRepository {
     private File getOrCreateHomeFolder() {
         Path home = Path.of(properties.getIntegrasjonspunkt().getHome());
         Path absolute = home.toAbsolutePath();
-        if (Files.notExists(absolute)) {
+        if (!Files.isDirectory(absolute)) {
+            if (Files.exists(absolute)) {
+                throw new IllegalStateException("The home folder %s is not a folder".formatted(absolute));
+            }
             try {
                 // the parent folders may be missing too, File.mkdir() would then fail without telling
                 Files.createDirectories(absolute);
@@ -56,9 +59,6 @@ public class KosmosDirectoryJavaArchiveRepository {
             } catch (IOException e) {
                 throw new IllegalStateException("Could not create the home folder %s: %s".formatted(absolute, e), e);
             }
-        }
-        if (!Files.isDirectory(absolute)) {
-            throw new IllegalStateException("The home folder %s is not a folder".formatted(absolute));
         }
         if (!Files.isReadable(absolute)) {
             throw new IllegalStateException("The home folder %s cannot be read".formatted(absolute));
