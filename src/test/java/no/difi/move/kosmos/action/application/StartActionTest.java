@@ -25,7 +25,7 @@ import java.io.File;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -66,7 +66,7 @@ public class StartActionTest {
             given(applicationMock.getLatest()).willReturn(latestMock);
             given(latestMock.getFile()).willReturn(fileMock);
             given(fileMock.getName()).willReturn("test.jar");
-            given(launcherServiceMock.launchIntegrasjonspunkt(any())).willReturn(
+            given(launcherServiceMock.launchIntegrasjonspunkt(any(), any())).willReturn(
                     new LaunchResult()
                             .setStatus(LaunchStatus.SUCCESS)
                             .setStartupLog("theStartupLog")
@@ -76,7 +76,7 @@ public class StartActionTest {
         @Test
         @DisplayName("Application running, blocklist disabled, should not shutdown or blocklist")
         public void apply_StartFailsAndTheApplicationIsRunningAndBlocklistIsDisabled_JarShouldNotBeBlocklistedAndAShutdownIsNotTriggered() {
-            given(launcherServiceMock.launchIntegrasjonspunkt(any())).willReturn(
+            given(launcherServiceMock.launchIntegrasjonspunkt(any(), any())).willReturn(
                     new LaunchResult()
                             .setStatus(LaunchStatus.FAILED)
                             .setStartupLog("theStartupLog")
@@ -86,12 +86,11 @@ public class StartActionTest {
                     .willReturn(new ApplicationMetadata().setVersion("latest"));
             given(applicationMock.isSameVersion()).willReturn(true);
             given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.DOWN, HealthStatus.UP);
-            given(fileMock.getAbsolutePath()).willReturn("the path");
             given(blocklistProperties.isEnabled()).willReturn(false);
 
             assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
 
-            verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
+            verify(launcherServiceMock).launchIntegrasjonspunkt(any(), same(fileMock));
             verify(mailService).sendMail("Upgrade FAILED test.jar", "theStartupLog");
             verify(kosmosDirectoryJavaArchiveRepositoryMock, never()).blockList(fileMock);
             verify(actuatorServiceMock, never()).shutdown();
@@ -100,7 +99,7 @@ public class StartActionTest {
         @Test
         @DisplayName("Blocklist latest version")
         public void apply_StartFailsAndTheApplicationIsRunning_JarFileShouldBeBlocklistedAndAShutdownTriggered() {
-            given(launcherServiceMock.launchIntegrasjonspunkt(any())).willReturn(
+            given(launcherServiceMock.launchIntegrasjonspunkt(any(), any())).willReturn(
                     new LaunchResult()
                             .setStatus(LaunchStatus.FAILED)
                             .setStartupLog("theStartupLog")
@@ -110,11 +109,10 @@ public class StartActionTest {
                     .willReturn(new ApplicationMetadata().setVersion("latest"));
             given(applicationMock.isSameVersion()).willReturn(true);
             given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.DOWN, HealthStatus.UP);
-            given(fileMock.getAbsolutePath()).willReturn("the path");
 
             assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
 
-            verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
+            verify(launcherServiceMock).launchIntegrasjonspunkt(any(), same(fileMock));
             verify(mailService).sendMail("Upgrade FAILED test.jar", "theStartupLog");
             verify(kosmosDirectoryJavaArchiveRepositoryMock).blockList(fileMock);
             verify(actuatorServiceMock).shutdown();
@@ -123,7 +121,7 @@ public class StartActionTest {
         @Test
         @DisplayName("Block failing version")
         public void apply_whenStartFails_theJarFileShouldBeBlocklisted() {
-            given(launcherServiceMock.launchIntegrasjonspunkt(any())).willReturn(
+            given(launcherServiceMock.launchIntegrasjonspunkt(any(), any())).willReturn(
                     new LaunchResult()
                             .setStatus(LaunchStatus.FAILED)
                             .setStartupLog("theStartupLog")
@@ -133,9 +131,8 @@ public class StartActionTest {
                     .willReturn(new ApplicationMetadata().setVersion("latest"));
             given(applicationMock.isSameVersion()).willReturn(true);
             given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.DOWN);
-            given(fileMock.getAbsolutePath()).willReturn("the path");
             assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
-            verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
+            verify(launcherServiceMock).launchIntegrasjonspunkt(any(), same(fileMock));
             verify(mailService).sendMail("Upgrade FAILED test.jar", "theStartupLog");
             verify(kosmosDirectoryJavaArchiveRepositoryMock).blockList(fileMock);
         }
@@ -143,7 +140,7 @@ public class StartActionTest {
         @Test
         @DisplayName("Blocklist is disabled")
         public void apply_StartFailsAndBlocklistIsDisabled_JarFileShouldNotBeBlocklisted() {
-            given(launcherServiceMock.launchIntegrasjonspunkt(any())).willReturn(
+            given(launcherServiceMock.launchIntegrasjonspunkt(any(), any())).willReturn(
                     new LaunchResult()
                             .setStatus(LaunchStatus.FAILED)
                             .setStartupLog("theStartupLog")
@@ -153,12 +150,11 @@ public class StartActionTest {
                     .willReturn(new ApplicationMetadata().setVersion("latest"));
             given(applicationMock.isSameVersion()).willReturn(true);
             given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.DOWN);
-            given(fileMock.getAbsolutePath()).willReturn("the path");
             given(blocklistProperties.isEnabled()).willReturn(false);
 
             assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
 
-            verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
+            verify(launcherServiceMock).launchIntegrasjonspunkt(any(), same(fileMock));
             verify(mailService).sendMail("Upgrade FAILED test.jar", "theStartupLog");
             verify(kosmosDirectoryJavaArchiveRepositoryMock, never()).blockList(fileMock);
         }
@@ -186,7 +182,7 @@ public class StartActionTest {
         public void apply_currentVersionIsLatestAndHealthStatusIsUp_shouldNotStart() {
             given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.UP);
             assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
-            verify(launcherServiceMock, never()).launchIntegrasjonspunkt(anyString());
+            verify(launcherServiceMock, never()).launchIntegrasjonspunkt(any(), any());
         }
 
 
@@ -196,11 +192,10 @@ public class StartActionTest {
             given(blocklistProperties.isEnabled()).willReturn(true);
             given(propertiesMock.getBlocklist()).willReturn(blocklistProperties);
             given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.DOWN);
-            given(fileMock.getAbsolutePath()).willReturn("the path");
             given(applicationMock.getLatest()).willReturn(latestMock);
             given(latestMock.getFile()).willReturn(fileMock);
             given(fileMock.getName()).willReturn("test.jar");
-            given(launcherServiceMock.launchIntegrasjonspunkt(any())).willReturn(
+            given(launcherServiceMock.launchIntegrasjonspunkt(any(), any())).willReturn(
                     new LaunchResult()
                             .setStatus(LaunchStatus.SUCCESS)
                             .setStartupLog("theStartupLog")
@@ -208,7 +203,7 @@ public class StartActionTest {
 
             assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
 
-            verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
+            verify(launcherServiceMock).launchIntegrasjonspunkt(any(), same(fileMock));
             verify(mailService).sendMail("Upgrade SUCCESS test.jar", "theStartupLog");
         }
     }
@@ -222,10 +217,10 @@ public class StartActionTest {
                 .willReturn(new ApplicationMetadata().setVersion("old"));
         given(applicationMock.isSameVersion()).willReturn(false);
         given(applicationMock.getLatest()).willReturn(latestMock);
-        given(fileMock.getAbsolutePath()).willReturn("the path");
+        given(latestMock.getVersion()).willReturn("2.0.0");
         given(latestMock.getFile()).willReturn(fileMock);
         given(fileMock.getName()).willReturn("test.jar");
-        given(launcherServiceMock.launchIntegrasjonspunkt(any())).willReturn(
+        given(launcherServiceMock.launchIntegrasjonspunkt(any(), any())).willReturn(
                 new LaunchResult()
                         .setStatus(LaunchStatus.SUCCESS)
                         .setStartupLog("theStartupLog")
@@ -233,7 +228,8 @@ public class StartActionTest {
 
         assertThat(target.apply(applicationMock)).isSameAs(applicationMock);
 
-        verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
+        verify(launcherServiceMock).launchIntegrasjonspunkt("2.0.0", fileMock);
         verify(mailService).sendMail("Upgrade SUCCESS test.jar", "theStartupLog");
+        verify(kosmosDirectoryJavaArchiveRepositoryMock).allowlist(fileMock, "2.0.0");
     }
 }

@@ -8,6 +8,7 @@ import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.domain.application.ApplicationMetadata;
 import no.difi.move.kosmos.repo.KosmosDirectoryJavaArchiveRepository;
 import no.difi.move.kosmos.repo.JavaArchiveRepository;
+import no.difi.move.kosmos.service.codesigner.JarVerifier;
 import no.difi.move.kosmos.util.KosmosUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,8 @@ public class PrepareApplicationActionTest {
     private JavaArchiveRepository javaArchiveRepositoryMock;
     @Mock
     private KosmosDirectoryJavaArchiveRepository kosmosDirectoryJavaArchiveRepositoryMock;
+    @Mock
+    private JarVerifier jarVerifierMock;
 
     @Mock
     private File fileMock;
@@ -144,12 +147,31 @@ public class PrepareApplicationActionTest {
         given(propertiesMock.getBlocklist()).willReturn(blocklistPropertiesMock);
         given(fileMock.exists()).willReturn(true);
         given(kosmosDirectoryJavaArchiveRepositoryMock.getFile(anyString(), anyString())).willReturn(fileMock);
+        given(jarVerifierMock.isVerified(NEW_APPLICATION_VERSION, fileMock)).willReturn(true);
 
         assertThat(target.apply(application)).isSameAs(application);
 
         File resultFile = application.getLatest().getFile();
 
         assertThat(resultFile).isSameAs(fileMock);
+        assertThat(application.isMarkedForValidation()).isFalse();
         verify(javaArchiveRepositoryMock, never()).downloadJAR(anyString(), any());
+    }
+
+    @Test
+    public void apply_ExistingJarIsNotVerified_ShouldDownloadAgain() {
+        given(propertiesMock.getBlocklist()).willReturn(blocklistPropertiesMock);
+        given(fileMock.exists()).willReturn(true);
+        given(unvalidatedFileMock.toPath()).willReturn(pathMock);
+        given(kosmosDirectoryJavaArchiveRepositoryMock.getFile(NEW_APPLICATION_VERSION, KosmosUtils.DOWNLOAD_JAR_FILE_NAME)).willReturn(fileMock);
+        given(kosmosDirectoryJavaArchiveRepositoryMock.getFile(NEW_APPLICATION_VERSION, KosmosUtils.UNVALIDATED_JAR_FILE_NAME)).willReturn(unvalidatedFileMock);
+        given(jarVerifierMock.isVerified(NEW_APPLICATION_VERSION, fileMock)).willReturn(false);
+
+        assertThat(target.apply(application)).isSameAs(application);
+
+        // the download is validated and then replaces the existing jar
+        assertThat(application.isMarkedForValidation()).isTrue();
+        assertThat(application.getLatest().getFile()).isSameAs(unvalidatedFileMock);
+        verify(javaArchiveRepositoryMock).downloadJAR(eq(NEW_APPLICATION_VERSION), same(pathMock));
     }
 }

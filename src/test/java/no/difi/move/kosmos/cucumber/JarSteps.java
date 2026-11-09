@@ -35,6 +35,15 @@ public class JarSteps {
         }
     }
 
+    @Then("^the \"([^\"]*)\" has the same content as \"([^\"]*)\"$")
+    @SneakyThrows
+    public void theHasTheSameContentAs(String path, String copyOf) {
+        try (var expected = getClass().getResourceAsStream(copyOf)) {
+            assertThat(new File(propertiesSpy.getIntegrasjonspunkt().getHome(), path))
+                    .hasBinaryContent(expected.readAllBytes());
+        }
+    }
+
     @Then("^the \"([^\"]*)\" does not exist$")
     public void theDoesNotExist(String path) {
         assertThat(new File(propertiesSpy.getIntegrasjonspunkt().getHome(), path)).doesNotExist();

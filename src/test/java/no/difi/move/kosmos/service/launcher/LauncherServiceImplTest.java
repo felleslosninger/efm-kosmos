@@ -1,9 +1,11 @@
 package no.difi.move.kosmos.service.launcher;
 
+import no.difi.move.kosmos.action.KosmosActionException;
 import no.difi.move.kosmos.config.IntegrasjonspunktProperties;
 import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.domain.HealthStatus;
 import no.difi.move.kosmos.service.actuator.ActuatorService;
+import no.difi.move.kosmos.service.codesigner.JarVerifier;
 import no.difi.move.kosmos.service.launcher.dto.LaunchResult;
 import no.difi.move.kosmos.service.launcher.dto.LaunchStatus;
 import org.junit.jupiter.api.AfterEach;
@@ -31,9 +33,10 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class LauncherServiceImplTest {
@@ -45,6 +48,16 @@ class LauncherServiceImplTest {
                     System.out.println("KOSMOS_TEST_VARIABLE=" + System.getenv("KOSMOS_TEST_VARIABLE"));
                     System.out.println("ARGS=" + String.join(" ", args));
                     System.err.println("Line written to stderr");
+                    if (System.getenv("KOSMOS_TEST_BLOCK_SHUTDOWN") != null) {
+                        // keeps the JVM running after a termination request (SIGTERM)
+                        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                            try {
+                                Thread.sleep(60_000);
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                            }
+                        }));
+                    }
                     String sleep = System.getenv("KOSMOS_TEST_SLEEP_MS");
                     if (sleep != null) {
                         Thread.sleep(Long.parseLong(sleep));
@@ -52,6 +65,9 @@ class LauncherServiceImplTest {
                 }
             }
             """;
+
+    private static final String VERSION = "2.0.0";
+    private static final byte[] DIGEST = {1, 2, 3};
 
     @TempDir
     static Path tempDir;
@@ -63,6 +79,8 @@ class LauncherServiceImplTest {
     private ActuatorService actuatorService;
     @Mock
     private EnvironmentService environmentService;
+    @Mock
+    private JarVerifier jarVerifier;
 
     @InjectMocks
     private LauncherServiceImpl launcherService;
@@ -98,6 +116,8 @@ class LauncherServiceImplTest {
         lenient().when(properties.getLaunchPollIntervalInMs()).thenReturn(100);
         lenient().when(properties.getLaunchTimeoutInMs()).thenReturn(10_000);
         lenient().when(environmentService.getChildProcessEnvironment()).thenReturn(childEnvironment);
+        lenient().when(jarVerifier.verify(VERSION, testAppJar.toFile())).thenReturn(DIGEST);
+        lenient().when(jarVerifier.isUnchanged(testAppJar.toFile(), DIGEST)).thenReturn(true);
     }
 
     @AfterEach
@@ -110,7 +130,7 @@ class LauncherServiceImplTest {
         childEnvironment.put("KOSMOS_TEST_SLEEP_MS", "30000");
         given(actuatorService.getStatus()).willReturn(HealthStatus.UP);
 
-        LaunchResult result = launcherService.launchIntegrasjonspunkt(testAppJar.toString());
+        LaunchResult result = launcherService.launchIntegrasjonspunkt(VERSION, testAppJar.toFile());
 
         assertThat(result)
                 .hasFieldOrPropertyWithValue("jarPath", testAppJar.toString())
@@ -123,7 +143,7 @@ class LauncherServiceImplTest {
         childEnvironment.put("KOSMOS_TEST_VARIABLE", "from-kosmos");
         given(actuatorService.getStatus()).willReturn(HealthStatus.UNKNOWN);
 
-        LaunchResult result = launcherService.launchIntegrasjonspunkt(testAppJar.toString());
+        LaunchResult result = launcherService.launchIntegrasjonspunkt(VERSION, testAppJar.toFile());
 
         assertThat(result.getStatus()).isEqualTo(LaunchStatus.FAILED);
         assertThat(result.getStartupLog())
@@ -139,11 +159,10 @@ class LauncherServiceImplTest {
         given(properties.getLaunchTimeoutInMs()).willReturn(500);
         given(actuatorService.getStatus()).willReturn(HealthStatus.UNKNOWN);
 
-        LaunchResult result = launcherService.launchIntegrasjonspunkt(testAppJar.toString());
+        LaunchResult result = launcherService.launchIntegrasjonspunkt(VERSION, testAppJar.toFile());
 
         assertThat(result.getStatus()).isEqualTo(LaunchStatus.FAILED);
-        await().atMost(Duration.ofSeconds(10))
-                .until(() -> ProcessHandle.current().children().noneMatch(ProcessHandle::isAlive));
+        assertThat(ProcessHandle.current().children().noneMatch(ProcessHandle::isAlive)).isTrue();
     }
 
     @Test
@@ -154,10 +173,55 @@ class LauncherServiceImplTest {
                         .setHome(tempDir.resolve("does-not-exist").toString())
         );
 
-        LaunchResult result = launcherService.launchIntegrasjonspunkt(testAppJar.toString());
+        LaunchResult result = launcherService.launchIntegrasjonspunkt(VERSION, testAppJar.toFile());
 
         assertThat(result.getStatus()).isEqualTo(LaunchStatus.FAILED);
         assertThat(result.getStartupLog()).contains("Cannot run program");
+    }
+
+    @Test
+    void launchIntegrasjonspunkt_whenJarIsNotVerified_thenFailedWithoutStartingProcess() {
+        given(jarVerifier.verify(VERSION, testAppJar.toFile()))
+                .willThrow(new KosmosActionException("Invalid signature for the jar"));
+
+        LaunchResult result = launcherService.launchIntegrasjonspunkt(VERSION, testAppJar.toFile());
+
+        assertThat(result)
+                .hasFieldOrPropertyWithValue("jarPath", testAppJar.toString())
+                .hasFieldOrPropertyWithValue("status", LaunchStatus.FAILED);
+        assertThat(result.getStartupLog()).isEqualTo("The application was not started. Invalid signature for the jar");
+        // no process has been set up or waited for
+        verify(environmentService, never()).getChildProcessEnvironment();
+        verify(actuatorService, never()).getStatus();
+    }
+
+    @Test
+    void launchIntegrasjonspunkt_whenJarIsChangedWhileStarting_thenFailedAndProcessIsStopped() {
+        childEnvironment.put("KOSMOS_TEST_SLEEP_MS", "30000");
+        given(actuatorService.getStatus()).willReturn(HealthStatus.UP);
+        given(jarVerifier.isUnchanged(testAppJar.toFile(), DIGEST)).willReturn(false);
+
+        LaunchResult result = launcherService.launchIntegrasjonspunkt(VERSION, testAppJar.toFile());
+
+        assertThat(result.getStatus()).isEqualTo(LaunchStatus.FAILED);
+        assertThat(result.getStartupLog()).startsWith(testAppJar + " was changed after it was verified, and the application has been stopped.");
+        // the process has exited before the result is returned
+        assertThat(ProcessHandle.current().children().noneMatch(ProcessHandle::isAlive)).isTrue();
+    }
+
+    @Test
+    void launchIntegrasjonspunkt_whenJarIsChangedAndProcessIgnoresTermination_thenProcessIsKilled() {
+        childEnvironment.put("KOSMOS_TEST_SLEEP_MS", "30000");
+        childEnvironment.put("KOSMOS_TEST_BLOCK_SHUTDOWN", "true");
+        launcherService.gracefulStopTimeout = Duration.ofMillis(500);
+        given(actuatorService.getStatus()).willReturn(HealthStatus.UP);
+        given(jarVerifier.isUnchanged(testAppJar.toFile(), DIGEST)).willReturn(false);
+
+        LaunchResult result = launcherService.launchIntegrasjonspunkt(VERSION, testAppJar.toFile());
+
+        assertThat(result.getStatus()).isEqualTo(LaunchStatus.FAILED);
+        assertThat(result.getStartupLog()).startsWith(testAppJar + " was changed after it was verified, and the application has been stopped.");
+        assertThat(ProcessHandle.current().children().noneMatch(ProcessHandle::isAlive)).isTrue();
     }
 
     @Test

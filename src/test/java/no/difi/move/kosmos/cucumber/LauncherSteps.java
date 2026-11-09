@@ -11,7 +11,7 @@ import no.difi.move.kosmos.service.launcher.dto.LaunchStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.endsWith;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @RequiredArgsConstructor
@@ -23,7 +23,7 @@ public class LauncherSteps {
     @Before
     @SneakyThrows
     public void before() {
-        doAnswer(launchResultResultCaptor).when(launcherServiceSpy).launchIntegrasjonspunkt(any());
+        doAnswer(launchResultResultCaptor).when(launcherServiceSpy).launchIntegrasjonspunkt(any(), any());
     }
 
     @After
@@ -34,12 +34,12 @@ public class LauncherSteps {
 
     @Then("^no JAR is launched$")
     public void noJARIsLaunched() {
-        verify(launcherServiceSpy, never()).launchIntegrasjonspunkt(any());
+        verify(launcherServiceSpy, never()).launchIntegrasjonspunkt(any(), any());
     }
 
     @Then("^the \"([^\"]*)\" is successfully launched$")
     public void theJARIsSuccessfullyLaunched(String jarName) {
-        verify(launcherServiceSpy).launchIntegrasjonspunkt(endsWith(jarName));
+        verify(launcherServiceSpy).launchIntegrasjonspunkt(any(), argThat(jarFile -> jarFile.getName().equals(jarName)));
 
         LaunchResult launchResult = launchResultResultCaptor.getLastValue();
         assertThat(launchResult.getStatus()).isSameAs(LaunchStatus.SUCCESS);
