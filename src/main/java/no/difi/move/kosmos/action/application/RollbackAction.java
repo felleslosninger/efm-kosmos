@@ -32,7 +32,7 @@ public class RollbackAction implements ApplicationAction {
 
             File jarFile = application.getCurrent().getFile();
             log.debug("Previous version: {}", application.getCurrent());
-            LaunchResult launchResult = launcherService.launchIntegrasjonspunkt(jarFile.getAbsolutePath());
+            LaunchResult launchResult = launcherService.launchIntegrasjonspunkt(application.getCurrent().getVersion(), jarFile);
             log.debug("LaunchResult: {}", launchResult);
             String subject = String.format("Rollback %s %s", launchResult.getStatus().name(), jarFile.getName());
 

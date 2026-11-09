@@ -33,6 +33,21 @@ public class GpgServiceImpl implements GpgService {
                     "\nSignedDataFilePath: " + signedData +
                     "\nSignature: " + downloadedSignature);
         }
+        try (InputStream signedDataStream = new BufferedInputStream(new FileInputStream(signedData))) {
+            return verify(signedDataStream, downloadedSignature);
+        } catch (IOException e) {
+            log.error("Could not read the signed data", e);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean verify(InputStream signedData, String downloadedSignature) {
+        if (signedData == null || isNullOrEmpty(downloadedSignature)) {
+            throw new IllegalArgumentException("One or multiple values are null. " +
+                    "\nSignedData: " + signedData +
+                    "\nSignature: " + downloadedSignature);
+        }
         final List<Resource> publicKeyPaths = properties.getVerification().getPublicKeyPaths();
         if (publicKeyPaths.isEmpty()) {
             throw new IllegalArgumentException("Cannot verify signature due to missing keys");
@@ -52,13 +67,13 @@ public class GpgServiceImpl implements GpgService {
         return doVerify(signedData, signature, signerKey);
     }
 
-    private boolean doVerify(String signedData, PGPSignature signature, PGPPublicKey publicKey) {
+    private boolean doVerify(InputStream signedData, PGPSignature signature, PGPPublicKey publicKey) {
         log.debug("Attempting GPG verification with public key {}", publicKey.getKeyID());
-        try (InputStream signedDataStream = new BufferedInputStream(new FileInputStream(signedData))) {
+        try {
             signature.init(new JcaPGPContentVerifierBuilderProvider(), publicKey);
-            byte[] buffer = new byte[1024];
-            int read = 0;
-            while ((read = signedDataStream.read(buffer)) != -1) {
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = signedData.read(buffer)) != -1) {
                 signature.update(buffer, 0, read);
             }
             return signature.verify();

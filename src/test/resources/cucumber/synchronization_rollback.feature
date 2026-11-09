@@ -27,6 +27,7 @@ Feature: Synchronization - Rollback
     d45f066d54edf0c99ead70d3305865a5
     """
     And a "GET" request to "/felleslosninger/efm-integrasjonspunkt/releases/download/2.2.1/integrasjonspunkt-2.2.1.jar.asc" will respond with status "200" and the following "text/plain" in "/cucumber/failure.jar.asc"
+    And a "GET" request to "/felleslosninger/efm-integrasjonspunkt/releases/download/1.7.92-SNAPSHOT/integrasjonspunkt-1.7.92-SNAPSHOT.jar.asc" will respond with status "200" and the following "text/plain" in "/cucumber/success.jar.asc"
     And state is "Started" then a "GET" request to "/manage/health" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
     """
     {

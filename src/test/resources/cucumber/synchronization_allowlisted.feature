@@ -6,6 +6,7 @@ Feature: Synchronization - Allowlisted
     And the latest integrasjonspunkt version is "1.7.93-SNAPSHOT"
     And the early bird setting is not activated
     And the supported major version is "1"
+    And a "GET" request to "/felleslosninger/efm-integrasjonspunkt/releases/download/1.7.93-SNAPSHOT/integrasjonspunkt-1.7.93-SNAPSHOT.jar.asc" will respond with status "200" and the following "text/plain" in "/cucumber/success.jar.asc"
     And state is "Started" then a "GET" request to "/manage/health" will respond with status "200" and the following "application/vnd.spring-boot.actuator.v1+json;charset=UTF-8"
     """
     {

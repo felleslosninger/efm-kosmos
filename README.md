@@ -34,6 +34,26 @@ mvn clean verify
 ## Dokumentasjon
 - Sjå [Digdir Docs](https://docs.digdir.no/docs/eFormidling/installasjon/automatisk_oppgradering)
 
+## Tryggleik i heimekatalogen
+KOSMOS lastar ned og startar integrasjonspunktet frå `kosmos.integrasjonspunkt.home` (standard er katalogen KOSMOS
+blir starta frå). Den offentlege nøkkelen blir lesen frå `kosmos.verification.publicKeyPaths` (standard
+`eformidling-key.asc` i same katalog). Kode i denne katalogen blir køyrd under tenestekontoen til KOSMOS, så:
+
+- Katalogen, filene i han og den offentlege nøkkelen skal **berre vere skrivbare for tenestekontoen** som køyrer KOSMOS.
+  På Linux til dømes med `chown -R <tenestekonto> <katalog>` og `chmod -R go-w <katalog>`.
+  På Windows: fjern skrivetilgang for andre enn tenestekontoen og administratorar.
+
+KOSMOS stolar likevel ikkje på filene i katalogen åleine:
+
+- Før kvar oppstart, også ved rollback, blir JAR-fila verifisert mot signaturen for versjonen. Signaturen blir lasta ned
+  frå GitHub kvar gong og blir ikkje lagra i katalogen. Ei JAR-fil som ikkje kan verifiserast, blir ikkje starta.
+  Det betyr at KOSMOS må nå GitHub for å kunne starte integrasjonspunktet.
+- Etter oppstart blir SHA-256 for JAR-fila samanlikna med innhaldet som vart verifisert. Er fila endra, blir
+  integrasjonspunktet stoppa.
+- `.allowlisted`-filene seier berre kva versjon som sist vart starta. Versjonen blir berre brukt viss JAR-fila
+  for han kan verifiserast.
+- Ligg det alt ei JAR-fil for siste versjon i katalogen som ikkje kan verifiserast, blir versjonen lasta ned på nytt.
+
 ## Release (for interne)
 Release av ny versjon gjerast via GitHub GUI
 - Gå til "Releases" i GitHub repo

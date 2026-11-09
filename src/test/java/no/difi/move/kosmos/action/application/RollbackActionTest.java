@@ -59,17 +59,17 @@ public class RollbackActionTest {
 
         assertThat(target.apply(application)).isSameAs(application);
 
-        verify(launcherServiceMock, never()).launchIntegrasjonspunkt(any());
+        verify(launcherServiceMock, never()).launchIntegrasjonspunkt(any(), any());
         verify(mailService, never()).sendMail(any(), any());
     }
 
     @Test
     public void apply_healthStatusIsDownAndFileIsSet_shouldRollback() {
         given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.DOWN);
+        given(currentMock.getVersion()).willReturn("1.0.0");
         given(currentMock.getFile()).willReturn(fileMock);
         given(fileMock.getName()).willReturn("test.jar");
-        given(fileMock.getAbsolutePath()).willReturn("the path");
-        given(launcherServiceMock.launchIntegrasjonspunkt(any())).willReturn(
+        given(launcherServiceMock.launchIntegrasjonspunkt(any(), any())).willReturn(
                 new LaunchResult()
                         .setStatus(LaunchStatus.SUCCESS)
                         .setStartupLog("theStartupLog")
@@ -77,8 +77,25 @@ public class RollbackActionTest {
 
         assertThat(target.apply(application)).isSameAs(application);
 
-        verify(launcherServiceMock).launchIntegrasjonspunkt("the path");
+        verify(launcherServiceMock).launchIntegrasjonspunkt("1.0.0", fileMock);
         verify(mailService).sendMail("Rollback SUCCESS test.jar", "theStartupLog");
+    }
+
+    @Test
+    public void apply_rollbackJarIsNotVerified_shouldReportFailedRollback() {
+        given(actuatorServiceMock.getStatus()).willReturn(HealthStatus.DOWN);
+        given(currentMock.getVersion()).willReturn("1.0.0");
+        given(currentMock.getFile()).willReturn(fileMock);
+        given(fileMock.getName()).willReturn("test.jar");
+        given(launcherServiceMock.launchIntegrasjonspunkt("1.0.0", fileMock)).willReturn(
+                new LaunchResult()
+                        .setStatus(LaunchStatus.FAILED)
+                        .setStartupLog("The application was not started. Invalid signature")
+        );
+
+        assertThat(target.apply(application).getLaunchResult().getStatus()).isEqualTo(LaunchStatus.FAILED);
+
+        verify(mailService).sendMail("Rollback FAILED test.jar", "The application was not started. Invalid signature");
     }
 
     @Test
@@ -88,6 +105,6 @@ public class RollbackActionTest {
 
         assertThat(target.apply(application)).isSameAs(application);
 
-        verify(launcherServiceMock, never()).launchIntegrasjonspunkt(any());
+        verify(launcherServiceMock, never()).launchIntegrasjonspunkt(any(), any());
     }
 }

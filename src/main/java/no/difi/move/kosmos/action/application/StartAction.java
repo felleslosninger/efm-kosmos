@@ -36,7 +36,7 @@ public class StartAction implements ApplicationAction {
         }
 
         File jarFile = application.getLatest().getFile();
-        LaunchResult launchResult = launcherService.launchIntegrasjonspunkt(jarFile.getAbsolutePath());
+        LaunchResult launchResult = launcherService.launchIntegrasjonspunkt(application.getLatest().getVersion(), jarFile);
 
         boolean blocklistEnabled = properties.getBlocklist().isEnabled();
         if (!blocklistEnabled) {

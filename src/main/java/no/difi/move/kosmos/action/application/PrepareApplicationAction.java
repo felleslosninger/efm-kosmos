@@ -7,6 +7,7 @@ import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.domain.application.Application;
 import no.difi.move.kosmos.repo.JavaArchiveRepository;
 import no.difi.move.kosmos.repo.KosmosDirectoryJavaArchiveRepository;
+import no.difi.move.kosmos.service.codesigner.JarVerifier;
 import no.difi.move.kosmos.util.KosmosUtils;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,7 @@ public class PrepareApplicationAction implements ApplicationAction {
     private final KosmosProperties properties;
     private final JavaArchiveRepository javaArchiveRepository;
     private final KosmosDirectoryJavaArchiveRepository kosmosDirectoryJavaArchiveRepository;
+    private final JarVerifier jarVerifier;
 
     public Application apply(Application application) {
         log.info("Preparing application");
@@ -29,11 +31,16 @@ public class PrepareApplicationAction implements ApplicationAction {
         checkBlocklist(downloadJarFile);
 
         if (downloadJarFile.exists()) {
-            application.getLatest().setFile(downloadJarFile);
-            return application;
+            // the file may have been placed or changed by someone else than KOSMOS, so only use it if it can be verified
+            if (jarVerifier.isVerified(application.getLatest().getVersion(), downloadJarFile)) {
+                application.getLatest().setFile(downloadJarFile);
+                return application;
+            }
+            log.warn("{} could not be verified, and will be downloaded again", downloadJarFile);
+        } else {
+            log.info("Latest version is different from current, and will be downloaded");
         }
 
-        log.info("Latest version is different from current, and will be downloaded");
         File unvalidatedJarFile = kosmosDirectoryJavaArchiveRepository.getFile(application.getLatest().getVersion(), KosmosUtils.UNVALIDATED_JAR_FILE_NAME);
         try {
             doDownload(application, unvalidatedJarFile);

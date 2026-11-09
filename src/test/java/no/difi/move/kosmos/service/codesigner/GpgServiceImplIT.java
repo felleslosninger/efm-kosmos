@@ -17,11 +17,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
 import static java.nio.file.Files.readAllBytes;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -72,6 +77,23 @@ public class GpgServiceImplIT {
         List<Resource> bothMatchingAndNotMatchingKeys = Lists.newArrayList(matchingPublicKeyFilePath, notMatchingPublicKeyFilePath);
         when(verificationProperties.getPublicKeyPaths()).thenReturn(bothMatchingAndNotMatchingKeys);
         assertTrue(target.verify(signedDataFilePath, downloadedSignature));
+    }
+
+    @Test
+    public void verify_StreamWithSignedData_ShouldVerifyAndReturnTrue() throws IOException {
+        doNothing().when(keyVerifier).verify(any(PGPPublicKey.class));
+        when(verificationProperties.getPublicKeyPaths()).thenReturn(downloadedPublicKeys);
+        try (InputStream signedData = new FileInputStream(signedDataFilePath)) {
+            assertTrue(target.verify(signedData, downloadedSignature));
+        }
+    }
+
+    @Test
+    public void verify_StreamWithOtherData_ShouldReturnFalse() {
+        doNothing().when(keyVerifier).verify(any(PGPPublicKey.class));
+        when(verificationProperties.getPublicKeyPaths()).thenReturn(downloadedPublicKeys);
+        InputStream otherData = new ByteArrayInputStream("not the signed data".getBytes(StandardCharsets.UTF_8));
+        assertFalse(target.verify(otherData, downloadedSignature));
     }
 
     @Test
