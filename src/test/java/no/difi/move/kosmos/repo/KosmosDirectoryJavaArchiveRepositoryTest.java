@@ -117,9 +117,57 @@ class KosmosDirectoryJavaArchiveRepositoryTest {
     }
 
     @Test
-    void getAllowlistVersion_homeFolderMissing_returnsNull() {
-        when(properties.getIntegrasjonspunkt().getHome()).thenReturn(tempDir.resolve("missing").toString());
+    void getAllowlistVersion_homeFolderMissing_createsFolderAndReturnsNull() {
+        // the parent is missing too, File.mkdir() could not create this
+        Path home = tempDir.resolve("missing").resolve("home");
+        when(properties.getIntegrasjonspunkt().getHome()).thenReturn(home.toString());
+
         assertNull(repo.getAllowlistVersion());
+        assertTrue(Files.isDirectory(home));
+    }
+
+    @Test
+    void getFile_homeFolderMissing_createsFolder() {
+        Path home = tempDir.resolve("missing").resolve("home");
+        when(properties.getIntegrasjonspunkt().getHome()).thenReturn(home.toString());
+
+        File file = repo.getFile("2.31.0", KosmosUtils.DOWNLOAD_JAR_FILE_NAME);
+
+        assertTrue(Files.isDirectory(home));
+        assertEquals(home.toAbsolutePath().normalize(), file.toPath().getParent());
+    }
+
+    @Test
+    void getAllowlistVersion_homeIsAFile_throwsWithPath() throws IOException {
+        Path home = Files.createFile(tempDir.resolve("home"));
+        when(properties.getIntegrasjonspunkt().getHome()).thenReturn(home.toString());
+
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> repo.getAllowlistVersion());
+        assertEquals("The home folder %s is not a folder".formatted(home.toAbsolutePath()), e.getMessage());
+    }
+
+    @Test
+    void getAllowlistVersion_parentIsAFile_throwsWithPath() throws IOException {
+        Path parent = Files.createFile(tempDir.resolve("parent"));
+        Path home = parent.resolve("home");
+        when(properties.getIntegrasjonspunkt().getHome()).thenReturn(home.toString());
+
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> repo.getAllowlistVersion());
+        assertTrue(e.getMessage().startsWith("Could not create the home folder %s".formatted(home.toAbsolutePath())), e.getMessage());
+    }
+
+    @Test
+    void getAllowlistVersion_homeNotReadable_throwsWithPath() throws IOException {
+        Path home = Files.createDirectory(tempDir.resolve("home"));
+        when(properties.getIntegrasjonspunkt().getHome()).thenReturn(home.toString());
+        // Windows ignores the read flag on folders, and root can read anyway
+        Assumptions.assumeTrue(home.toFile().setReadable(false) && !Files.isReadable(home), "Could not make the folder unreadable");
+        try {
+            IllegalStateException e = assertThrows(IllegalStateException.class, () -> repo.getAllowlistVersion());
+            assertEquals("The home folder %s cannot be read".formatted(home.toAbsolutePath()), e.getMessage());
+        } finally {
+            assertTrue(home.toFile().setReadable(true));
+        }
     }
 
     @Test

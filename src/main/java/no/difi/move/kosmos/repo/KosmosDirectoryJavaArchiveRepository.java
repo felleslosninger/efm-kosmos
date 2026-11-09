@@ -46,11 +46,24 @@ public class KosmosDirectoryJavaArchiveRepository {
     }
 
     private File getOrCreateHomeFolder() {
-        File home = new File(properties.getIntegrasjonspunkt().getHome());
-        if (home.mkdir()) {
-            log.info("Created home folder: {}", home.getAbsolutePath());
+        Path home = Path.of(properties.getIntegrasjonspunkt().getHome());
+        Path absolute = home.toAbsolutePath();
+        if (!Files.isDirectory(absolute)) {
+            if (Files.exists(absolute)) {
+                throw new IllegalStateException("The home folder %s is not a folder".formatted(absolute));
+            }
+            try {
+                // the parent folders may be missing too, File.mkdir() would then fail without telling
+                Files.createDirectories(absolute);
+                log.info("Created home folder: {}", absolute);
+            } catch (IOException e) {
+                throw new IllegalStateException("Could not create the home folder %s: %s".formatted(absolute, e), e);
+            }
         }
-        return home;
+        if (!Files.isReadable(absolute)) {
+            throw new IllegalStateException("The home folder %s cannot be read".formatted(absolute));
+        }
+        return home.toFile();
     }
 
     @SneakyThrows
@@ -135,12 +148,11 @@ public class KosmosDirectoryJavaArchiveRepository {
     }
 
     public File getAllowlistFile() {
-        String[] filesNames;
-        File f = new File(properties.getIntegrasjonspunkt().getHome());
+        File home = getOrCreateHomeFolder();
         FilenameFilter filter = (f1, name) -> name.endsWith(".allowlisted");
-        filesNames = f.list(filter);
+        String[] filesNames = home.list(filter);
         if (filesNames == null) {
-            return null;
+            throw new IllegalStateException("Could not list the files in the home folder %s".formatted(home.getAbsolutePath()));
         }
         // anyone who can write to the home folder can add files, so skip names without a valid version instead of failing
         return Arrays.stream(filesNames)
