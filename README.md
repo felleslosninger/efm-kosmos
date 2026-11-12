@@ -113,9 +113,10 @@ Krav til signaturen og nøkkelen:
 - Den nyaste sjølvsignaturen på nøkkelen som har signert, må ha nøkkelflagget for å signere data. Manglar
   nøkkelflagga i den nyaste sjølvsignaturen, blir nøkkelen avvist, sjølv om ein eldre sjølvsignatur tillét signering.
 
-Er den offentlege nøkkelen utgått eller tilbakekalla, kan ingen JAR-fil verifiserast. KOSMOS startar då ikkje
-integrasjonspunktet i det heile, heller ikkje ved rollback. Nøkkelfila må bytast ut med den forlengde nøkkelen frå
-[docs.digdir.no](https://docs.digdir.no/resources/eformidling/public_keys/eformidling-key.asc).
+Er den offentlege signeringsnøkkelen utgått eller tilbakekalla, kan JAR-filer signerte med han ikkje verifiserast,
+heller ikkje ved rollback. Ved utløp må nøkkelfila oppdaterast med den forlengde nøkkelen frå
+[docs.digdir.no](https://docs.digdir.no/resources/eformidling/public_keys/eformidling-key.asc). Ved tilbakekalling må ein ta i bruk ein ny,
+ikkje-tilbakekalla nøkkel og JAR-signaturar laga med han.
 
 ## Release (for interne)
 Release av ny versjon gjerast via GitHub GUI
