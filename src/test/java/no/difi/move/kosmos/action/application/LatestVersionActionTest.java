@@ -4,6 +4,7 @@ import no.difi.move.kosmos.action.KosmosActionException;
 import no.difi.move.kosmos.config.IntegrasjonspunktProperties;
 import no.difi.move.kosmos.config.KosmosProperties;
 import no.difi.move.kosmos.domain.application.Application;
+import no.difi.move.kosmos.domain.application.ApplicationMetadata;
 import no.difi.move.kosmos.service.config.RefreshService;
 import no.difi.move.kosmos.service.config.VersionsConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.File;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,6 +92,30 @@ public class LatestVersionActionTest {
         given(integrasjonspunktProperties.getProfile()).willReturn("profile_ok");
         Application result = target.apply(new Application());
         assertThat(StringUtils.equals("v4.2.0", result.getLatest().getVersion())).isTrue();
+    }
+
+    @Test
+    public void apply_NoVersionsConfig_ShouldKeepCurrentVersion() {
+        given(integrasjonspunktProperties.getProfile()).willReturn("profile_ok");
+        given(refreshServiceMock.refreshConfig()).willReturn(null);
+        Application application = new Application()
+                .setCurrent(new ApplicationMetadata().setVersion("2.30.0").setFile(new File("integrasjonspunkt.jar")));
+        Application result = target.apply(application);
+        assertThat(result.getLatest().getVersion()).isEqualTo("2.30.0");
+        // the file is set by PrepareApplicationAction, which verifies it first
+        assertThat(result.getLatest().getFile()).isNull();
+        assertThat(result.isSameVersion()).isTrue();
+    }
+
+    @Test
+    public void apply_NoVersionsConfigAndNoCurrentVersion_ShouldThrow() {
+        given(integrasjonspunktProperties.getProfile()).willReturn("profile_ok");
+        given(refreshServiceMock.refreshConfig()).willReturn(null);
+        Application application = new Application();
+        assertThatThrownBy(() -> target.apply(application))
+                .isInstanceOf(KosmosActionException.class)
+                .hasRootCauseMessage("No versions config available, and no running or previously used version to start");
+        assertThat(application.getLatest()).isNull();
     }
 
     @ParameterizedTest
