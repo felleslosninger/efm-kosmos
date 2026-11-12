@@ -59,7 +59,7 @@ oppstart viss ho finst, og verdiane i ho går føre alle andre kjelder, også ar
 | `kosmos.integrasjonspunkt.versionsURL` | [latest-versions.yml](https://raw.githubusercontent.com/felleslosninger/efm-integrasjonspunkt/refs/heads/main/latest-versions.yml) | Kvar versjonsfila blir henta frå. |
 | `kosmos.integrasjonspunkt.earlybird` | `false` | Bruk earlybird-versjonen frå versjonsfila i staden for latest. Er det ingen earlybird-versjon, blir latest brukt. |
 | `kosmos.schedulerCronExpression` | `0 30 5,19,21 * * MON-FRI` | Når synkroniseringa køyrer (tidssone Europe/Oslo): kl. 05:30, 19:30 og 21:30 måndag–fredag. Ho køyrer i tillegg éin gong når KOSMOS har starta. |
-| `kosmos.blocklist.enabled` | `false` | Blokklista er av som standard. Når ho er på, blir ein versjon som ikkje kan verifiserast eller som feilar ved oppstart, sperra i `kosmos.blocklist.duration-in-hours` timar (standard 2). |
+| `kosmos.blocklist.enabled` | `false` | Blokklista er av som standard. Når ho er på, blir versjonar sperra i `kosmos.blocklist.duration-in-hours` timar (standard 2) når signaturkontrollen av ei ny nedlasting returnerer `false`, eller oppstarten feilar. Unntak under validering av ei ny nedlasting, til dømes utgått nøkkel, avvist hash-algoritme eller feil sjekksum, utløyser ikkje blokklisting. |
 | `kosmos.java-archive-repository-url` | `https://github.com` | Basis-URL for nedlasting av JAR-fila og signaturen, sjå [Signaturverifisering](#signaturverifisering). |
 | `kosmos.verification.publicKeyPaths[0]` | `file:${user.dir}/eformidling-key.asc` | Offentlege nøklar som signaturen blir verifisert mot. Property-en er ei liste, så fleire nøklar blir sette som `publicKeyPaths[1]` osv. |
 
@@ -98,8 +98,9 @@ KOSMOS stolar likevel ikkje på filene i katalogen åleine:
 
 JAR-fila og signaturen blir lasta ned frå
 `<kosmos.java-archive-repository-url>/felleslosninger/efm-integrasjonspunkt/releases/download/<versjon>/integrasjonspunkt-<versjon>.jar`
-(og same adresse med `.asc` til slutt for signaturen). Standard basis-URL er `https://github.com`. Han kan setjast til
-til dømes ein intern spegel med same struktur.
+(og same adresse med `.asc` til slutt for signaturen). Ved nye nedlastingar blir også `.sha1` henta frå same adresse
+og kontrollert før signaturen. Standard basis-URL er `https://github.com`. Han kan setjast til ein intern spegel
+med same struktur, men spegelen må tilby alle tre filene: `.jar`, `.jar.asc` og `.jar.sha1`.
 
 Krav til signaturen og nøkkelen:
 
@@ -112,9 +113,10 @@ Krav til signaturen og nøkkelen:
 - Den nyaste sjølvsignaturen på nøkkelen som har signert, må ha nøkkelflagget for å signere data. Manglar
   nøkkelflagga i den nyaste sjølvsignaturen, blir nøkkelen avvist, sjølv om ein eldre sjølvsignatur tillét signering.
 
-Er den offentlege nøkkelen utgått eller tilbakekalla, kan ingen JAR-fil verifiserast. KOSMOS startar då ikkje
-integrasjonspunktet i det heile, heller ikkje ved rollback. Nøkkelfila må bytast ut med den forlengde nøkkelen frå
-[docs.digdir.no](https://docs.digdir.no/resources/eformidling/public_keys/eformidling-key.asc).
+Er den offentlege signeringsnøkkelen utgått eller tilbakekalla, kan JAR-filer signerte med han ikkje verifiserast,
+heller ikkje ved rollback. Ved utløp må nøkkelfila oppdaterast med den forlengde nøkkelen frå
+[docs.digdir.no](https://docs.digdir.no/resources/eformidling/public_keys/eformidling-key.asc). Ved tilbakekalling må ein ta i bruk ein ny,
+ikkje-tilbakekalla nøkkel og JAR-signaturar laga med han.
 
 ## Release (for interne)
 Release av ny versjon gjerast via GitHub GUI
