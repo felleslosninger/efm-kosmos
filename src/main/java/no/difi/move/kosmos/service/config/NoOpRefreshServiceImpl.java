@@ -11,7 +11,7 @@ public class NoOpRefreshServiceImpl implements RefreshService {
 
     @Override
     public VersionsConfig refreshConfig() {
-        log.warn("Refreshing latest versions of Integrasjonspunktet is disabled ('kosmos.integrasjonspunkt.autoRefresh=false')");
+        log.info("Refreshing latest versions of Integrasjonspunktet is disabled ('kosmos.integrasjonspunkt.autoRefresh=false')");
         return null;
     }
 

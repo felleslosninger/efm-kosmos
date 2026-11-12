@@ -27,7 +27,11 @@ public class LatestVersionAction implements ApplicationAction {
         try {
             var profile = properties.getIntegrasjonspunkt().getProfile();
             var useEarlybird = properties.getIntegrasjonspunkt().isEarlyBird();
-            var config = refreshService.refreshConfig().integrasjonspunkt().environments().get(profile);
+            var versionsConfig = refreshService.refreshConfig();
+            if (versionsConfig == null) {
+                return keepCurrentVersion(application);
+            }
+            var config = versionsConfig.integrasjonspunkt().environments().get(profile);
             if (config == null) throw new IllegalStateException("Environment config for profile '" + profile + "' not found");
             var version = useEarlybird ? config.earlybird() : config.latest();
             if (useEarlybird) {
@@ -46,6 +50,18 @@ public class LatestVersionAction implements ApplicationAction {
         } catch (Exception ex) {
             throw new KosmosActionException("Error getting latest version", ex);
         }
+    }
+
+    // without a versions config (autoRefresh=false, or it could not be downloaded) there is no newer version to
+    // upgrade to, so keep the running version, or the previously used version found by GetCurrentVersionAction
+    private Application keepCurrentVersion(Application application) {
+        var current = application.getCurrent();
+        if (current == null || current.getVersion() == null) {
+            throw new KosmosActionException("No versions config available, and no running or previously used version to start");
+        }
+        log.info("No versions config available, keeping current version {}", current.getVersion());
+        application.setLatest(new ApplicationMetadata().setVersion(current.getVersion()));
+        return application;
     }
 
 }

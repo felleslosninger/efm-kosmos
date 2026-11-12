@@ -23,13 +23,24 @@ public class RefreshServiceImpl implements RefreshService {
 
     @Override
     public VersionsConfig refreshConfig() {
-        var yaml = RestClient.builder().build().get().uri(url).retrieve().body(String.class);
-        var newConfig = parseLatestVersions(yaml);
+        var yaml = download();
+        var newConfig = yaml == null ? null : parseLatestVersions(yaml);
         if (newConfig != null) {
             log.info("Refreshed versions config");
             lastValidConfig = newConfig;
+        } else if (lastValidConfig != null) {
+            log.warn("Using the last valid versions config");
         }
         return lastValidConfig;
+    }
+
+    private String download() {
+        try {
+            return RestClient.builder().build().get().uri(url).retrieve().body(String.class);
+        } catch (Exception ex) {
+            log.error("Unable to download versions config from {}", url, ex);
+            return null;
+        }
     }
 
     static VersionsConfig parseLatestVersions(String yamlString) {
