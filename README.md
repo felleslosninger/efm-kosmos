@@ -98,8 +98,9 @@ KOSMOS stolar likevel ikkje på filene i katalogen åleine:
 
 JAR-fila og signaturen blir lasta ned frå
 `<kosmos.java-archive-repository-url>/felleslosninger/efm-integrasjonspunkt/releases/download/<versjon>/integrasjonspunkt-<versjon>.jar`
-(og same adresse med `.asc` til slutt for signaturen). Standard basis-URL er `https://github.com`. Han kan setjast til
-til dømes ein intern spegel med same struktur.
+(og same adresse med `.asc` til slutt for signaturen). Ved nye nedlastingar blir også `.sha1` henta frå same adresse
+og kontrollert før signaturen. Standard basis-URL er `https://github.com`. Han kan setjast til ein intern spegel
+med same struktur, men spegelen må tilby alle tre filene: `.jar`, `.jar.asc` og `.jar.sha1`.
 
 Krav til signaturen og nøkkelen:
 
