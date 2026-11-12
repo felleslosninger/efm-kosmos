@@ -59,7 +59,7 @@ oppstart viss ho finst, og verdiane i ho går føre alle andre kjelder, også ar
 | `kosmos.integrasjonspunkt.versionsURL` | [latest-versions.yml](https://raw.githubusercontent.com/felleslosninger/efm-integrasjonspunkt/refs/heads/main/latest-versions.yml) | Kvar versjonsfila blir henta frå. |
 | `kosmos.integrasjonspunkt.earlybird` | `false` | Bruk earlybird-versjonen frå versjonsfila i staden for latest. Er det ingen earlybird-versjon, blir latest brukt. |
 | `kosmos.schedulerCronExpression` | `0 30 5,19,21 * * MON-FRI` | Når synkroniseringa køyrer (tidssone Europe/Oslo): kl. 05:30, 19:30 og 21:30 måndag–fredag. Ho køyrer i tillegg éin gong når KOSMOS har starta. |
-| `kosmos.blocklist.enabled` | `false` | Blokklista er av som standard. Når ho er på, blir ein versjon som ikkje kan verifiserast eller som feilar ved oppstart, sperra i `kosmos.blocklist.duration-in-hours` timar (standard 2). |
+| `kosmos.blocklist.enabled` | `false` | Blokklista er av som standard. Når ho er på, blir versjonar sperra i `kosmos.blocklist.duration-in-hours` timar (standard 2) når signaturkontrollen av ei ny nedlasting returnerer `false`, eller oppstarten feilar. Unntak under validering av ei ny nedlasting, til dømes utgått nøkkel, avvist hash-algoritme eller feil sjekksum, utløyser ikkje blokklisting. |
 | `kosmos.java-archive-repository-url` | `https://github.com` | Basis-URL for nedlasting av JAR-fila og signaturen, sjå [Signaturverifisering](#signaturverifisering). |
 | `kosmos.verification.publicKeyPaths[0]` | `file:${user.dir}/eformidling-key.asc` | Offentlege nøklar som signaturen blir verifisert mot. Property-en er ei liste, så fleire nøklar blir sette som `publicKeyPaths[1]` osv. |
 
