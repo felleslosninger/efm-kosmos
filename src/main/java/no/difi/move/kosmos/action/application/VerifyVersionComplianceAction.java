@@ -62,7 +62,7 @@ public class VerifyVersionComplianceAction implements ApplicationAction {
             }
             throw new KosmosActionException(
                     String.format("Latest version (%s) is not supported yet. The currently supported major version is %s. " +
-                                    "Please change your supported major version(deploymanager.integrasjonspunkt.supported-major-version) to match the latest %s and restart the application.",
+                                    "Please change your supported major version(kosmos.integrasjonspunkt.supported-major-version) to match the latest %s and restart the application.",
                             latestMajor, currentlySupported, latestMajor));
         }
         return application;
@@ -72,17 +72,18 @@ public class VerifyVersionComplianceAction implements ApplicationAction {
         if (semanticVersion == null) {
             throw new IllegalArgumentException("Semantic version is null");
         }
-        String majorVersionString;
-        int firstDot = semanticVersion.indexOf('.');
-        if (firstDot == -1) {
-            majorVersionString = semanticVersion;
-        } else {
-            majorVersionString = semanticVersion.substring(0, firstDot);
+        // release tags have a leading "v" (e.g. v4.2.0), and the version file uses the tag as version
+        String version = semanticVersion.trim();
+        if (version.startsWith("v") || version.startsWith("V")) {
+            version = version.substring(1);
         }
+        int firstDot = version.indexOf('.');
+        String majorVersionString = firstDot == -1 ? version : version.substring(0, firstDot);
         try {
             return Integer.parseInt(majorVersionString);
         } catch (NumberFormatException e) {
-            throw new KosmosActionException("Invalid version specifier encountered", e);
+            throw new KosmosActionException(
+                    "Invalid version specifier encountered: '%s'".formatted(semanticVersion), e);
         }
     }
 }

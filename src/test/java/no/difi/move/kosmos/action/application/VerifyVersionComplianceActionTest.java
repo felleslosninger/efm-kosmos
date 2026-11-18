@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
@@ -42,6 +43,9 @@ public class VerifyVersionComplianceActionTest {
                 arguments("2", null),
                 arguments("1", "2.0.0"),
                 arguments("1", "2.0.0-SNAPSHOT"),
+                arguments("4", "v5.0.0"),
+                arguments("v4", "v5.0.0"),
+                arguments("4", "vbeta"),
                 arguments("1", "beta"));
     }
 
@@ -90,8 +94,22 @@ public class VerifyVersionComplianceActionTest {
 
             assertThatThrownBy(() -> target.apply(application))
                     .isInstanceOf(KosmosActionException.class)
-                    .hasMessageStartingWith("Latest version (2) is not supported yet");
+                    .hasMessageStartingWith("Latest version (2) is not supported yet")
+                    .hasMessageContaining("(kosmos.integrasjonspunkt.supported-major-version)");
             assertThat(application.getLatest().getVersion()).isEqualTo("2.0.0");
+        }
+
+        @Test
+        public void apply_UnsupportedLatestWithPrefixAndAllowlistedJarIsVerified_ShouldUseAllowlistedVersion() {
+            File prefixedJarFile = new File("integrasjonspunkt-v4.2.3.jar");
+            given(properties.getIntegrasjonspunkt()).willReturn(new IntegrasjonspunktProperties().setSupportedMajorVersion("4"));
+            given(repo.getAllowlistVersion()).willReturn("v4.2.3");
+            given(repo.getFile("v4.2.3", KosmosUtils.DOWNLOAD_JAR_FILE_NAME)).willReturn(prefixedJarFile);
+            given(jarVerifier.isVerified("v4.2.3", prefixedJarFile)).willReturn(true);
+            application.setLatest(new ApplicationMetadata().setVersion("v5.0.0"));
+
+            assertThat(target.apply(application).getLatest())
+                    .isEqualTo(new ApplicationMetadata().setVersion("v4.2.3").setFile(prefixedJarFile));
         }
     }
 
@@ -115,6 +133,14 @@ public class VerifyVersionComplianceActionTest {
         public void apply_SupportedMajorVersion_ShouldPassVerification() {
             given(IP_PROPERTIES_MOCK.getSupportedMajorVersion()).willReturn("2");
             given(METADATA_MOCK.getVersion()).willReturn("2.3.4-SNAPSHOT");
+            assertThat(TARGET.apply(APPLICATION_SPY)).isSameAs(APPLICATION_SPY);
+        }
+
+        @ParameterizedTest
+        @CsvSource({"4, v4.2.3", "v4, v4.2.3", "V4, V4.2.3", "v4, 4.2.3", "4, 4.2.3", "5, v4.2.3"})
+        public void apply_SupportedMajorVersionWithPrefix_ShouldPassVerification(String supportedMajorVersion, String latestVersion) {
+            given(IP_PROPERTIES_MOCK.getSupportedMajorVersion()).willReturn(supportedMajorVersion);
+            given(METADATA_MOCK.getVersion()).willReturn(latestVersion);
             assertThat(TARGET.apply(APPLICATION_SPY)).isSameAs(APPLICATION_SPY);
         }
     }
