@@ -139,7 +139,7 @@ class LauncherServiceImplTest {
     }
 
     @Test
-    void launchIntegrasjonspunkt_whenProcessExits_thenFailedWithCompleteStartupLog() {
+    void launchIntegrasjonspunkt_whenProcessExits_thenFailedWithCompleteStartupLog() throws IOException {
         childEnvironment.put("KOSMOS_TEST_VARIABLE", "from-kosmos");
         given(actuatorService.getStatus()).willReturn(HealthStatus.UNKNOWN);
 
@@ -147,7 +147,8 @@ class LauncherServiceImplTest {
 
         assertThat(result.getStatus()).isEqualTo(LaunchStatus.FAILED);
         assertThat(result.getStartupLog())
-                .contains("Started TestApp in " + tempDir)
+                // the child process reports its working directory with symlinks resolved (/var -> /private/var on macOS)
+                .contains("Started TestApp in " + tempDir.toRealPath())
                 .contains("KOSMOS_TEST_VARIABLE=from-kosmos")
                 .contains("ARGS=--management.endpoint.shutdown.enabled=true --app.logger.enableSSL=false --spring.profiles.active=staging")
                 .contains("Line written to stderr");
