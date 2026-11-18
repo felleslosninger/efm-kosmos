@@ -72,6 +72,12 @@ class LauncherServiceImplTest {
     @TempDir
     static Path tempDir;
     private static Path testAppJar;
+    /**
+     * The temporary directory with symlinks and short names resolved, used as working directory for the child process.
+     * A process may report its working directory in resolved form (/var -> /private/var on macOS), or as it was given
+     * (Windows), so the tests give it a path that is the same either way.
+     */
+    private static Path homeDir;
 
     @Mock
     private KosmosProperties properties;
@@ -89,6 +95,7 @@ class LauncherServiceImplTest {
 
     @BeforeAll
     static void buildTestApp() throws IOException {
+        homeDir = tempDir.toRealPath();
         Path sourceDir = Files.createDirectories(tempDir.resolve("src"));
         Path source = Files.writeString(sourceDir.resolve("TestApp.java"), TEST_APP_SOURCE);
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -111,7 +118,7 @@ class LauncherServiceImplTest {
         lenient().when(properties.getIntegrasjonspunkt()).thenReturn(
                 new IntegrasjonspunktProperties()
                         .setProfile("staging")
-                        .setHome(tempDir.toString())
+                        .setHome(homeDir.toString())
         );
         lenient().when(properties.getLaunchPollIntervalInMs()).thenReturn(100);
         lenient().when(properties.getLaunchTimeoutInMs()).thenReturn(10_000);
@@ -139,7 +146,7 @@ class LauncherServiceImplTest {
     }
 
     @Test
-    void launchIntegrasjonspunkt_whenProcessExits_thenFailedWithCompleteStartupLog() throws IOException {
+    void launchIntegrasjonspunkt_whenProcessExits_thenFailedWithCompleteStartupLog() {
         childEnvironment.put("KOSMOS_TEST_VARIABLE", "from-kosmos");
         given(actuatorService.getStatus()).willReturn(HealthStatus.UNKNOWN);
 
@@ -147,8 +154,7 @@ class LauncherServiceImplTest {
 
         assertThat(result.getStatus()).isEqualTo(LaunchStatus.FAILED);
         assertThat(result.getStartupLog())
-                // the child process reports its working directory with symlinks resolved (/var -> /private/var on macOS)
-                .contains("Started TestApp in " + tempDir.toRealPath())
+                .contains("Started TestApp in " + homeDir)
                 .contains("KOSMOS_TEST_VARIABLE=from-kosmos")
                 .contains("ARGS=--management.endpoint.shutdown.enabled=true --app.logger.enableSSL=false --spring.profiles.active=staging")
                 .contains("Line written to stderr");
