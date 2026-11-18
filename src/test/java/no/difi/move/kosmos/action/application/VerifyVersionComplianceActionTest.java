@@ -11,11 +11,17 @@ import no.difi.move.kosmos.util.KosmosUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Clock;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,6 +48,9 @@ public class VerifyVersionComplianceActionTest {
                 arguments("2", null),
                 arguments("1", "2.0.0"),
                 arguments("1", "2.0.0-SNAPSHOT"),
+                arguments("4", "v5.0.0"),
+                arguments("v4", "v5.0.0"),
+                arguments("4", "vbeta"),
                 arguments("1", "beta"));
     }
 
@@ -90,8 +99,35 @@ public class VerifyVersionComplianceActionTest {
 
             assertThatThrownBy(() -> target.apply(application))
                     .isInstanceOf(KosmosActionException.class)
-                    .hasMessageStartingWith("Latest version (2) is not supported yet");
+                    .hasMessageStartingWith("Latest version (2) is not supported yet")
+                    .hasMessageContaining("(kosmos.integrasjonspunkt.supported-major-version)");
             assertThat(application.getLatest().getVersion()).isEqualTo("2.0.0");
+        }
+    }
+
+    @Nested
+    public class AllowlistFallbackWithRealRepositoryTests {
+
+        @TempDir
+        Path home;
+
+        @Test
+        public void apply_UnsupportedLatestAndAllowlistedVersionHasPrefix_ShouldUseVersionAndJarWithPrefix() throws IOException {
+            KosmosProperties properties = mock(KosmosProperties.class);
+            given(properties.getIntegrasjonspunkt()).willReturn(
+                    new IntegrasjonspunktProperties().setSupportedMajorVersion("4").setHome(home.toString()));
+            KosmosDirectoryJavaArchiveRepository repo = new KosmosDirectoryJavaArchiveRepository(properties, Clock.systemUTC());
+            Files.createFile(home.resolve("integrasjonspunkt-v4.2.3.allowlisted"));
+            File jarFile = Files.createFile(home.resolve("integrasjonspunkt-v4.2.3.jar")).toFile();
+            JarVerifier jarVerifier = mock(JarVerifier.class);
+            // the version is also the release tag the signature is downloaded from, so the prefix must be kept
+            given(jarVerifier.isVerified("v4.2.3", jarFile)).willReturn(true);
+            Application application = new Application().setLatest(new ApplicationMetadata().setVersion("v5.0.0"));
+
+            Application result = new VerifyVersionComplianceAction(properties, repo, jarVerifier).apply(application);
+
+            assertThat(result.getLatest())
+                    .isEqualTo(new ApplicationMetadata().setVersion("v4.2.3").setFile(jarFile));
         }
     }
 
@@ -115,6 +151,14 @@ public class VerifyVersionComplianceActionTest {
         public void apply_SupportedMajorVersion_ShouldPassVerification() {
             given(IP_PROPERTIES_MOCK.getSupportedMajorVersion()).willReturn("2");
             given(METADATA_MOCK.getVersion()).willReturn("2.3.4-SNAPSHOT");
+            assertThat(TARGET.apply(APPLICATION_SPY)).isSameAs(APPLICATION_SPY);
+        }
+
+        @ParameterizedTest
+        @CsvSource({"4, v4.2.3", "v4, v4.2.3", "V4, V4.2.3", "v4, 4.2.3", "4, 4.2.3", "5, v4.2.3"})
+        public void apply_SupportedMajorVersionWithPrefix_ShouldPassVerification(String supportedMajorVersion, String latestVersion) {
+            given(IP_PROPERTIES_MOCK.getSupportedMajorVersion()).willReturn(supportedMajorVersion);
+            given(METADATA_MOCK.getVersion()).willReturn(latestVersion);
             assertThat(TARGET.apply(APPLICATION_SPY)).isSameAs(APPLICATION_SPY);
         }
     }
