@@ -11,12 +11,17 @@ import no.difi.move.kosmos.util.KosmosUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Clock;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,18 +103,31 @@ public class VerifyVersionComplianceActionTest {
                     .hasMessageContaining("(kosmos.integrasjonspunkt.supported-major-version)");
             assertThat(application.getLatest().getVersion()).isEqualTo("2.0.0");
         }
+    }
+
+    @Nested
+    public class AllowlistFallbackWithRealRepositoryTests {
+
+        @TempDir
+        Path home;
 
         @Test
-        public void apply_UnsupportedLatestWithPrefixAndAllowlistedJarIsVerified_ShouldUseAllowlistedVersion() {
-            File prefixedJarFile = new File("integrasjonspunkt-v4.2.3.jar");
-            given(properties.getIntegrasjonspunkt()).willReturn(new IntegrasjonspunktProperties().setSupportedMajorVersion("4"));
-            given(repo.getAllowlistVersion()).willReturn("v4.2.3");
-            given(repo.getFile("v4.2.3", KosmosUtils.DOWNLOAD_JAR_FILE_NAME)).willReturn(prefixedJarFile);
-            given(jarVerifier.isVerified("v4.2.3", prefixedJarFile)).willReturn(true);
-            application.setLatest(new ApplicationMetadata().setVersion("v5.0.0"));
+        public void apply_UnsupportedLatestAndAllowlistedVersionHasPrefix_ShouldUseVersionAndJarWithPrefix() throws IOException {
+            KosmosProperties properties = mock(KosmosProperties.class);
+            given(properties.getIntegrasjonspunkt()).willReturn(
+                    new IntegrasjonspunktProperties().setSupportedMajorVersion("4").setHome(home.toString()));
+            KosmosDirectoryJavaArchiveRepository repo = new KosmosDirectoryJavaArchiveRepository(properties, Clock.systemUTC());
+            Files.createFile(home.resolve("integrasjonspunkt-v4.2.3.allowlisted"));
+            File jarFile = Files.createFile(home.resolve("integrasjonspunkt-v4.2.3.jar")).toFile();
+            JarVerifier jarVerifier = mock(JarVerifier.class);
+            // the version is also the release tag the signature is downloaded from, so the prefix must be kept
+            given(jarVerifier.isVerified("v4.2.3", jarFile)).willReturn(true);
+            Application application = new Application().setLatest(new ApplicationMetadata().setVersion("v5.0.0"));
 
-            assertThat(target.apply(application).getLatest())
-                    .isEqualTo(new ApplicationMetadata().setVersion("v4.2.3").setFile(prefixedJarFile));
+            Application result = new VerifyVersionComplianceAction(properties, repo, jarVerifier).apply(application);
+
+            assertThat(result.getLatest())
+                    .isEqualTo(new ApplicationMetadata().setVersion("v4.2.3").setFile(jarFile));
         }
     }
 

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.difi.move.kosmos.config.KosmosProperties;
+import no.difi.move.kosmos.util.KosmosUtils;
 import org.apache.commons.io.FileUtils;
 import org.semver4j.Semver;
 import org.springframework.stereotype.Component;
@@ -19,9 +20,6 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Component
@@ -30,8 +28,9 @@ public class KosmosDirectoryJavaArchiveRepository {
 
     private final KosmosProperties properties;
     private final Clock clock;
-    private static final String ALLOWLISTEDFILENAME = "integrasjonspunkt-%s.allowlisted";
-    private static final Pattern PATTERN = Pattern.compile("-[vV]?(\\d+.\\d+.\\d+[^.]*)");
+    private static final String ALLOWLISTED_PREFIX = "integrasjonspunkt-";
+    private static final String ALLOWLISTED_SUFFIX = ".allowlisted";
+    private static final String ALLOWLISTEDFILENAME = ALLOWLISTED_PREFIX + "%s" + ALLOWLISTED_SUFFIX;
 
     public File getFile(String version, String name) {
         File root = getOrCreateHomeFolder();
@@ -147,35 +146,32 @@ public class KosmosDirectoryJavaArchiveRepository {
         return allowlistFile;
     }
 
-    public File getAllowlistFile() {
+    /**
+     * Returns the highest allowlisted version, written as in the file name. A leading "v" is kept (e.g. v4.2.3),
+     * since the version is also the release tag and part of the names of the JAR file and its signature.
+     */
+    public String getAllowlistVersion() {
         File home = getOrCreateHomeFolder();
-        FilenameFilter filter = (f1, name) -> name.endsWith(".allowlisted");
+        FilenameFilter filter = (f1, name) -> name.startsWith(ALLOWLISTED_PREFIX) && name.endsWith(ALLOWLISTED_SUFFIX);
         String[] filesNames = home.list(filter);
         if (filesNames == null) {
             throw new IllegalStateException("Could not list the files in the home folder %s".formatted(home.getAbsolutePath()));
         }
         // anyone who can write to the home folder can add files, so skip names without a valid version instead of failing
         return Arrays.stream(filesNames)
-                .map(this::getSemanticVersion)
-                .filter(Objects::nonNull)
-                .map(Semver::parse)
-                .filter(Objects::nonNull)
-                .sorted(Comparator.reverseOrder())
-                .findFirst()
-                .map(p -> new File(ALLOWLISTEDFILENAME.formatted(p.getVersion())))
+                .map(name -> name.substring(ALLOWLISTED_PREFIX.length(), name.length() - ALLOWLISTED_SUFFIX.length()))
+                .filter(version -> toSemver(version) != null)
+                // compare as semantic versions, the name only decides between e.g. 4.2.3 and v4.2.3
+                .max(Comparator.comparing(this::toSemver).thenComparing(Comparator.naturalOrder()))
                 .orElse(null);
     }
 
-    public String getAllowlistVersion() {
-        File file = getAllowlistFile();
-        if (file != null) {
-            return file
-                    .getName()
-                    .replaceFirst(".allowlisted", "")
-                    .replace("integrasjonspunkt-", "");
-        } else {
+    private Semver toSemver(String version) {
+        if (!KosmosUtils.isValidVersion(version)) {
             return null;
         }
+        String withoutPrefix = version.startsWith("v") || version.startsWith("V") ? version.substring(1) : version;
+        return Semver.parse(withoutPrefix);
     }
 
     public void removeAllowlist(String version) {
@@ -186,11 +182,6 @@ public class KosmosDirectoryJavaArchiveRepository {
         } else {
             log.debug("Could not remove Allowlist file {}", allowlistPath);
         }
-    }
-
-    String getSemanticVersion(String filename) {
-        Matcher matcher = PATTERN.matcher(filename);
-        return matcher.find() ? matcher.group(1) : null;
     }
 
 }

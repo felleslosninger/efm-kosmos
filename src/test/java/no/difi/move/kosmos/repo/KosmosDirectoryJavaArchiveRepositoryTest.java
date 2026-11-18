@@ -178,19 +178,40 @@ class KosmosDirectoryJavaArchiveRepositoryTest {
     }
 
     @Test
-    void getSemanticVersion() {
-        assertNull(repo.getSemanticVersion("filename-1"));
-        assertNull(repo.getSemanticVersion("filename-1.2"));
-        assertEquals("1.2.3", repo.getSemanticVersion("filename-1.2.3"));
-        assertEquals("2.28.5", repo.getSemanticVersion("filename-2.28.5"));
-        assertEquals("3.0.0", repo.getSemanticVersion("filename-3.0.0"));
-        assertEquals("4.0.0", repo.getSemanticVersion("filename-4.0.0"));
-        assertEquals("4.0.0-beta", repo.getSemanticVersion("filename-4.0.0-beta"));
-        // from IPv4 we use tagging and they have not been consistent, so we need to ignore leading "v" og "V"
-        assertEquals("4.0.1", repo.getSemanticVersion("filename-v4.0.1"));
-        assertEquals("4.1.0", repo.getSemanticVersion("filename-V4.1.0"));
-        assertEquals("4.2.1-beta", repo.getSemanticVersion("filename-v4.2.1-beta"));
-        assertEquals("4.3.0-rc", repo.getSemanticVersion("filename-V4.3.0-rc"));
+    void getAllowlistVersion_keepsLeadingVFromFileName() throws IOException {
+        // release tags have a leading "v", and the JAR file and its signature are named after the tag
+        Files.createFile(tempDir.resolve("integrasjonspunkt-v4.2.3.allowlisted"));
+        assertEquals("v4.2.3", repo.getAllowlistVersion());
+    }
+
+    @Test
+    void getAllowlistVersion_comparesVersionsWithAndWithoutLeadingV() throws IOException {
+        for (String version : new String[]{"2.31.0", "v4.2.3", "V4.10.0-beta", "4.9.0", "v4.10.0"}) {
+            Files.createFile(tempDir.resolve("integrasjonspunkt-%s.allowlisted".formatted(version)));
+        }
+        assertEquals("v4.10.0", repo.getAllowlistVersion());
+    }
+
+    @Test
+    void getAllowlistVersion_otherFileNamesAreIgnored() throws IOException {
+        Files.createFile(tempDir.resolve("integrasjonspunkt-v4.2.3.allowlisted"));
+        Files.createFile(tempDir.resolve("other-v9.0.0.allowlisted"));
+        Files.createFile(tempDir.resolve("integrasjonspunkt-v9.0.0.jar.allowlisted"));
+        Files.createFile(tempDir.resolve("integrasjonspunkt-vv9.0.0.allowlisted"));
+        assertEquals("v4.2.3", repo.getAllowlistVersion());
+    }
+
+    @Test
+    void allowlist_versionWithLeadingV_canBeFoundAndRemoved() {
+        File jarFile = repo.getFile("v4.2.3", KosmosUtils.DOWNLOAD_JAR_FILE_NAME);
+
+        repo.allowlist(jarFile, "v4.2.3");
+        String version = repo.getAllowlistVersion();
+
+        assertEquals("v4.2.3", version);
+        assertEquals(jarFile, repo.getFile(version, KosmosUtils.DOWNLOAD_JAR_FILE_NAME));
+        repo.removeAllowlist(version);
+        assertNull(repo.getAllowlistVersion());
     }
 
     @ParameterizedTest
