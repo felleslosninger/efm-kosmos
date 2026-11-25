@@ -146,7 +146,7 @@
         <dependency>
             <groupId>org.semver4j</groupId>
             <artifactId>semver4j</artifactId>
-            <version>6.0.0</version>
+            <version>6.1.0</version>
         </dependency>
 
         <!-- Bouncycastle, bcprov and bcutil come transitively (versions pinned in dependencyManagement) -->
